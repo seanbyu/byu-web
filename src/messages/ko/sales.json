@@ -1,0 +1,15 @@
+{
+  "title": "매출",
+  "todaySales": "오늘 매출",
+  "weeklySales": "주간 매출",
+  "monthlySales": "월간 매출",
+  "totalSales": "총 매출",
+  "revenue": "수익",
+  "transactions": "거래 건수",
+  "averageTransaction": "평균 거래 금액",
+  "topServices": "인기 서비스",
+  "salesReport": "매출 리포트",
+  "export": "내보내기",
+  "period": "기간",
+  "compare": "비교"
+}

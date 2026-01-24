@@ -1,0 +1,16 @@
+{
+  "title": "Chat",
+  "placeholder": "Type a message...",
+  "send": "Send",
+  "online": "Online",
+  "offline": "Offline",
+  "typing": "Typing...",
+  "delivered": "Delivered",
+  "read": "Read",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "noMessages": "No messages yet",
+  "startChat": "Start a conversation",
+  "attachImage": "Attach Image",
+  "attachFile": "Attach File"
+}

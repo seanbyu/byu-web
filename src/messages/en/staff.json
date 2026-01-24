@@ -1,0 +1,15 @@
+{
+  "staff": "Staff",
+  "designer": "Designer",
+  "manager": "Manager",
+  "assistant": "Assistant",
+  "experience": "Experience",
+  "specialties": "Specialties",
+  "portfolio": "Portfolio",
+  "schedule": "Schedule",
+  "reviews": "Reviews",
+  "rating": "Rating",
+  "selectStaff": "Select Staff",
+  "allStaff": "All Staff",
+  "yearsExperience": "{years} years experience"
+}

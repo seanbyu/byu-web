@@ -1,0 +1,20 @@
+{
+  "title": "My Bookings",
+  "upcoming": "Upcoming",
+  "past": "Past",
+  "cancelled": "Cancelled",
+  "bookNow": "Book Now",
+  "cancelBooking": "Cancel Booking",
+  "reschedule": "Reschedule",
+  "confirmBooking": "Confirm Booking",
+  "selectDate": "Select Date",
+  "selectTime": "Select Time",
+  "selectStaff": "Select Staff",
+  "anyStaff": "Any Staff",
+  "noBookings": "No bookings yet",
+  "bookingConfirmed": "Booking Confirmed",
+  "bookingCancelled": "Booking Cancelled",
+  "totalPrice": "Total Price",
+  "deposit": "Deposit",
+  "paymentMethod": "Payment Method"
+}

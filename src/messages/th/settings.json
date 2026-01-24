@@ -1,0 +1,18 @@
+{
+  "title": "ตั้งค่า",
+  "language": "ภาษา",
+  "notifications": "การแจ้งเตือน",
+  "pushNotifications": "การแจ้งเตือนแบบพุช",
+  "emailNotifications": "การแจ้งเตือนทางอีเมล",
+  "smsNotifications": "การแจ้งเตือนทาง SMS",
+  "privacy": "นโยบายความเป็นส่วนตัว",
+  "terms": "ข้อกำหนดการใช้บริการ",
+  "help": "ช่วยเหลือและสนับสนุน",
+  "about": "เกี่ยวกับ",
+  "version": "เวอร์ชัน",
+  "deleteAccount": "ลบบัญชี",
+  "theme": "ธีม",
+  "darkMode": "โหมดมืด",
+  "lightMode": "โหมดสว่าง",
+  "systemDefault": "ค่าเริ่มต้นของระบบ"
+}

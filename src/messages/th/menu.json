@@ -1,0 +1,21 @@
+{
+  "title": "เมนู",
+  "category": "หมวดหมู่",
+  "all": "ทั้งหมด",
+  "hair": "ผม",
+  "nail": "เล็บ",
+  "massage": "นวด",
+  "skincare": "ดูแลผิว",
+  "makeup": "แต่งหน้า",
+  "eyelash": "ขนตา",
+  "waxing": "แว็กซ์",
+  "price": "ราคา",
+  "duration": "ระยะเวลา",
+  "description": "รายละเอียด",
+  "popular": "ยอดนิยม",
+  "new": "ใหม่",
+  "recommended": "แนะนำ",
+  "discount": "ส่วนลด",
+  "originalPrice": "ราคาปกติ",
+  "salePrice": "ราคาลด"
+}

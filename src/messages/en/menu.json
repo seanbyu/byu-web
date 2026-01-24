@@ -1,0 +1,21 @@
+{
+  "title": "Menu",
+  "category": "Category",
+  "all": "All",
+  "hair": "Hair",
+  "nail": "Nail",
+  "massage": "Massage",
+  "skincare": "Skincare",
+  "makeup": "Makeup",
+  "eyelash": "Eyelash",
+  "waxing": "Waxing",
+  "price": "Price",
+  "duration": "Duration",
+  "description": "Description",
+  "popular": "Popular",
+  "new": "New",
+  "recommended": "Recommended",
+  "discount": "Discount",
+  "originalPrice": "Original Price",
+  "salePrice": "Sale Price"
+}

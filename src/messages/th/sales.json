@@ -1,0 +1,15 @@
+{
+  "title": "ยอดขาย",
+  "todaySales": "ยอดขายวันนี้",
+  "weeklySales": "ยอดขายรายสัปดาห์",
+  "monthlySales": "ยอดขายรายเดือน",
+  "totalSales": "ยอดขายรวม",
+  "revenue": "รายได้",
+  "transactions": "รายการ",
+  "averageTransaction": "รายการเฉลี่ย",
+  "topServices": "บริการยอดนิยม",
+  "salesReport": "รายงานยอดขาย",
+  "export": "ส่งออก",
+  "period": "ช่วงเวลา",
+  "compare": "เปรียบเทียบ"
+}

@@ -1,0 +1,15 @@
+{
+  "staff": "พนักงาน",
+  "designer": "ดีไซเนอร์",
+  "manager": "ผู้จัดการ",
+  "assistant": "ผู้ช่วย",
+  "experience": "ประสบการณ์",
+  "specialties": "ความเชี่ยวชาญ",
+  "portfolio": "ผลงาน",
+  "schedule": "ตารางเวลา",
+  "reviews": "รีวิว",
+  "rating": "คะแนน",
+  "selectStaff": "เลือกพนักงาน",
+  "allStaff": "พนักงานทั้งหมด",
+  "yearsExperience": "ประสบการณ์ {years} ปี"
+}

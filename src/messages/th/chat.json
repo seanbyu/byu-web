@@ -1,0 +1,16 @@
+{
+  "title": "แชท",
+  "placeholder": "พิมพ์ข้อความ...",
+  "send": "ส่ง",
+  "online": "ออนไลน์",
+  "offline": "ออฟไลน์",
+  "typing": "กำลังพิมพ์...",
+  "delivered": "ส่งแล้ว",
+  "read": "อ่านแล้ว",
+  "today": "วันนี้",
+  "yesterday": "เมื่อวาน",
+  "noMessages": "ยังไม่มีข้อความ",
+  "startChat": "เริ่มการสนทนา",
+  "attachImage": "แนบรูปภาพ",
+  "attachFile": "แนบไฟล์"
+}

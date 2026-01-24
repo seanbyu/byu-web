@@ -3,71 +3,29 @@
 import { HomeHeader } from "../components/HomeHeader";
 import { HeroBanner } from "../components/HeroBanner";
 import { CategoryGrid } from "../components/CategoryGrid";
-import { TrendingSection } from "../components/TrendingSection";
+import { SalonList } from "../components/SalonList";
 import { BottomNav } from "../components/BottomNav";
+import type { Salon } from "@/lib/supabase/types";
 
-// Mock Data
-const MOCK_DATA = {
-  banners: [
-    { id: "1", imageUrl: "https://placehold.co/600x800", link: "#" },
-    { id: "2", imageUrl: "https://placehold.co/600x800", link: "#" },
-    { id: "3", imageUrl: "https://placehold.co/600x800", link: "#" },
-  ],
-  trendingMenus: [
-    {
-      id: "1",
-      name: "Premium Keratin Treatment & Cut",
-      price: 120000,
-      duration_minutes: 90,
-      shopName: "Salon de Gwanggyo",
-      discountRate: 20,
-      imageUrl: "https://placehold.co/300x400",
-      isLiked: true,
-      dDay: 3,
-    },
-    {
-      id: "2",
-      name: "Gel Nail Art - Monthly Design",
-      price: 55000,
-      duration_minutes: 60,
-      shopName: "Nail Artists",
-      discountRate: 15,
-      imageUrl: "https://placehold.co/300x400",
-      isLiked: false,
-      dDay: 5,
-    },
-    {
-      id: "3",
-      name: "Full Body Aromatherapy Massage",
-      price: 88000,
-      duration_minutes: 60,
-      shopName: "Healing Spa",
-      discountRate: 10,
-      imageUrl: "https://placehold.co/300x400",
-      isLiked: true,
-    },
-    {
-      id: "4",
-      name: "Eyelash Extension - Natural Volume",
-      price: 45000,
-      duration_minutes: 45,
-      shopName: "Eye Beauty",
-      discountRate: 30,
-      imageUrl: "https://placehold.co/300x400",
-      isLiked: false,
-      dDay: 1,
-    },
-  ],
+// Mock banners - can be replaced with real data later
+const MOCK_BANNERS = [
+  { id: "1", imageUrl: "https://placehold.co/600x300/f8f4ff/9b87f5?text=Welcome+to+Salon+Store", link: "#" },
+  { id: "2", imageUrl: "https://placehold.co/600x300/fff4f8/f587a3?text=Special+Offers", link: "#" },
+  { id: "3", imageUrl: "https://placehold.co/600x300/f4fff8/87f5a3?text=New+Salons", link: "#" },
+];
+
+type HomeViewProps = {
+  salons: Salon[];
 };
 
-export function HomeView() {
+export function HomeView({ salons }: HomeViewProps) {
   return (
     <div className="bg-white min-h-screen pb-20">
       <HomeHeader />
-      <HeroBanner banners={MOCK_DATA.banners} />
+      <HeroBanner banners={MOCK_BANNERS} />
       <CategoryGrid />
-      <div className="h-2 bg-gray-50" /> {/* Spacer */}
-      <TrendingSection items={MOCK_DATA.trendingMenus} />
+      <div className="h-2 bg-gray-50" />
+      <SalonList salons={salons} />
       <BottomNav />
     </div>
   );

@@ -1,0 +1,20 @@
+{
+  "appName": "Salon Store",
+  "loading": "Loading...",
+  "error": "An error occurred",
+  "retry": "Retry",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "delete": "Delete",
+  "edit": "Edit",
+  "close": "Close",
+  "back": "Back",
+  "next": "Next",
+  "submit": "Submit",
+  "search": "Search",
+  "noResults": "No results found",
+  "viewAll": "View All",
+  "currency": "₩",
+  "minutes": "min"
+}

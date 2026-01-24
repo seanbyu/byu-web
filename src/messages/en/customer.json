@@ -1,0 +1,18 @@
+{
+  "profile": "Profile",
+  "myPage": "My Page",
+  "editProfile": "Edit Profile",
+  "name": "Name",
+  "phone": "Phone Number",
+  "email": "Email",
+  "birthdate": "Birthdate",
+  "gender": "Gender",
+  "male": "Male",
+  "female": "Female",
+  "other": "Other",
+  "membership": "Membership",
+  "points": "Points",
+  "coupons": "Coupons",
+  "visitHistory": "Visit History",
+  "totalVisits": "Total Visits"
+}

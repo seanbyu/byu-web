@@ -1,0 +1,19 @@
+{
+  "title": "Salon",
+  "info": "Salon Info",
+  "name": "Salon Name",
+  "address": "Address",
+  "phone": "Phone",
+  "hours": "Business Hours",
+  "closed": "Closed",
+  "open": "Open",
+  "facilities": "Facilities",
+  "parking": "Parking Available",
+  "wifi": "Free WiFi",
+  "directions": "Get Directions",
+  "call": "Call",
+  "share": "Share",
+  "photos": "Photos",
+  "about": "About",
+  "announcement": "Announcement"
+}

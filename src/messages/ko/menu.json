@@ -1,0 +1,21 @@
+{
+  "title": "메뉴",
+  "category": "카테고리",
+  "all": "전체",
+  "hair": "헤어",
+  "nail": "네일",
+  "massage": "마사지",
+  "skincare": "스킨케어",
+  "makeup": "메이크업",
+  "eyelash": "속눈썹",
+  "waxing": "왁싱",
+  "price": "가격",
+  "duration": "소요 시간",
+  "description": "설명",
+  "popular": "인기",
+  "new": "신규",
+  "recommended": "추천",
+  "discount": "할인",
+  "originalPrice": "정가",
+  "salePrice": "할인가"
+}

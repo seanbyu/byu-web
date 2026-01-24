@@ -1,0 +1,18 @@
+{
+  "title": "리뷰",
+  "writeReview": "리뷰 작성",
+  "editReview": "리뷰 수정",
+  "deleteReview": "리뷰 삭제",
+  "rating": "평점",
+  "comment": "내용",
+  "photos": "사진",
+  "addPhotos": "사진 추가",
+  "helpful": "도움이 됨",
+  "report": "신고",
+  "noReviews": "리뷰가 없습니다",
+  "averageRating": "평균 평점",
+  "totalReviews": "전체 리뷰",
+  "sortByLatest": "최신순",
+  "sortByRating": "평점순",
+  "sortByHelpful": "도움순"
+}

@@ -1,17 +1,20 @@
-import Link from "next/link";
+"use client";
+
 import { Home, Search, Store, User } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/routing";
 import { clsx } from "clsx";
 
 const NAV_ITEMS = [
-  { id: "home", label: "홈", icon: Home, href: "/" },
-  { id: "search", label: "검색", icon: Search, href: "/search" },
-  { id: "store", label: "스토어", icon: Store, href: "/store" },
-  { id: "my", label: "마이", icon: User, href: "/my" },
+  { id: "home", labelKey: "home", icon: Home, href: "/" as const },
+  { id: "search", labelKey: "search", icon: Search, href: "/search" as const },
+  { id: "store", labelKey: "store", icon: Store, href: "/store" as const },
+  { id: "my", labelKey: "my", icon: User, href: "/my" as const },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-2 flex justify-between items-center z-50 max-w-[448px] mx-auto pb-safe">
@@ -35,7 +38,7 @@ export function BottomNav() {
                 isActive ? "text-gray-900" : "text-gray-300"
               )}
             >
-              {item.label}
+              {t(item.labelKey)}
             </span>
           </Link>
         );

@@ -1,0 +1,18 @@
+{
+  "title": "Reviews",
+  "writeReview": "Write Review",
+  "editReview": "Edit Review",
+  "deleteReview": "Delete Review",
+  "rating": "Rating",
+  "comment": "Comment",
+  "photos": "Photos",
+  "addPhotos": "Add Photos",
+  "helpful": "Helpful",
+  "report": "Report",
+  "noReviews": "No reviews yet",
+  "averageRating": "Average Rating",
+  "totalReviews": "Total Reviews",
+  "sortByLatest": "Latest",
+  "sortByRating": "Highest Rating",
+  "sortByHelpful": "Most Helpful"
+}

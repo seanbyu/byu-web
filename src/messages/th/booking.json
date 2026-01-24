@@ -1,0 +1,20 @@
+{
+  "title": "การจองของฉัน",
+  "upcoming": "กำลังจะมาถึง",
+  "past": "ที่ผ่านมา",
+  "cancelled": "ยกเลิกแล้ว",
+  "bookNow": "จองเลย",
+  "cancelBooking": "ยกเลิกการจอง",
+  "reschedule": "เปลี่ยนเวลา",
+  "confirmBooking": "ยืนยันการจอง",
+  "selectDate": "เลือกวันที่",
+  "selectTime": "เลือกเวลา",
+  "selectStaff": "เลือกพนักงาน",
+  "anyStaff": "พนักงานคนใดก็ได้",
+  "noBookings": "ยังไม่มีการจอง",
+  "bookingConfirmed": "ยืนยันการจองแล้ว",
+  "bookingCancelled": "ยกเลิกการจองแล้ว",
+  "totalPrice": "ราคารวม",
+  "deposit": "มัดจำ",
+  "paymentMethod": "วิธีการชำระเงิน"
+}

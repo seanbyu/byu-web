@@ -1,0 +1,15 @@
+{
+  "title": "Sales",
+  "todaySales": "Today's Sales",
+  "weeklySales": "Weekly Sales",
+  "monthlySales": "Monthly Sales",
+  "totalSales": "Total Sales",
+  "revenue": "Revenue",
+  "transactions": "Transactions",
+  "averageTransaction": "Average Transaction",
+  "topServices": "Top Services",
+  "salesReport": "Sales Report",
+  "export": "Export",
+  "period": "Period",
+  "compare": "Compare"
+}

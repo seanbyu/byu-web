@@ -1,0 +1,20 @@
+{
+  "appName": "살롱 스토어",
+  "loading": "로딩 중...",
+  "error": "오류가 발생했습니다",
+  "retry": "다시 시도",
+  "save": "저장",
+  "cancel": "취소",
+  "confirm": "확인",
+  "delete": "삭제",
+  "edit": "수정",
+  "close": "닫기",
+  "back": "뒤로",
+  "next": "다음",
+  "submit": "제출",
+  "search": "검색",
+  "noResults": "검색 결과가 없습니다",
+  "viewAll": "전체 보기",
+  "currency": "₩",
+  "minutes": "분"
+}

@@ -1,0 +1,20 @@
+{
+  "title": "내 예약",
+  "upcoming": "예정된 예약",
+  "past": "지난 예약",
+  "cancelled": "취소된 예약",
+  "bookNow": "예약하기",
+  "cancelBooking": "예약 취소",
+  "reschedule": "일정 변경",
+  "confirmBooking": "예약 확정",
+  "selectDate": "날짜 선택",
+  "selectTime": "시간 선택",
+  "selectStaff": "담당자 선택",
+  "anyStaff": "담당자 무관",
+  "noBookings": "예약 내역이 없습니다",
+  "bookingConfirmed": "예약이 확정되었습니다",
+  "bookingCancelled": "예약이 취소되었습니다",
+  "totalPrice": "총 금액",
+  "deposit": "예약금",
+  "paymentMethod": "결제 수단"
+}

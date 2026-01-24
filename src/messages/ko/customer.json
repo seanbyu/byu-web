@@ -1,0 +1,18 @@
+{
+  "profile": "프로필",
+  "myPage": "마이페이지",
+  "editProfile": "프로필 수정",
+  "name": "이름",
+  "phone": "전화번호",
+  "email": "이메일",
+  "birthdate": "생년월일",
+  "gender": "성별",
+  "male": "남성",
+  "female": "여성",
+  "other": "기타",
+  "membership": "멤버십",
+  "points": "포인트",
+  "coupons": "쿠폰",
+  "visitHistory": "방문 내역",
+  "totalVisits": "총 방문 횟수"
+}

@@ -1,0 +1,18 @@
+{
+  "title": "รีวิว",
+  "writeReview": "เขียนรีวิว",
+  "editReview": "แก้ไขรีวิว",
+  "deleteReview": "ลบรีวิว",
+  "rating": "คะแนน",
+  "comment": "ความคิดเห็น",
+  "photos": "รูปภาพ",
+  "addPhotos": "เพิ่มรูปภาพ",
+  "helpful": "เป็นประโยชน์",
+  "report": "รายงาน",
+  "noReviews": "ยังไม่มีรีวิว",
+  "averageRating": "คะแนนเฉลี่ย",
+  "totalReviews": "รีวิวทั้งหมด",
+  "sortByLatest": "ล่าสุด",
+  "sortByRating": "คะแนนสูงสุด",
+  "sortByHelpful": "เป็นประโยชน์มากที่สุด"
+}

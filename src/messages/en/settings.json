@@ -1,0 +1,18 @@
+{
+  "title": "Settings",
+  "language": "Language",
+  "notifications": "Notifications",
+  "pushNotifications": "Push Notifications",
+  "emailNotifications": "Email Notifications",
+  "smsNotifications": "SMS Notifications",
+  "privacy": "Privacy",
+  "terms": "Terms of Service",
+  "help": "Help & Support",
+  "about": "About",
+  "version": "Version",
+  "deleteAccount": "Delete Account",
+  "theme": "Theme",
+  "darkMode": "Dark Mode",
+  "lightMode": "Light Mode",
+  "systemDefault": "System Default"
+}
