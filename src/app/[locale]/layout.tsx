@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_Thai, Noto_Sans_KR } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { routing } from "@/i18n/routing";
+import { routing, type Locale } from "@/i18n/routing";
+import { ClientAuthProvider } from "@/features/auth/providers/ClientAuthProvider";
 import "../globals.css";
 
+// Base Latin font
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -15,6 +17,29 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+// Thai font - Noto Sans Thai for optimal readability
+const notoSansThai = Noto_Sans_Thai({
+  variable: "--font-noto-thai",
+  subsets: ["thai"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Korean font - Noto Sans KR for better Korean typography
+const notoSansKR = Noto_Sans_KR({
+  variable: "--font-noto-kr",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  display: "swap",
+});
+
+// Font class map by locale
+const fontClassMap: Record<Locale, string> = {
+  en: geistSans.variable,
+  ko: `${geistSans.variable} ${notoSansKR.variable}`,
+  th: `${geistSans.variable} ${notoSansThai.variable}`,
+};
 
 export const metadata: Metadata = {
   title: "Salon Store",
@@ -36,13 +61,19 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   const messages = await getMessages();
 
+  // Get locale-specific font classes
+  const localeFonts = fontClassMap[locale as Locale] || fontClassMap.en;
+
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${localeFonts} ${geistMono.variable} antialiased font-sans`}
+        suppressHydrationWarning
       >
         <NextIntlClientProvider messages={messages}>
-          {children}
+          <ClientAuthProvider liffId={process.env.NEXT_PUBLIC_LIFF_ID}>
+            {children}
+          </ClientAuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

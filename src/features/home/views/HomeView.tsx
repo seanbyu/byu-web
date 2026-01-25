@@ -4,7 +4,8 @@ import { HomeHeader } from "../components/HomeHeader";
 import { HeroBanner } from "../components/HeroBanner";
 import { CategoryGrid } from "../components/CategoryGrid";
 import { SalonList } from "../components/SalonList";
-import { BottomNav } from "../components/BottomNav";
+import { AuthBottomNav } from "@/features/auth";
+import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import type { Salon } from "@/lib/supabase/types";
 
 // Mock banners - can be replaced with real data later
@@ -26,7 +27,14 @@ export function HomeView({ salons }: HomeViewProps) {
       <CategoryGrid />
       <div className="h-2 bg-gray-50" />
       <SalonList salons={salons} />
-      <BottomNav />
+
+      {/* Floating Elements */}
+      <ScrollToTop
+        threshold={400}    // Show after scrolling ~1 viewport
+        bottomOffset={80}  // Above Bottom Navigation
+        rightOffset={20}   // Right margin
+      />
+      <AuthBottomNav />
     </div>
   );
 }
