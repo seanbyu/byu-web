@@ -11,11 +11,27 @@ export interface CreateBookingRequest {
   customerPhone: string;
 }
 
+// 예약 생성 응답 타입
+export interface CreateBookingResponse {
+  id: string;
+  salonId: string;
+  serviceId: string;
+  date: string;
+  time: string;
+  customerName: string;
+  customerPhone: string;
+  status: string;
+  createdAt: string;
+}
+
 export const bookingsApi = {
   createBooking: (
     salonId: string,
     data: CreateBookingRequest
-  ): Promise<ApiResponse<any>> => {
-    return apiClient.post(endpoints.salons.bookings.path(salonId), data);
+  ): Promise<ApiResponse<CreateBookingResponse>> => {
+    return apiClient.post<CreateBookingResponse>(
+      endpoints.salons.bookings.path(salonId),
+      data
+    );
   },
 };

@@ -8,6 +8,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import type { InsertTables, UpdateTables } from "@/lib/supabase/types";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -67,9 +68,11 @@ async function syncUserToDatabase(
     const metadata = user.user_metadata || {};
 
     // Extract LINE profile data from user metadata
-    const lineUserId = metadata.provider_id as string | undefined;
-    const displayName = metadata.full_name as string | undefined;
-    const avatarUrl = metadata.avatar_url as string | undefined;
+    const lineUserId =
+      (metadata.line_user_id as string | undefined) ||
+      (metadata.provider_id as string | undefined);
+    const name = (metadata.full_name as string | undefined) || "LINE User";
+    const profileImage = metadata.avatar_url as string | undefined;
 
     // Check if user exists
     const { data: existingUser } = await supabase
@@ -80,29 +83,28 @@ async function syncUserToDatabase(
 
     if (existingUser) {
       // Update existing user
-      await supabase
-        .from("users")
-        .update({
-          email: user.email,
-          display_name: displayName,
-          avatar_url: avatarUrl,
-          line_user_id: lineUserId,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id);
+      const updateData: UpdateTables<"users"> = {
+        email: user.email,
+        name,
+        profile_image: profileImage,
+        line_user_id: lineUserId,
+        updated_at: new Date().toISOString(),
+      };
+      await (supabase.from("users") as any).update(updateData).eq("id", user.id);
     } else {
       // Create new user
-      await supabase.from("users").insert({
+      const insertData: InsertTables<"users"> = {
         id: user.id,
-        email: user.email,
-        display_name: displayName,
-        avatar_url: avatarUrl,
+        email: user.email || "",
+        name,
+        profile_image: profileImage,
         line_user_id: lineUserId,
         user_type: "CUSTOMER",
         role: "CUSTOMER",
         is_active: true,
         is_approved: true,
-      });
+      };
+      await (supabase.from("users") as any).insert(insertData);
     }
   } catch (error) {
     // Log but don't fail - user is already authenticated

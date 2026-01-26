@@ -2,11 +2,13 @@
 
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { LineLoginButton, useAuthContext } from "@/features/auth";
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("auth");
   const { isAuthenticated, isLoading, error, liff, environment } =
     useAuthContext();
 
@@ -54,7 +56,7 @@ export default function LoginPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">Salon Web</h1>
           <p className="mt-2 text-sm text-gray-600">
-            LINEアカウントでログインしてください
+            {t("loginRequiredDesc")}
           </p>
         </div>
 
@@ -71,7 +73,7 @@ export default function LoginPage() {
         {environment === "liff" && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <p className="text-sm text-green-700">
-              LINEアプリ内でご利用いただいています
+              {t("lineAppWillOpen")}
             </p>
           </div>
         )}
@@ -86,7 +88,10 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-xs text-gray-500">
-          ログインすることで、利用規約とプライバシーポリシーに同意したことになります。
+          {t.rich("termsNotice", {
+            terms: (chunks) => <a href="/terms" className="underline">{chunks}</a>,
+            privacy: (chunks) => <a href="/privacy" className="underline">{chunks}</a>,
+          })}
         </p>
       </div>
     </div>

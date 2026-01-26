@@ -1,17 +1,18 @@
 "use client";
 
 /**
- * Auth Service - Supabase LINE Login Logic
+ * Auth Service - LINE Login with Supabase Session
  *
  * Supports both Web OAuth and LIFF token-based authentication
+ * Since Supabase doesn't support LINE OAuth, we use direct LINE OAuth
  */
 
 import { createClient } from "@/lib/supabase/client";
-import type { User, Session, AuthError, Provider } from "@supabase/supabase-js";
+import type { User, Session, AuthError } from "@supabase/supabase-js";
 import type { AuthEnvironment, LineOAuthOptions, LiffLoginResponse } from "../types";
 
-// LINE is a valid Supabase provider but may not be in older type definitions
-const LINE_PROVIDER = "line" as Provider;
+// LINE OAuth URLs
+const LINE_AUTH_URL = "https://access.line.me/oauth2/v2.1/authorize";
 
 class AuthService {
   private _supabase: ReturnType<typeof createClient> | null = null;
@@ -43,25 +44,52 @@ class AuthService {
 
   /**
    * Sign in with LINE OAuth (Web Browser Flow)
-   * Uses Supabase's built-in LINE provider with PKCE
+   * Uses direct LINE OAuth since Supabase doesn't support LINE provider
    */
   async signInWithLine(options?: LineOAuthOptions): Promise<{
     error: AuthError | null;
   }> {
-    const redirectTo = options?.redirectTo || `${window.location.origin}/api/auth/callback`;
+    try {
+      const channelId = process.env.NEXT_PUBLIC_LINE_CHANNEL_ID;
 
-    const { error } = await this.supabase.auth.signInWithOAuth({
-      provider: LINE_PROVIDER,
-      options: {
-        redirectTo,
-        scopes: options?.scopes?.join(" ") || "profile openid email",
-        queryParams: options?.botPrompt
-          ? { bot_prompt: options.botPrompt }
-          : undefined,
-      },
-    });
+      if (!channelId) {
+        // Fallback: redirect to our LINE OAuth initiation endpoint
+        window.location.href = "/api/auth/line";
+        return { error: null };
+      }
 
-    return { error };
+      const redirectUri = options?.redirectTo || `${window.location.origin}/api/auth/line/callback`;
+      const state = crypto.randomUUID();
+      const nonce = crypto.randomUUID();
+
+      // Store state for CSRF protection
+      sessionStorage.setItem("line_oauth_state", state);
+
+      const params = new URLSearchParams({
+        response_type: "code",
+        client_id: channelId,
+        redirect_uri: redirectUri,
+        state,
+        scope: options?.scopes?.join(" ") || "profile openid email",
+        nonce,
+      });
+
+      if (options?.botPrompt) {
+        params.append("bot_prompt", options.botPrompt);
+      }
+
+      // Redirect to LINE OAuth
+      window.location.href = `${LINE_AUTH_URL}?${params.toString()}`;
+
+      return { error: null };
+    } catch (error) {
+      return {
+        error: {
+          message: error instanceof Error ? error.message : "Failed to initiate LINE login",
+          status: 500,
+        } as AuthError
+      };
+    }
   }
 
   /**

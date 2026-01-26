@@ -16,5 +16,16 @@
   "noResults": "No results found",
   "viewAll": "View All",
   "currency": "₩",
-  "minutes": "min"
+  "minutes": "min",
+  "days": {
+    "sunday": "Sun",
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat"
+  },
+  "closed": "Closed",
+  "closedToday": "Selected date is closed"
 }

@@ -1,21 +1,29 @@
 /**
  * LIFF Authentication Route Handler
  *
- * Verifies LINE ID Token from LIFF SDK and creates Supabase session
- * This enables seamless authentication within LINE In-App Browser
+ * Verifies LINE ID Token from LIFF SDK and creates real Supabase session
+ * using password-based authentication for full Supabase feature support.
  */
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient, User, Session } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import {
+  generateLinePassword,
+  generateLineEmail,
+} from "@/lib/auth/password-hash";
+import type {
+  Database,
+  InsertTables,
+  UpdateTables,
+} from "@/lib/supabase/types";
 
 // LINE API endpoints
 const LINE_VERIFY_URL = "https://api.line.me/oauth2/v2.1/verify";
-const LINE_PROFILE_URL = "https://api.line.me/v2/profile";
 
 // Initialize Supabase Admin client (requires Service Role Key)
-function getSupabaseAdmin() {
+function getSupabaseAdmin(): SupabaseClient<Database> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -23,7 +31,20 @@ function getSupabaseAdmin() {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
   }
 
-  return createClient(supabaseUrl, serviceRoleKey, {
+  return createClient<Database>(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
+// Initialize Supabase client for signInWithPassword
+function getSupabaseClient(): SupabaseClient<Database> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+  return createClient<Database>(supabaseUrl, anonKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
@@ -42,13 +63,6 @@ interface LineTokenVerifyResponse {
   name?: string;
   picture?: string;
   email?: string;
-}
-
-interface LineProfile {
-  userId: string;
-  displayName: string;
-  pictureUrl?: string;
-  statusMessage?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -76,7 +90,7 @@ export async function POST(request: NextRequest) {
     // Get Supabase Admin client
     const supabaseAdmin = getSupabaseAdmin();
 
-    // Find or create user in Supabase
+    // Find or create user in Supabase and get real session
     const { user, session } = await findOrCreateUser(supabaseAdmin, tokenData);
 
     if (!user || !session) {
@@ -183,73 +197,61 @@ async function verifyLineIdToken(
 }
 
 /**
- * Find or create user in Supabase Auth and sync to users table
+ * Find or create user in Supabase Auth and create real session
  */
 async function findOrCreateUser(
-  supabaseAdmin: ReturnType<typeof createClient>,
+  supabaseAdmin: SupabaseClient<Database>,
   tokenData: LineTokenVerifyResponse
-): Promise<{ user: any; session: any }> {
+): Promise<{ user: User; session: Session }> {
   const lineUserId = tokenData.sub;
-  const email = tokenData.email || `${lineUserId}@line.local`;
+  const email = tokenData.email || generateLineEmail(lineUserId);
+  const password = generateLinePassword(lineUserId);
 
-  // Try to find existing user by LINE user ID (stored in user_metadata)
-  const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+  const userMetadata = {
+    line_user_id: lineUserId,
+    full_name: tokenData.name,
+    avatar_url: tokenData.picture,
+    provider: "line",
+  };
 
-  let user = existingUsers?.users?.find(
-    (u) => u.user_metadata?.line_user_id === lineUserId
-  );
+  // Try to create user first
+  const { data: newUser, error: createError } =
+    await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: userMetadata,
+    });
 
-  if (!user) {
-    // Create new user
-    const { data: newUser, error: createError } =
-      await supabaseAdmin.auth.admin.createUser({
-        email,
-        email_confirm: true,
-        user_metadata: {
-          line_user_id: lineUserId,
-          full_name: tokenData.name,
-          avatar_url: tokenData.picture,
-          provider: "line",
-        },
-      });
+  let user = newUser?.user;
 
-    if (createError) {
-      // User might exist with same email, try to update
-      const existingByEmail = existingUsers?.users?.find(
-        (u) => u.email === email
-      );
+  // If user already exists (email taken), update their password and metadata
+  if (createError && createError.message?.includes("already")) {
+    // Find existing user by listing and filtering
+    const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
+    const existingUser = usersData?.users?.find((u) => u.email === email);
 
-      if (existingByEmail) {
-        // Update existing user with LINE info
-        const { data: updatedUser } =
-          await supabaseAdmin.auth.admin.updateUserById(existingByEmail.id, {
-            user_metadata: {
-              ...existingByEmail.user_metadata,
-              line_user_id: lineUserId,
-              full_name: tokenData.name,
-              avatar_url: tokenData.picture,
-            },
-          });
-        user = updatedUser?.user ?? undefined;
-      } else {
-        throw createError;
+    if (existingUser) {
+      // Update existing user with new password and metadata
+      const { data: updatedUser, error: updateError } =
+        await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+          password, // Ensure password is always current
+          user_metadata: {
+            ...existingUser.user_metadata,
+            ...userMetadata,
+          },
+        });
+
+      if (updateError) {
+        console.error("Failed to update user:", updateError);
       }
+      user = updatedUser?.user ?? existingUser;
     } else {
-      user = newUser?.user ?? undefined;
+      throw createError;
     }
-  } else {
-    // Update existing user metadata
-    const { data: updatedUser } = await supabaseAdmin.auth.admin.updateUserById(
-      user.id,
-      {
-        user_metadata: {
-          ...user.user_metadata,
-          full_name: tokenData.name,
-          avatar_url: tokenData.picture,
-        },
-      }
-    );
-    user = updatedUser?.user ?? user;
+  } else if (createError) {
+    console.error("Failed to create user:", createError);
+    throw createError;
   }
 
   if (!user) {
@@ -259,37 +261,30 @@ async function findOrCreateUser(
   // Sync to users table
   await syncToUsersTable(supabaseAdmin, user, tokenData);
 
-  // Generate session for the user
+  // Create real session using signInWithPassword
+  const supabaseClient = getSupabaseClient();
   const { data: sessionData, error: sessionError } =
-    await supabaseAdmin.auth.admin.generateLink({
-      type: "magiclink",
-      email: user.email!,
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
     });
 
-  if (sessionError) {
-    throw sessionError;
+  if (sessionError || !sessionData.session) {
+    console.error("Failed to create session:", sessionError);
+    throw sessionError || new Error("Failed to create session");
   }
 
-  // Create a session directly
-  // Note: In production, you might want to use a different approach
-  // such as setting custom JWT claims or using Supabase Edge Functions
-  const mockSession = {
-    access_token: sessionData.properties?.hashed_token || "",
-    refresh_token: crypto.randomUUID(),
-    expires_at: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 24 hours
-  };
-
-  return { user, session: mockSession };
+  return { user, session: sessionData.session };
 }
 
 /**
  * Sync user data to users table
  */
 async function syncToUsersTable(
-  supabaseAdmin: ReturnType<typeof createClient>,
-  user: any,
+  supabaseAdmin: SupabaseClient<Database>,
+  user: User,
   tokenData: LineTokenVerifyResponse
-) {
+): Promise<void> {
   try {
     const { data: existingUser } = await supabaseAdmin
       .from("users")
@@ -297,25 +292,30 @@ async function syncToUsersTable(
       .eq("id", user.id)
       .single();
 
-    const userData = {
-      email: user.email,
-      display_name: tokenData.name,
-      avatar_url: tokenData.picture,
-      line_user_id: tokenData.sub,
-      updated_at: new Date().toISOString(),
-    };
-
     if (existingUser) {
-      await supabaseAdmin.from("users").update(userData).eq("id", user.id);
+      const updateData: UpdateTables<"users"> = {
+        email: user.email,
+        name: tokenData.name || "LINE User",
+        profile_image: tokenData.picture,
+        line_user_id: tokenData.sub,
+        updated_at: new Date().toISOString(),
+      };
+      await (supabaseAdmin.from("users") as any)
+        .update(updateData)
+        .eq("id", user.id);
     } else {
-      await supabaseAdmin.from("users").insert({
+      const insertData: InsertTables<"users"> = {
         id: user.id,
-        ...userData,
+        email: user.email || "",
+        name: tokenData.name || "LINE User",
+        profile_image: tokenData.picture,
+        line_user_id: tokenData.sub,
         user_type: "CUSTOMER",
         role: "CUSTOMER",
         is_active: true,
         is_approved: true,
-      });
+      };
+      await (supabaseAdmin.from("users") as any).insert(insertData);
     }
   } catch (error) {
     console.error("Failed to sync user to database:", error);

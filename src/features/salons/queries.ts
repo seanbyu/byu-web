@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import type { Salon, StaffWithProfile } from "@/lib/supabase/types";
+import type { Salon, StaffWithProfile, Service, ServiceCategory } from "@/lib/supabase/types";
 
 // React.cache() for per-request deduplication (server-cache-react)
 export const getSalons = cache(async (): Promise<Salon[]> => {
@@ -66,6 +66,8 @@ export const getBookableStaff = cache(async (salonId: string): Promise<StaffWith
         bio,
         specialties,
         years_of_experience,
+        work_schedule,
+        holidays,
         social_links
       )
     `)
@@ -91,4 +93,56 @@ export const getSalonWithStaff = cache(async (id: string) => {
   ]);
 
   return { salon, staff };
+});
+
+// 서비스 카테고리 조회
+export const getServiceCategories = cache(async (salonId: string): Promise<ServiceCategory[]> => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("service_categories")
+    .select("*")
+    .eq("salon_id", salonId)
+    .eq("is_active", true)
+    .is("deleted_at", null)
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching service categories:", error);
+    return [];
+  }
+
+  return data ?? [];
+});
+
+// 살롱의 서비스 목록 조회
+export const getServices = cache(async (salonId: string): Promise<Service[]> => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("services")
+    .select("*")
+    .eq("salon_id", salonId)
+    .eq("is_active", true)
+    .is("deleted_at", null)
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching services:", error);
+    return [];
+  }
+
+  return data ?? [];
+});
+
+// 살롱 상세 + 직원 + 서비스 함께 조회 (예약 페이지용)
+export const getSalonBookingData = cache(async (id: string) => {
+  const [salon, staff, services, categories] = await Promise.all([
+    getSalonById(id),
+    getBookableStaff(id),
+    getServices(id),
+    getServiceCategories(id),
+  ]);
+
+  return { salon, staff, services, categories };
 });

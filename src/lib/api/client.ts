@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/types";
+import { ApiResponse, QueryParams, RequestBody } from "@/types";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
@@ -60,10 +60,15 @@ class ApiClient {
   // GET request
   async get<T>(
     endpoint: string,
-    params?: Record<string, any>
+    params?: QueryParams
   ): Promise<ApiResponse<T>> {
-    const queryString = params
-      ? "?" + new URLSearchParams(params).toString()
+    const filteredParams = params
+      ? Object.fromEntries(
+          Object.entries(params).filter(([, v]) => v !== undefined)
+        )
+      : undefined;
+    const queryString = filteredParams
+      ? "?" + new URLSearchParams(filteredParams as Record<string, string>).toString()
       : "";
     return this.request<T>(`${endpoint}${queryString}`, {
       method: "GET",
@@ -71,7 +76,7 @@ class ApiClient {
   }
 
   // POST request
-  async post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+  async post<T>(endpoint: string, data?: RequestBody): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: "POST",
       body: JSON.stringify(data),

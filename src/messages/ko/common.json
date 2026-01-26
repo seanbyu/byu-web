@@ -16,5 +16,16 @@
   "noResults": "검색 결과가 없습니다",
   "viewAll": "전체 보기",
   "currency": "₩",
-  "minutes": "분"
+  "minutes": "분",
+  "days": {
+    "sunday": "일",
+    "monday": "월",
+    "tuesday": "화",
+    "wednesday": "수",
+    "thursday": "목",
+    "friday": "금",
+    "saturday": "토"
+  },
+  "closed": "휴무",
+  "closedToday": "선택한 날짜는 휴무입니다"
 }

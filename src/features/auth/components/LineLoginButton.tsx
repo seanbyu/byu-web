@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useAuthContext } from "../providers/AuthProvider";
 import { LiffService } from "../services/liff-service";
 
@@ -24,11 +25,11 @@ export function LineLoginButton({
   onSuccess,
   onError,
 }: LineLoginButtonProps) {
+  const t = useTranslations("auth");
   const {
     isLoading,
     isAuthenticated,
     environment,
-    signInWithLine,
     liff,
     authenticateWithLiff,
   } = useAuthContext();
@@ -53,14 +54,12 @@ export function LineLoginButton({
         return;
       }
 
-      // Web environment: use Supabase OAuth
-      await signInWithLine();
-      // If successful, page will redirect to LINE OAuth
-      // onSuccess will be called after redirect back
+      // Web environment: redirect to LINE OAuth
+      window.location.href = "/api/auth/line";
     } catch (error) {
       onError?.(error instanceof Error ? error.message : "Login failed");
     }
-  }, [environment, liff, signInWithLine, authenticateWithLiff, onSuccess, onError]);
+  }, [environment, liff, authenticateWithLiff, onSuccess, onError]);
 
   if (isAuthenticated) {
     return null;
@@ -80,7 +79,7 @@ export function LineLoginButton({
       ) : (
         <>
           <LineIcon />
-          {children || "LINEでログイン"}
+          {children || t("loginWithLine")}
         </>
       )}
     </button>

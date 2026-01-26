@@ -1,3 +1,21 @@
+// Auth Provider Enum
+export type AuthProvider = "EMAIL" | "LINE" | "GOOGLE" | "KAKAO";
+
+// User Type Enum
+export type UserType = "ADMIN_USER" | "CUSTOMER";
+
+// User Role Enum
+export type UserRole = "SUPER_ADMIN" | "ADMIN" | "MANAGER" | "STAFF" | "CUSTOMER";
+
+// Approval Status Enum
+export type ApprovalStatus = "pending" | "approved" | "rejected";
+
+// Booking Status Enum
+export type BookingStatus = "PENDING" | "CONFIRMED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "NO_SHOW";
+
+// Payment Status Enum
+export type PaymentStatus = "PENDING" | "PAID" | "REFUNDED" | "FAILED";
+
 export type Database = {
   public: {
     Tables: {
@@ -22,6 +40,7 @@ export type Database = {
               enabled: boolean;
             };
           } | null;
+          holidays: unknown[] | null;
           logo_url: string | null;
           cover_image_url: string | null;
           settings: {
@@ -31,13 +50,15 @@ export type Database = {
             slot_duration_minutes: number;
             booking_cancellation_hours: number;
           } | null;
-          approval_status: "pending" | "approved" | "rejected";
+          plan_type: string;
+          approval_status: ApprovalStatus;
+          rejected_reason: string | null;
           approved_at: string | null;
+          trial_ends_at: string | null;
           is_active: boolean;
           deleted_at: string | null;
           created_at: string;
           updated_at: string;
-          plan_type: "FREE" | "BASIC" | "PREMIUM" | "ENTERPRISE";
         };
         Insert: {
           id?: string;
@@ -59,6 +80,7 @@ export type Database = {
               enabled: boolean;
             };
           } | null;
+          holidays?: unknown[] | null;
           logo_url?: string | null;
           cover_image_url?: string | null;
           settings?: {
@@ -68,13 +90,15 @@ export type Database = {
             slot_duration_minutes: number;
             booking_cancellation_hours: number;
           } | null;
-          approval_status?: "pending" | "approved" | "rejected";
+          plan_type?: string;
+          approval_status?: ApprovalStatus;
+          rejected_reason?: string | null;
           approved_at?: string | null;
+          trial_ends_at?: string | null;
           is_active?: boolean;
           deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
-          plan_type?: "FREE" | "BASIC" | "PREMIUM" | "ENTERPRISE";
         };
         Update: {
           name?: string;
@@ -95,6 +119,7 @@ export type Database = {
               enabled: boolean;
             };
           } | null;
+          holidays?: unknown[] | null;
           logo_url?: string | null;
           cover_image_url?: string | null;
           settings?: {
@@ -104,47 +129,127 @@ export type Database = {
             slot_duration_minutes: number;
             booking_cancellation_hours: number;
           } | null;
-          approval_status?: "pending" | "approved" | "rejected";
+          plan_type?: string;
+          approval_status?: ApprovalStatus;
+          rejected_reason?: string | null;
           approved_at?: string | null;
+          trial_ends_at?: string | null;
           is_active?: boolean;
           deleted_at?: string | null;
           updated_at?: string;
-          plan_type?: "FREE" | "BASIC" | "PREMIUM" | "ENTERPRISE";
         };
       };
       users: {
         Row: {
           id: string;
-          user_type: "ADMIN_USER" | "CUSTOMER";
-          role: "SUPER_ADMIN" | "ADMIN" | "MANAGER" | "STAFF" | "CUSTOMER";
+          user_type: UserType;
+          role: UserRole;
           email: string;
           name: string;
           phone: string | null;
           profile_image: string | null;
+          auth_provider: AuthProvider;
+          provider_user_id: string | null;
           salon_id: string | null;
-          is_active: boolean;
+          created_by: string | null;
           is_approved: boolean;
+          approved_by: string | null;
+          approved_at: string | null;
+          is_active: boolean;
+          deleted_at: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id: string;
-          user_type: "ADMIN_USER" | "CUSTOMER";
-          role?: "SUPER_ADMIN" | "ADMIN" | "MANAGER" | "STAFF" | "CUSTOMER";
+          user_type: UserType;
+          role?: UserRole;
           email: string;
           name: string;
           phone?: string | null;
           profile_image?: string | null;
+          auth_provider?: AuthProvider;
+          provider_user_id?: string | null;
           salon_id?: string | null;
-          is_active?: boolean;
+          created_by?: string | null;
           is_approved?: boolean;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          is_active?: boolean;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
         };
         Update: {
+          user_type?: UserType;
+          role?: UserRole;
+          email?: string;
           name?: string;
           phone?: string | null;
           profile_image?: string | null;
-          is_active?: boolean;
+          auth_provider?: AuthProvider;
+          provider_user_id?: string | null;
+          salon_id?: string | null;
+          created_by?: string | null;
           is_approved?: boolean;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          is_active?: boolean;
+          deleted_at?: string | null;
+          updated_at?: string;
+        };
+      };
+      customer_profiles: {
+        Row: {
+          user_id: string;
+          user_type: "CUSTOMER";
+          line_user_id: string | null;
+          line_display_name: string | null;
+          line_picture_url: string | null;
+          line_status_message: string | null;
+          preferred_salon_id: string | null;
+          preferred_designer_id: string | null;
+          preferences: Record<string, unknown> | null;
+          total_bookings: number;
+          total_spent: number;
+          last_visit_at: string | null;
+          marketing_consent: boolean;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          user_type?: "CUSTOMER";
+          line_user_id?: string | null;
+          line_display_name?: string | null;
+          line_picture_url?: string | null;
+          line_status_message?: string | null;
+          preferred_salon_id?: string | null;
+          preferred_designer_id?: string | null;
+          preferences?: Record<string, unknown> | null;
+          total_bookings?: number;
+          total_spent?: number;
+          last_visit_at?: string | null;
+          marketing_consent?: boolean;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          line_user_id?: string | null;
+          line_display_name?: string | null;
+          line_picture_url?: string | null;
+          line_status_message?: string | null;
+          preferred_salon_id?: string | null;
+          preferred_designer_id?: string | null;
+          preferences?: Record<string, unknown> | null;
+          total_bookings?: number;
+          total_spent?: number;
+          last_visit_at?: string | null;
+          marketing_consent?: boolean;
+          notes?: string | null;
+          updated_at?: string;
         };
       };
       staff_profiles: {
@@ -154,6 +259,7 @@ export type Database = {
           position_id: string | null;
           permissions: Record<string, unknown>;
           work_schedule: Record<string, unknown> | null;
+          holidays: unknown[] | null;
           bio: string | null;
           specialties: string[] | null;
           years_of_experience: number | null;
@@ -162,6 +268,8 @@ export type Database = {
             youtube?: string | null;
             tiktok?: string | null;
             facebook?: string | null;
+            twitter?: string | null;
+            website?: string | null;
           } | null;
           is_booking_enabled: boolean;
           created_at: string;
@@ -173,6 +281,7 @@ export type Database = {
           position_id?: string | null;
           permissions?: Record<string, unknown>;
           work_schedule?: Record<string, unknown> | null;
+          holidays?: unknown[] | null;
           bio?: string | null;
           specialties?: string[] | null;
           years_of_experience?: number | null;
@@ -181,6 +290,8 @@ export type Database = {
             youtube?: string | null;
             tiktok?: string | null;
             facebook?: string | null;
+            twitter?: string | null;
+            website?: string | null;
           } | null;
           is_booking_enabled?: boolean;
         };
@@ -188,6 +299,7 @@ export type Database = {
           position_id?: string | null;
           permissions?: Record<string, unknown>;
           work_schedule?: Record<string, unknown> | null;
+          holidays?: unknown[] | null;
           bio?: string | null;
           specialties?: string[] | null;
           years_of_experience?: number | null;
@@ -196,8 +308,194 @@ export type Database = {
             youtube?: string | null;
             tiktok?: string | null;
             facebook?: string | null;
+            twitter?: string | null;
+            website?: string | null;
           } | null;
           is_booking_enabled?: boolean;
+        };
+      };
+      services: {
+        Row: {
+          id: string;
+          salon_id: string;
+          category_id: string | null;
+          name: string;
+          name_en: string | null;
+          name_th: string | null;
+          description: string | null;
+          pricing_type: "FIXED" | "POSITION_BASED";
+          base_price: number | null;
+          duration_minutes: number;
+          image_url: string | null;
+          is_active: boolean;
+          deleted_at: string | null;
+          display_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          salon_id: string;
+          category_id?: string | null;
+          name: string;
+          name_en?: string | null;
+          name_th?: string | null;
+          description?: string | null;
+          pricing_type?: "FIXED" | "POSITION_BASED";
+          base_price?: number | null;
+          duration_minutes: number;
+          image_url?: string | null;
+          is_active?: boolean;
+          deleted_at?: string | null;
+          display_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          salon_id?: string;
+          category_id?: string | null;
+          name?: string;
+          name_en?: string | null;
+          name_th?: string | null;
+          description?: string | null;
+          pricing_type?: "FIXED" | "POSITION_BASED";
+          base_price?: number | null;
+          duration_minutes?: number;
+          image_url?: string | null;
+          is_active?: boolean;
+          deleted_at?: string | null;
+          display_order?: number;
+          updated_at?: string;
+        };
+      };
+      service_categories: {
+        Row: {
+          id: string;
+          salon_id: string;
+          industry_id: string | null;
+          name: string;
+          name_en: string | null;
+          name_th: string | null;
+          description: string | null;
+          display_order: number;
+          is_active: boolean;
+          deleted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          salon_id: string;
+          industry_id?: string | null;
+          name: string;
+          name_en?: string | null;
+          name_th?: string | null;
+          description?: string | null;
+          display_order?: number;
+          is_active?: boolean;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          salon_id?: string;
+          industry_id?: string | null;
+          name?: string;
+          name_en?: string | null;
+          name_th?: string | null;
+          description?: string | null;
+          display_order?: number;
+          is_active?: boolean;
+          deleted_at?: string | null;
+          updated_at?: string;
+        };
+      };
+      bookings: {
+        Row: {
+          id: string;
+          salon_id: string;
+          customer_id: string;
+          customer_user_type: "CUSTOMER";
+          designer_id: string;
+          designer_user_type: "ADMIN_USER";
+          service_id: string;
+          booking_date: string;
+          start_time: string;
+          end_time: string;
+          duration_minutes: number;
+          status: BookingStatus;
+          service_price: number;
+          additional_charges: number;
+          discount: number;
+          total_price: number;
+          payment_status: PaymentStatus;
+          payment_method: string | null;
+          paid_at: string | null;
+          customer_notes: string | null;
+          staff_notes: string | null;
+          cancelled_at: string | null;
+          cancellation_reason: string | null;
+          cancelled_by: string | null;
+          line_notification_sent: boolean;
+          line_notification_sent_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          salon_id: string;
+          customer_id: string;
+          customer_user_type?: "CUSTOMER";
+          designer_id: string;
+          designer_user_type?: "ADMIN_USER";
+          service_id: string;
+          booking_date: string;
+          start_time: string;
+          end_time: string;
+          duration_minutes: number;
+          status?: BookingStatus;
+          service_price: number;
+          additional_charges?: number;
+          discount?: number;
+          total_price: number;
+          payment_status?: PaymentStatus;
+          payment_method?: string | null;
+          paid_at?: string | null;
+          customer_notes?: string | null;
+          staff_notes?: string | null;
+          cancelled_at?: string | null;
+          cancellation_reason?: string | null;
+          cancelled_by?: string | null;
+          line_notification_sent?: boolean;
+          line_notification_sent_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          salon_id?: string;
+          customer_id?: string;
+          designer_id?: string;
+          service_id?: string;
+          booking_date?: string;
+          start_time?: string;
+          end_time?: string;
+          duration_minutes?: number;
+          status?: BookingStatus;
+          service_price?: number;
+          additional_charges?: number;
+          discount?: number;
+          total_price?: number;
+          payment_status?: PaymentStatus;
+          payment_method?: string | null;
+          paid_at?: string | null;
+          customer_notes?: string | null;
+          staff_notes?: string | null;
+          cancelled_at?: string | null;
+          cancellation_reason?: string | null;
+          cancelled_by?: string | null;
+          line_notification_sent?: boolean;
+          line_notification_sent_at?: string | null;
+          updated_at?: string;
         };
       };
     };
@@ -208,7 +506,12 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      user_type: UserType;
+      user_role: UserRole;
+      auth_provider: AuthProvider;
+      approval_status_type: ApprovalStatus;
+      booking_status: BookingStatus;
+      payment_status: PaymentStatus;
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -226,7 +529,26 @@ export type UpdateTables<T extends keyof Database["public"]["Tables"]> =
 
 export type Salon = Tables<"salons">;
 export type User = Tables<"users">;
-export type StaffProfileRow = Tables<"staff_profiles">;
+export type CustomerProfile = Tables<"customer_profiles">;
+export type StaffProfile = Tables<"staff_profiles">;
+export type Service = Tables<"services">;
+export type ServiceCategory = Tables<"service_categories">;
+export type Booking = Tables<"bookings">;
+
+// 디자이너 근무 스케줄 타입
+export type WorkSchedule = {
+  [key: string]: {
+    enabled: boolean;
+    start: string | null;
+    end: string | null;
+  };
+};
+
+// 휴무일 타입 (날짜 문자열 배열 또는 휴무일 객체 배열)
+export type HolidayEntry = string | {
+  date: string;
+  reason?: string;
+};
 
 // 조인된 직원 정보 타입 (users + staff_profiles)
 export type StaffWithProfile = {
@@ -236,18 +558,39 @@ export type StaffWithProfile = {
   phone: string | null;
   profile_image: string | null;
   salon_id: string | null;
-  role: string;
+  role: UserRole;
   is_active: boolean;
   staff_profiles: {
     is_booking_enabled: boolean;
     bio: string | null;
     specialties: string[] | null;
     years_of_experience: number | null;
+    work_schedule: WorkSchedule | null;
+    holidays: HolidayEntry[] | null;
     social_links: {
       instagram?: string | null;
       youtube?: string | null;
       tiktok?: string | null;
       facebook?: string | null;
     } | null;
+  } | null;
+};
+
+// 조인된 고객 정보 타입 (users + customer_profiles)
+export type CustomerWithProfile = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  profile_image: string | null;
+  is_active: boolean;
+  customer_profiles: {
+    line_user_id: string | null;
+    line_display_name: string | null;
+    line_picture_url: string | null;
+    preferred_salon_id: string | null;
+    total_bookings: number;
+    total_spent: number;
+    last_visit_at: string | null;
   } | null;
 };
