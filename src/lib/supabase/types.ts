@@ -138,6 +138,7 @@ export type Database = {
           deleted_at?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       users: {
         Row: {
@@ -198,6 +199,7 @@ export type Database = {
           deleted_at?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       customer_profiles: {
         Row: {
@@ -251,6 +253,7 @@ export type Database = {
           notes?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       staff_profiles: {
         Row: {
@@ -313,6 +316,7 @@ export type Database = {
           } | null;
           is_booking_enabled?: boolean;
         };
+        Relationships: [];
       };
       services: {
         Row: {
@@ -367,6 +371,7 @@ export type Database = {
           display_order?: number;
           updated_at?: string;
         };
+        Relationships: [];
       };
       service_categories: {
         Row: {
@@ -409,6 +414,7 @@ export type Database = {
           deleted_at?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       bookings: {
         Row: {
@@ -497,6 +503,7 @@ export type Database = {
           line_notification_sent_at?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
     };
     Views: {

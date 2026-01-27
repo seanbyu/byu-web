@@ -72,7 +72,7 @@ export default function BookingDetailPage() {
         .single();
 
       if (error) throw error;
-      setBooking(data as BookingWithDetails);
+      setBooking(data as unknown as BookingWithDetails);
     } catch (err) {
       console.error("Error fetching booking:", err);
       setError("예약 정보를 불러올 수 없습니다.");

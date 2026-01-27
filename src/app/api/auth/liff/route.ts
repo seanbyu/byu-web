@@ -297,10 +297,10 @@ async function syncToUsersTable(
         email: user.email,
         name: tokenData.name || "LINE User",
         profile_image: tokenData.picture,
-        line_user_id: tokenData.sub,
+        provider_user_id: tokenData.sub,
         updated_at: new Date().toISOString(),
       };
-      await (supabaseAdmin.from("users") as any)
+      await supabaseAdmin.from("users")
         .update(updateData)
         .eq("id", user.id);
     } else {
@@ -309,13 +309,13 @@ async function syncToUsersTable(
         email: user.email || "",
         name: tokenData.name || "LINE User",
         profile_image: tokenData.picture,
-        line_user_id: tokenData.sub,
+        provider_user_id: tokenData.sub,
         user_type: "CUSTOMER",
         role: "CUSTOMER",
         is_active: true,
         is_approved: true,
       };
-      await (supabaseAdmin.from("users") as any).insert(insertData);
+      await supabaseAdmin.from("users").insert(insertData);
     }
   } catch (error) {
     console.error("Failed to sync user to database:", error);

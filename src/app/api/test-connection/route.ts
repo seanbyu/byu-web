@@ -12,7 +12,7 @@ export async function GET() {
       .limit(5);
 
     const { data: menus, error: menusError } = await supabase
-      .from("salon_menus")
+      .from("services")
       .select("*")
       .limit(5);
 

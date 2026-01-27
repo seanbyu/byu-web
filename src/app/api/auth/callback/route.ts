@@ -87,10 +87,10 @@ async function syncUserToDatabase(
         email: user.email,
         name,
         profile_image: profileImage,
-        line_user_id: lineUserId,
+        provider_user_id: lineUserId,
         updated_at: new Date().toISOString(),
       };
-      await (supabase.from("users") as any).update(updateData).eq("id", user.id);
+      await supabase.from("users").update(updateData).eq("id", user.id);
     } else {
       // Create new user
       const insertData: InsertTables<"users"> = {
@@ -98,13 +98,13 @@ async function syncUserToDatabase(
         email: user.email || "",
         name,
         profile_image: profileImage,
-        line_user_id: lineUserId,
+        provider_user_id: lineUserId,
         user_type: "CUSTOMER",
         role: "CUSTOMER",
         is_active: true,
         is_approved: true,
       };
-      await (supabase.from("users") as any).insert(insertData);
+      await supabase.from("users").insert(insertData);
     }
   } catch (error) {
     // Log but don't fail - user is already authenticated

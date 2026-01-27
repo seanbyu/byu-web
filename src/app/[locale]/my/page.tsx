@@ -25,14 +25,12 @@ export default function MyPage() {
     try {
       const supabase = createClient();
 
-      const userPromise = supabase.from("users" as never).select("*").eq("id", userId).single();
-      const profilePromise = supabase.from("customer_profiles").select("*").eq("user_id", userId).single();
-
-      const [userResult, profileResult] = await Promise.all([userPromise, profilePromise]);
+      const userResult = await supabase.from("users").select("*").eq("id", userId).single();
+      const profileResult = await supabase.from("customer_profiles").select("*").eq("user_id", userId).single();
 
       if (userResult.data) {
         setProfileData({
-          ...(userResult.data as PublicUser),
+          ...userResult.data,
           customer_profiles: profileResult.data || null,
         } as UserWithProfile);
       }
