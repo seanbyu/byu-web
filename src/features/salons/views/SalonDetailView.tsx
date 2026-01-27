@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
@@ -14,6 +14,9 @@ import {
   Star,
   X,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
   Tag,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
@@ -79,24 +82,73 @@ export function SalonDetailView({ salon, staff }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingBooking, setPendingBooking] = useState<BookingModalData | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
+  const calendarRef = useRef<HTMLDivElement>(null);
   const open = isOpen(salon.business_hours);
 
-  // Generate available dates (next 7 days)
+  // Close calendar on outside click
+  useEffect(() => {
+    if (!showCalendar) return;
+    const handleClick = (e: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(e.target as Node)) {
+        setShowCalendar(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showCalendar]);
+
+  // Generate available dates (based on booking_advance_days)
   const availableDates = useMemo(() => {
     const dates: Date[] = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    for (let i = 0; i < 7; i++) {
+    const advanceDays = salon.settings?.booking_advance_days || 30;
+    for (let i = 0; i < advanceDays; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       dates.push(date);
     }
     return dates;
-  }, []);
+  }, [salon.settings?.booking_advance_days]);
+
+  // Calendar grid days for the current month view
+  const calendarDays = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const days: (Date | null)[] = [];
+
+    for (let i = 0; i < firstDay.getDay(); i++) {
+      days.push(null);
+    }
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      days.push(new Date(year, month, i));
+    }
+    return days;
+  }, [calendarMonth]);
+
+  // Check if a calendar date is within the bookable range
+  const isCalendarDateAvailable = (date: Date): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date < today) return false;
+
+    const maxDate = new Date(today);
+    maxDate.setDate(today.getDate() + (salon.settings?.booking_advance_days || 30));
+    if (date > maxDate) return false;
+
+    return !!isDateEnabled(date);
+  };
 
   // Get day label for a date (using i18n)
   const getDayLabel = (date: Date) => {
@@ -434,14 +486,13 @@ export function SalonDetailView({ salon, staff }: Props) {
           {t("hours")}
         </h2>
 
-        {/* Date Selector */}
-        <div className="bg-gray-50 rounded-xl p-4 mb-4">
+        {/* Weekly Quick Selector */}
+        <div className="bg-gray-50 rounded-xl p-3 mb-3">
           <div className="grid grid-cols-7 gap-1">
-            {availableDates.map((date) => {
+            {availableDates.slice(0, 7).map((date) => {
               const isSelected = date.toDateString() === selectedDate.toDateString();
               const isEnabled = isDateEnabled(date);
               const isToday = date.toDateString() === new Date().toDateString();
-              const openTime = getOpeningTime(date);
 
               return (
                 <button
@@ -456,27 +507,119 @@ export function SalonDetailView({ salon, staff }: Props) {
                       : "opacity-50 cursor-not-allowed"
                   }`}
                 >
-                  <div className={`text-xs font-medium mb-1 ${
+                  <div className={`text-[11px] font-medium ${
                     isSelected ? "text-purple-700" : isToday ? "text-purple-600" : "text-gray-600"
                   }`}>
                     {getDayLabel(date)}
                   </div>
-                  <div className={`text-[10px] ${
-                    isSelected ? "text-purple-600" : isEnabled ? "text-gray-500" : "text-gray-400"
+                  <div className={`text-base font-bold mt-0.5 ${
+                    isSelected ? "text-purple-700" : isEnabled ? "text-gray-900" : "text-gray-400"
                   }`}>
-                    {openTime || tCommon("closed")}
+                    {date.getDate()}
                   </div>
                 </button>
               );
             })}
           </div>
+        </div>
 
-          {/* Selected Date Display */}
-          <div className="mt-3 pt-3 border-t border-gray-200 text-center">
-            <span className="text-sm text-gray-600">
-              {selectedDate.toLocaleDateString(getLocaleCode(), { month: "long", day: "numeric", weekday: "long" })}
-            </span>
-          </div>
+        {/* Calendar Dropdown Selector */}
+        <div ref={calendarRef} className="relative mb-4">
+          <button
+            onClick={() => setShowCalendar(!showCalendar)}
+            className="w-full bg-gray-50 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-gray-100 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Calendar className="w-5 h-5 text-purple-500" />
+              <span className="text-sm font-medium text-gray-900">
+                {selectedDate.toLocaleDateString(getLocaleCode(), { year: "numeric", month: "long", day: "numeric", weekday: "long" })}
+              </span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showCalendar ? "rotate-180" : ""}`} />
+          </button>
+
+          {/* Calendar Dropdown */}
+          {showCalendar && (
+            <div className="absolute z-30 left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+              {/* Month Navigation */}
+              <div className="flex items-center justify-between mb-3">
+                <button
+                  onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}
+                  className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4 text-gray-600" />
+                </button>
+                <span className="text-sm font-semibold text-gray-900">
+                  {calendarMonth.toLocaleDateString(getLocaleCode(), { year: "numeric", month: "long" })}
+                </span>
+                <button
+                  onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}
+                  className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Day Headers */}
+              <div className="grid grid-cols-7 gap-1 mb-1">
+                {[
+                  tCommon("days.sunday"),
+                  tCommon("days.monday"),
+                  tCommon("days.tuesday"),
+                  tCommon("days.wednesday"),
+                  tCommon("days.thursday"),
+                  tCommon("days.friday"),
+                  tCommon("days.saturday"),
+                ].map((day, i) => (
+                  <div
+                    key={day}
+                    className={`text-center text-[10px] font-medium py-1 ${
+                      i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-gray-400"
+                    }`}
+                  >
+                    {day.slice(0, 1)}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar Grid */}
+              <div className="grid grid-cols-7 gap-1">
+                {calendarDays.map((date, index) => {
+                  if (!date) {
+                    return <div key={`empty-${index}`} className="h-9" />;
+                  }
+
+                  const available = isCalendarDateAvailable(date);
+                  const isSelected = selectedDate.toDateString() === date.toDateString();
+                  const isToday = date.toDateString() === new Date().toDateString();
+
+                  return (
+                    <button
+                      key={date.toISOString()}
+                      onClick={() => {
+                        if (available) {
+                          setSelectedDate(date);
+                          setShowCalendar(false);
+                        }
+                      }}
+                      disabled={!available}
+                      className={`h-9 rounded-lg text-sm font-medium transition-colors ${
+                        isSelected
+                          ? "bg-purple-600 text-white"
+                          : available
+                          ? isToday
+                            ? "bg-purple-50 text-purple-600 hover:bg-purple-100"
+                            : "hover:bg-gray-100 text-gray-700"
+                          : "text-gray-300 cursor-not-allowed"
+                      }`}
+                    >
+                      {date.getDate()}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Business Hours Info Card */}
