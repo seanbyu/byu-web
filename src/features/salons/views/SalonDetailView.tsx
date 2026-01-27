@@ -18,8 +18,10 @@ import {
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useAuthContext, LoginModal } from "@/features/auth";
-import { createClient } from "@/lib/supabase/client";
 import type { Salon, StaffWithProfile, Booking, ServiceCategory, HolidayEntry, WorkSchedule } from "@/lib/supabase/types";
+import { getDayName, formatTime, formatDateForDB, isDateInHolidays, getDesignerWorkHours } from "@/features/bookings/utils";
+import { createBookingsApi } from "@/features/bookings/api";
+import { createSalonsApi } from "../api";
 
 type Props = {
   salon: Salon;
@@ -31,17 +33,11 @@ interface BookingModalData {
   time: string;
 }
 
-// Get day name from any date
-function getDayNameFromDate(date: Date): string {
-  const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-  return days[date.getDay()];
-}
-
 // Check if salon is currently open
 function isOpen(businessHours: Salon["business_hours"]): boolean {
   if (!businessHours) return false;
 
-  const today = getDayNameFromDate(new Date());
+  const today = getDayName(new Date());
   const todayHours = businessHours[today];
 
   if (!todayHours?.enabled || !todayHours.open || !todayHours.close) {
@@ -56,51 +52,7 @@ function isOpen(businessHours: Salon["business_hours"]): boolean {
   return currentTime >= openTime && currentTime <= closeTime;
 }
 
-function formatTime(minutes: number): string {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
-}
 
-function formatDateForDB(date: Date): string {
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-// Check if a date matches a holiday entry
-function isDateInHolidays(date: Date, holidays: HolidayEntry[] | unknown[] | null): boolean {
-  if (!holidays || holidays.length === 0) return false;
-
-  const dateStr = formatDateForDB(date);
-
-  return holidays.some((holiday) => {
-    if (typeof holiday === "string") {
-      return holiday === dateStr;
-    }
-    if (typeof holiday === "object" && holiday !== null && "date" in holiday) {
-      return (holiday as { date: string }).date === dateStr;
-    }
-    return false;
-  });
-}
-
-// Get work hours for a designer on a specific day
-function getDesignerWorkHours(
-  designer: StaffWithProfile,
-  dayName: string
-): { start: string; end: string } | null {
-  const workSchedule = designer.staff_profiles?.work_schedule as WorkSchedule | null;
-  if (!workSchedule) return null;
-
-  const daySchedule = workSchedule[dayName];
-  if (!daySchedule?.enabled || !daySchedule.start || !daySchedule.end) {
-    return null;
-  }
-
-  return { start: daySchedule.start, end: daySchedule.end };
-}
 
 export function SalonDetailView({ salon, staff }: Props) {
   const t = useTranslations("salon");
@@ -148,7 +100,7 @@ export function SalonDetailView({ salon, staff }: Props) {
 
   // Get day label for a date (using i18n)
   const getDayLabel = (date: Date) => {
-    const dayName = getDayNameFromDate(date);
+    const dayName = getDayName(date);
     return tCommon(`days.${dayName}`);
   };
 
@@ -168,7 +120,7 @@ export function SalonDetailView({ salon, staff }: Props) {
     if (isSalonHoliday(date)) return false;
 
     // Then check business hours
-    const dayName = getDayNameFromDate(date);
+    const dayName = getDayName(date);
     const hours = salon.business_hours?.[dayName];
     return hours?.enabled && hours.open && hours.close;
   };
@@ -187,22 +139,11 @@ export function SalonDetailView({ salon, staff }: Props) {
 
   const fetchCategories = async () => {
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("service_categories")
-        .select("*")
-        .eq("salon_id", salon.id)
-        .eq("is_active", true)
-        .is("deleted_at", null)
-        .order("display_order", { ascending: true });
-
-      if (!error && data) {
-        const categoryData = data as ServiceCategory[];
-        setCategories(categoryData);
-        // Auto-select first category if available
-        if (categoryData.length > 0 && !selectedCategory) {
-          setSelectedCategory(categoryData[0].id);
-        }
+      const api = createSalonsApi();
+      const categoryData = await api.getServiceCategories(salon.id);
+      setCategories(categoryData);
+      if (categoryData.length > 0 && !selectedCategory) {
+        setSelectedCategory(categoryData[0].id);
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -218,19 +159,9 @@ export function SalonDetailView({ salon, staff }: Props) {
 
   const fetchBookingsForDate = async (date: Date) => {
     try {
-      const supabase = createClient();
-      const dateStr = formatDateForDB(date);
-
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("*")
-        .eq("salon_id", salon.id)
-        .eq("booking_date", dateStr)
-        .not("status", "in", '("CANCELLED","NO_SHOW")');
-
-      if (!error && data) {
-        setExistingBookings(data);
-      }
+      const api = createBookingsApi();
+      const bookings = await api.getBookingsBySalon(salon.id, formatDateForDB(date));
+      setExistingBookings(bookings);
     } catch (error) {
       console.error("Error fetching bookings:", error);
     }
@@ -238,7 +169,7 @@ export function SalonDetailView({ salon, staff }: Props) {
 
   // Get salon business hours for a date
   const getSalonHours = (date: Date) => {
-    const dayName = getDayNameFromDate(date);
+    const dayName = getDayName(date);
     const hours = salon.business_hours?.[dayName];
     if (!hours?.enabled || !hours.open || !hours.close) return null;
     return { open: hours.open, close: hours.close };
@@ -249,7 +180,7 @@ export function SalonDetailView({ salon, staff }: Props) {
     // If salon is closed on this date (holiday or no business hours), return empty
     if (isSalonHoliday(selectedDate)) return [];
 
-    const dayName = getDayNameFromDate(selectedDate);
+    const dayName = getDayName(selectedDate);
     const salonHours = getSalonHours(selectedDate);
     if (!salonHours) return [];
 
@@ -346,7 +277,7 @@ export function SalonDetailView({ salon, staff }: Props) {
     // Check if it's a holiday first
     if (isSalonHoliday(date)) return null;
 
-    const dayName = getDayNameFromDate(date);
+    const dayName = getDayName(date);
     const hours = salon.business_hours?.[dayName];
     return hours?.enabled && hours.open ? hours.open : null;
   };
@@ -375,20 +306,20 @@ export function SalonDetailView({ salon, staff }: Props) {
 
     setIsSubmitting(true);
     try {
-      const supabase = createClient();
+      const api = createBookingsApi();
       const slotDuration = salon.settings?.slot_duration_minutes || 60;
 
       const [startHour, startMin] = bookingModal.time.split(":").map(Number);
       const startMinutes = startHour * 60 + startMin;
       const endTime = formatTime(startMinutes + slotDuration);
 
-      const bookingData = {
+      await api.createBooking({
         salon_id: salon.id,
         customer_id: user.id,
         customer_user_type: "CUSTOMER" as const,
         designer_id: bookingModal.designer.id,
         designer_user_type: "ADMIN_USER" as const,
-        service_id: null as unknown as string, // Will be selected later or use default
+        service_id: null as unknown as string,
         booking_date: formatDateForDB(selectedDate),
         start_time: bookingModal.time,
         end_time: endTime,
@@ -397,13 +328,7 @@ export function SalonDetailView({ salon, staff }: Props) {
         service_price: 0,
         total_price: 0,
         customer_notes: customerNotes || null,
-      };
-
-      const { error } = await supabase
-        .from("bookings")
-        .insert(bookingData as never);
-
-      if (error) throw error;
+      });
 
       // Refresh bookings and close modal
       await fetchBookingsForDate(selectedDate);
@@ -548,6 +473,66 @@ export function SalonDetailView({ salon, staff }: Props) {
             </span>
           </div>
         </div>
+
+        {/* Business Hours Info Card */}
+        {(() => {
+          const dayName = getDayName(selectedDate);
+          const hours = salon.business_hours?.[dayName];
+          const isHoliday = isSalonHoliday(selectedDate) || !hours?.enabled;
+          const slotDuration = salon.settings?.slot_duration_minutes || 60;
+
+          // Get regular holidays (days where enabled is false)
+          const dayKeys = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
+          const regularHolidays = dayKeys
+            .filter((d) => salon.business_hours?.[d] && !salon.business_hours[d].enabled)
+            .map((d) => tCommon(`days.${d}`));
+
+          if (isHoliday) {
+            return (
+              <div className="bg-red-50 border border-red-100 rounded-xl p-4 mb-4">
+                <div className="text-center text-red-500 font-medium">
+                  {t("holiday")}
+                </div>
+                {regularHolidays.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-red-100 flex justify-between text-sm">
+                    <span className="text-gray-500">{t("regularHoliday")}</span>
+                    <span className="text-gray-700">{t("everyWeek")} {regularHolidays.join(", ")}</span>
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          const openTime = hours!.open!;
+          const closeTime = hours!.close!;
+          const [closeH, closeM] = closeTime.split(":").map(Number);
+          const closeMinutes = closeH * 60 + closeM;
+          const lastBookingTime = formatTime(closeMinutes - slotDuration);
+          const unitLabel = `${slotDuration}${tCommon("minutes")}`;
+
+          return (
+            <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-4 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">{t("businessHours")}</span>
+                <span className="text-gray-700 font-medium">{openTime} - {closeTime}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">{t("lastBooking")}</span>
+                <span className="text-gray-700 font-medium">{lastBookingTime}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">{t("bookingUnit")}</span>
+                <span className="text-gray-700 font-medium">{unitLabel}</span>
+              </div>
+              {regularHolidays.length > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">{t("regularHoliday")}</span>
+                  <span className="text-gray-700 font-medium">{t("everyWeek")} {regularHolidays.join(", ")}</span>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Designers Section */}
         <h3 className="text-base font-bold flex items-center gap-2 mb-3">

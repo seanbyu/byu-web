@@ -16,5 +16,11 @@
   "photos": "รูปภาพ",
   "about": "เกี่ยวกับ",
   "announcement": "ประกาศ",
-  "booking": "จองคิว"
+  "booking": "จองคิว",
+  "businessHours": "เวลาทำการ",
+  "lastBooking": "จองคิวสุดท้าย",
+  "bookingUnit": "หน่วยการจอง",
+  "regularHoliday": "วันหยุดประจำ",
+  "everyWeek": "ทุก",
+  "holiday": "วันหยุด"
 }

@@ -1,4 +1,4 @@
-export function BookingsView() {
+export function BookingHistoryView() {
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Bookings</h1>

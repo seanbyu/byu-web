@@ -1,0 +1,191 @@
+import { useState, useMemo } from "react";
+import { Calendar, Clock, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
+import type { Salon } from "@/lib/supabase/types";
+import { getDayName, isDateInHolidays } from "../utils";
+
+interface TimeSlot {
+  time: string;
+  available: boolean;
+}
+
+export function DateTimeStep({
+  availableDates,
+  timeSlots,
+  selectedDate,
+  selectedTime,
+  onSelectDate,
+  onSelectTime,
+  loadingSlots,
+  salon,
+  t,
+}: {
+  availableDates: Date[];
+  timeSlots: TimeSlot[];
+  selectedDate: Date | null;
+  selectedTime: string | null;
+  onSelectDate: (date: Date) => void;
+  onSelectTime: (time: string) => void;
+  loadingSlots: boolean;
+  salon: Salon;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
+
+  const daysInMonth = useMemo(() => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const days: (Date | null)[] = [];
+
+    for (let i = 0; i < firstDay.getDay(); i++) {
+      days.push(null);
+    }
+
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      days.push(new Date(year, month, i));
+    }
+
+    return days;
+  }, [currentMonth]);
+
+  const isDateAvailable = (date: Date) => {
+    if (isDateInHolidays(date, salon.holidays)) return false;
+
+    const dayName = getDayName(date);
+    const hours = salon.business_hours?.[dayName];
+    if (!hours?.enabled) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date < today) return false;
+
+    const maxDate = new Date(today);
+    maxDate.setDate(today.getDate() + (salon.settings?.booking_advance_days || 30));
+    if (date > maxDate) return false;
+
+    return true;
+  };
+
+  return (
+    <div>
+      <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+        <Calendar className="w-5 h-5 text-purple-500" />
+        {t("selectDateTime")}
+      </h2>
+
+      {/* Calendar */}
+      <div className="bg-gray-50 rounded-xl p-4 mb-6">
+        {/* Month Navigation */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
+            className="p-2 hover:bg-gray-200 rounded-lg"
+          >
+            <ChevronRight className="w-5 h-5 rotate-180" />
+          </button>
+          <span className="font-medium">
+            {currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월
+          </span>
+          <button
+            onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
+            className="p-2 hover:bg-gray-200 rounded-lg"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Day Headers */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {["일", "월", "화", "수", "목", "금", "토"].map((day, i) => (
+            <div
+              key={day}
+              className={`text-center text-xs font-medium py-2 ${
+                i === 0 ? "text-red-500" : i === 6 ? "text-blue-500" : "text-gray-500"
+              }`}
+            >
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar Grid */}
+        <div className="grid grid-cols-7 gap-1">
+          {daysInMonth.map((date, index) => {
+            if (!date) {
+              return <div key={`empty-${index}`} className="h-10" />;
+            }
+
+            const available = isDateAvailable(date);
+            const isSelected = selectedDate?.toDateString() === date.toDateString();
+            const isToday = date.toDateString() === new Date().toDateString();
+
+            return (
+              <button
+                key={date.toISOString()}
+                onClick={() => available && onSelectDate(date)}
+                disabled={!available}
+                className={`h-10 rounded-lg text-sm font-medium transition-colors ${
+                  isSelected
+                    ? "bg-purple-600 text-white"
+                    : available
+                    ? isToday
+                      ? "bg-purple-100 text-purple-600 hover:bg-purple-200"
+                      : "hover:bg-gray-200"
+                    : "text-gray-300 cursor-not-allowed"
+                }`}
+              >
+                {date.getDate()}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Time Slots */}
+      {selectedDate && (
+        <div>
+          <h3 className="font-medium mb-3 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-purple-500" />
+            {t("selectTime")}
+          </h3>
+
+          {loadingSlots ? (
+            <div className="grid grid-cols-4 gap-2">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div key={i} className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+              ))}
+            </div>
+          ) : timeSlots.length > 0 ? (
+            <div className="grid grid-cols-4 gap-2">
+              {timeSlots.map(({ time, available }) => (
+                <button
+                  key={time}
+                  onClick={() => available && onSelectTime(time)}
+                  disabled={!available}
+                  className={`py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    selectedTime === time
+                      ? "bg-purple-600 text-white"
+                      : available
+                      ? "bg-gray-100 hover:bg-gray-200"
+                      : "bg-gray-50 text-gray-300 cursor-not-allowed line-through"
+                  }`}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              {t("noTimeSlotsAvailable")}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

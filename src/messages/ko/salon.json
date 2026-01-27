@@ -16,5 +16,11 @@
   "photos": "사진",
   "about": "소개",
   "announcement": "공지사항",
-  "booking": "예약하기"
+  "booking": "예약하기",
+  "businessHours": "영업시간",
+  "lastBooking": "마지막 예약",
+  "bookingUnit": "예약 단위",
+  "regularHoliday": "정기 휴무",
+  "everyWeek": "매주",
+  "holiday": "휴무일"
 }

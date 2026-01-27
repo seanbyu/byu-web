@@ -16,5 +16,11 @@
   "photos": "Photos",
   "about": "About",
   "announcement": "Announcement",
-  "booking": "Book Now"
+  "booking": "Book Now",
+  "businessHours": "Business Hours",
+  "lastBooking": "Last Booking",
+  "bookingUnit": "Booking Unit",
+  "regularHoliday": "Regular Holiday",
+  "everyWeek": "Every",
+  "holiday": "Holiday"
 }

@@ -1,37 +1,51 @@
-import { apiClient } from "@/lib/api/client";
-import { endpoints } from "@/lib/api/endpoints";
-import { ApiResponse } from "@/types";
+import { createClient } from "@/lib/supabase/client";
+import type { Booking, InsertTables } from "@/lib/supabase/types";
 
-export interface CreateBookingRequest {
-  salonId: string;
-  serviceId: string;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:mm
-  customerName: string;
-  customerPhone: string;
-}
+export const createBookingsApi = (client?: ReturnType<typeof createClient>) => {
+  const supabase = client ?? createClient();
 
-// 예약 생성 응답 타입
-export interface CreateBookingResponse {
-  id: string;
-  salonId: string;
-  serviceId: string;
-  date: string;
-  time: string;
-  customerName: string;
-  customerPhone: string;
-  status: string;
-  createdAt: string;
-}
+  return {
+    getExistingBookings: async (
+      designerId: string,
+      bookingDate: string
+    ): Promise<Booking[]> => {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("designer_id", designerId)
+        .eq("booking_date", bookingDate)
+        .not("status", "in", '("CANCELLED","NO_SHOW")');
 
-export const bookingsApi = {
-  createBooking: (
-    salonId: string,
-    data: CreateBookingRequest
-  ): Promise<ApiResponse<CreateBookingResponse>> => {
-    return apiClient.post<CreateBookingResponse>(
-      endpoints.salons.bookings.path(salonId),
-      data
-    );
-  },
+      if (error) throw error;
+      return data || [];
+    },
+
+    getBookingsBySalon: async (
+      salonId: string,
+      bookingDate: string
+    ): Promise<Booking[]> => {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("salon_id", salonId)
+        .eq("booking_date", bookingDate)
+        .not("status", "in", '("CANCELLED","NO_SHOW")');
+
+      if (error) throw error;
+      return data || [];
+    },
+
+    createBooking: async (
+      bookingData: InsertTables<"bookings">
+    ): Promise<Booking> => {
+      const { data, error } = await supabase
+        .from("bookings")
+        .insert(bookingData as never)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Booking;
+    },
+  };
 };
