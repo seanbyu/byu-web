@@ -53,6 +53,20 @@ export async function GET(request: NextRequest) {
   const errorDescription = searchParams.get("error_description");
 
   const origin = request.nextUrl.origin;
+  const stateParam = searchParams.get("state");
+
+  // Parse returnUrl from state parameter
+  let returnUrl = "/";
+  if (stateParam) {
+    try {
+      const decoded = JSON.parse(Buffer.from(stateParam, "base64").toString());
+      if (decoded.returnUrl && typeof decoded.returnUrl === "string" && decoded.returnUrl.startsWith("/")) {
+        returnUrl = decoded.returnUrl;
+      }
+    } catch {
+      // state parsing failed, default to "/"
+    }
+  }
 
   // Handle OAuth errors
   if (error) {
@@ -145,7 +159,7 @@ export async function GET(request: NextRequest) {
       });
 
       console.log("[LINE Auth] Login complete, redirecting to home");
-      return NextResponse.redirect(`${origin}/`);
+      return NextResponse.redirect(`${origin}${returnUrl}`);
     }
 
     // Step 2: Sign in failed - create new user
@@ -204,7 +218,7 @@ export async function GET(request: NextRequest) {
             statusMessage,
           });
 
-          return NextResponse.redirect(`${origin}/`);
+          return NextResponse.redirect(`${origin}${returnUrl}`);
         }
 
         console.error("[LINE Auth] Retry sign in failed:", retryError?.message);
@@ -242,7 +256,7 @@ export async function GET(request: NextRequest) {
     }
 
     console.log("[LINE Auth] Login complete, redirecting to home");
-    return NextResponse.redirect(`${origin}/`);
+    return NextResponse.redirect(`${origin}${returnUrl}`);
 
   } catch (error) {
     console.error("LINE OAuth callback error:", error);

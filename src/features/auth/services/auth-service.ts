@@ -54,16 +54,24 @@ class AuthService {
 
       if (!channelId) {
         // Fallback: redirect to our LINE OAuth initiation endpoint
-        window.location.href = "/api/auth/line";
+        const currentPath = window.location.pathname + window.location.search;
+        window.location.href = `/api/auth/line?returnUrl=${encodeURIComponent(currentPath)}`;
         return { error: null };
       }
 
       const redirectUri = options?.redirectTo || `${window.location.origin}/api/auth/line/callback`;
-      const state = crypto.randomUUID();
+      const csrfToken = crypto.randomUUID();
       const nonce = crypto.randomUUID();
 
-      // Store state for CSRF protection
-      sessionStorage.setItem("line_oauth_state", state);
+      // Encode CSRF token + return URL in state parameter
+      const statePayload = JSON.stringify({
+        csrf: csrfToken,
+        returnUrl: window.location.pathname + window.location.search,
+      });
+      const state = btoa(statePayload);
+
+      // Store CSRF token for verification
+      sessionStorage.setItem("line_oauth_state", csrfToken);
 
       const params = new URLSearchParams({
         response_type: "code",

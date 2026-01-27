@@ -21,7 +21,12 @@ export async function GET(request: NextRequest) {
 
   const origin = request.nextUrl.origin;
   const redirectUri = `${origin}/api/auth/line/callback`;
-  const state = crypto.randomUUID();
+  const returnUrl = request.nextUrl.searchParams.get("returnUrl") || "/";
+  const statePayload = JSON.stringify({
+    csrf: crypto.randomUUID(),
+    returnUrl,
+  });
+  const state = Buffer.from(statePayload).toString("base64");
   const nonce = crypto.randomUUID();
 
   const params = new URLSearchParams({
