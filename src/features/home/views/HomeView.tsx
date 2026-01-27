@@ -4,7 +4,6 @@ import { HomeHeader } from "../components/HomeHeader";
 import { HeroBanner } from "../components/HeroBanner";
 import { CategoryGrid } from "../components/CategoryGrid";
 import { SalonList } from "../components/SalonList";
-import { AuthBottomNav } from "@/features/auth";
 import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import type { Salon } from "@/lib/supabase/types";
 
@@ -34,7 +33,6 @@ export function HomeView({ salons }: HomeViewProps) {
         bottomOffset={80}  // Above Bottom Navigation
         rightOffset={20}   // Right margin
       />
-      <AuthBottomNav />
     </div>
   );
 }

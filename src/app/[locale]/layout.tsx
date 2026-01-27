@@ -5,6 +5,7 @@ import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { ClientAuthProvider } from "@/features/auth/providers/ClientAuthProvider";
+import { AuthBottomNav } from "@/features/auth/components/AuthBottomNav";
 import "../globals.css";
 
 // Base Latin font
@@ -73,6 +74,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider messages={messages}>
           <ClientAuthProvider liffId={process.env.NEXT_PUBLIC_LIFF_ID}>
             {children}
+            <AuthBottomNav />
           </ClientAuthProvider>
         </NextIntlClientProvider>
       </body>

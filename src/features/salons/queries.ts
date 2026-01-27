@@ -82,7 +82,16 @@ export const getBookableStaff = cache(async (salonId: string): Promise<StaffWith
     return [];
   }
 
-  return (data as StaffWithProfile[]) ?? [];
+  // Supabase !inner join returns staff_profiles as an array — normalize to single object
+  const normalized = (data ?? []).map((user: Record<string, unknown>) => {
+    const profiles = user.staff_profiles;
+    return {
+      ...user,
+      staff_profiles: Array.isArray(profiles) ? profiles[0] ?? null : profiles,
+    };
+  });
+
+  return normalized as StaffWithProfile[];
 });
 
 // 살롱 상세 + 예약 가능 직원 함께 조회

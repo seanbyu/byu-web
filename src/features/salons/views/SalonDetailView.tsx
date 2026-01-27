@@ -109,9 +109,12 @@ export function SalonDetailView({ salon, staff }: Props) {
     return isDateInHolidays(date, salon.holidays);
   };
 
-  // Check if a date is a designer's holiday
+  // Check if a date is a designer's holiday (personal holidays + regular day off)
   const isDesignerHoliday = (designer: StaffWithProfile, date: Date): boolean => {
-    return isDateInHolidays(date, designer.staff_profiles?.holidays || null);
+    if (isDateInHolidays(date, designer.staff_profiles?.holidays || null)) return true;
+    const dayName = getDayName(date);
+    const workResult = getDesignerWorkHours(designer, dayName);
+    return workResult.status === "day_off";
   };
 
   // Check if a date has business hours (and is not a salon holiday)
@@ -194,7 +197,9 @@ export function SalonDetailView({ salon, staff }: Props) {
     let effectiveStart: string;
     let effectiveEnd: string;
 
-    if (designerHours) {
+    if (designerHours.status === "day_off") return [];
+
+    if (designerHours.status === "working") {
       // Use the later start time and earlier end time
       const [salonOpenH, salonOpenM] = salonHours.open.split(":").map(Number);
       const [salonCloseH, salonCloseM] = salonHours.close.split(":").map(Number);
@@ -571,14 +576,31 @@ export function SalonDetailView({ salon, staff }: Props) {
 
                 {/* Time Slots */}
                 {(() => {
-                  const designerTimeSlots = getDesignerTimeSlots(designer);
+                  const salonClosed = isSalonHoliday(selectedDate) || !isDateEnabled(selectedDate);
+
+                  if (salonClosed) {
+                    return (
+                      <div className="flex flex-wrap gap-2">
+                        <p className="text-sm text-gray-400">{tCommon("closed")}</p>
+                      </div>
+                    );
+                  }
+
                   const isOnHoliday = isDesignerHoliday(designer, selectedDate);
+
+                  if (isOnHoliday) {
+                    return (
+                      <div className="flex flex-wrap gap-2">
+                        <p className="text-sm text-gray-400">{tCommon("closedToday")}</p>
+                      </div>
+                    );
+                  }
+
+                  const designerTimeSlots = getDesignerTimeSlots(designer);
 
                   return (
                     <div className="flex flex-wrap gap-2">
-                      {isOnHoliday ? (
-                        <p className="text-sm text-gray-400">{tCommon("closed")}</p>
-                      ) : designerTimeSlots.length > 0 ? (
+                      {designerTimeSlots.length > 0 ? (
                         designerTimeSlots.map((time) => {
                           const available = isSlotAvailable(designer.id, time);
                           return (

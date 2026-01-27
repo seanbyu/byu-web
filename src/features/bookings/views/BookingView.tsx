@@ -123,7 +123,8 @@ export function BookingView({ salon, staff, services, categories }: Props) {
 
     if (selectedDesigner) {
       const designerHours = getDesignerWorkHours(selectedDesigner, dayName);
-      if (designerHours) {
+      if (designerHours.status === "day_off") return [];
+      if (designerHours.status === "working") {
         const dStart = designerHours.start.split(":").map(Number).reduce((h, m) => h * 60 + m);
         const dEnd = designerHours.end.split(":").map(Number).reduce((h, m) => h * 60 + m);
         effectiveOpen = Math.max(effectiveOpen, dStart);
@@ -351,6 +352,7 @@ export function BookingView({ salon, staff, services, categories }: Props) {
             onSelectTime={setSelectedTime}
             loadingSlots={loadingSlots}
             salon={salon}
+            selectedDesigner={selectedDesigner}
             t={t}
           />
         )}

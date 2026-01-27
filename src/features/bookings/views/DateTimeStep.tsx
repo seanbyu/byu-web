@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import { Calendar, Clock, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { Salon } from "@/lib/supabase/types";
-import { getDayName, isDateInHolidays } from "../utils";
+import type { Salon, StaffWithProfile } from "@/lib/supabase/types";
+import { getDayName, isDateInHolidays, getDesignerWorkHours } from "../utils";
 
 interface TimeSlot {
   time: string;
@@ -18,6 +18,7 @@ export function DateTimeStep({
   onSelectTime,
   loadingSlots,
   salon,
+  selectedDesigner,
   t,
 }: {
   availableDates: Date[];
@@ -28,6 +29,7 @@ export function DateTimeStep({
   onSelectTime: (time: string) => void;
   loadingSlots: boolean;
   salon: Salon;
+  selectedDesigner: StaffWithProfile | null;
   t: ReturnType<typeof useTranslations>;
 }) {
   const [currentMonth, setCurrentMonth] = useState(() => {
@@ -67,6 +69,13 @@ export function DateTimeStep({
     const maxDate = new Date(today);
     maxDate.setDate(today.getDate() + (salon.settings?.booking_advance_days || 30));
     if (date > maxDate) return false;
+
+    // Check designer's work schedule and holidays
+    if (selectedDesigner) {
+      if (isDateInHolidays(date, selectedDesigner.staff_profiles?.holidays || null)) return false;
+      const designerHours = getDesignerWorkHours(selectedDesigner, dayName);
+      if (designerHours.status === "day_off") return false;
+    }
 
     return true;
   };

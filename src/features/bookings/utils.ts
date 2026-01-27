@@ -30,13 +30,19 @@ export function isDateInHolidays(date: Date, holidays: HolidayEntry[] | unknown[
   });
 }
 
+export type DesignerWorkResult =
+  | { status: "no_schedule" }
+  | { status: "day_off" }
+  | { status: "working"; start: string; end: string };
+
 export function getDesignerWorkHours(
   designer: StaffWithProfile,
   dayName: string
-): { start: string; end: string } | null {
+): DesignerWorkResult {
   const workSchedule = designer.staff_profiles?.work_schedule as WorkSchedule | null;
-  if (!workSchedule) return null;
+  if (!workSchedule) return { status: "no_schedule" };
   const daySchedule = workSchedule[dayName];
-  if (!daySchedule?.enabled || !daySchedule.start || !daySchedule.end) return null;
-  return { start: daySchedule.start, end: daySchedule.end };
+  if (!daySchedule?.enabled) return { status: "day_off" };
+  if (!daySchedule.start || !daySchedule.end) return { status: "no_schedule" };
+  return { status: "working", start: daySchedule.start, end: daySchedule.end };
 }
