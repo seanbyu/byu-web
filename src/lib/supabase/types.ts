@@ -552,10 +552,10 @@ export type WorkSchedule = {
 };
 
 // 휴무일 타입 (날짜 문자열 배열 또는 휴무일 객체 배열)
-export type HolidayEntry = string | {
-  date: string;
-  reason?: string;
-};
+export type HolidayEntry =
+  | string
+  | { date: string; reason?: string }
+  | { id: string; startDate: string; endDate: string; reason?: string };
 
 // 조인된 직원 정보 타입 (users + staff_profiles)
 export type StaffWithProfile = {

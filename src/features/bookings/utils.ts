@@ -23,8 +23,16 @@ export function isDateInHolidays(date: Date, holidays: HolidayEntry[] | unknown[
   const dateStr = formatDateForDB(date);
   return holidays.some((holiday) => {
     if (typeof holiday === "string") return holiday === dateStr;
-    if (typeof holiday === "object" && holiday !== null && "date" in holiday) {
-      return (holiday as { date: string }).date === dateStr;
+    if (typeof holiday === "object" && holiday !== null) {
+      // 단일 날짜 형식: { date: "2026-01-28" }
+      if ("date" in holiday) {
+        return (holiday as { date: string }).date === dateStr;
+      }
+      // 날짜 범위 형식: { startDate: "2026-01-28", endDate: "2026-01-31" }
+      if ("startDate" in holiday && "endDate" in holiday) {
+        const { startDate, endDate } = holiday as { startDate: string; endDate: string };
+        return dateStr >= startDate && dateStr <= endDate;
+      }
     }
     return false;
   });
