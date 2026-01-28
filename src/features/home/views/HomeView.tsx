@@ -1,10 +1,12 @@
 "use client";
 
+import { memo } from "react";
 import { HomeHeader } from "../components/HomeHeader";
 import { HeroBanner } from "../components/HeroBanner";
 import { CategoryGrid } from "../components/CategoryGrid";
 import { SalonList } from "../components/SalonList";
 import { ScrollToTop } from "@/components/ui/ScrollToTop";
+import { useSalonsQuery } from "../hooks/useSalonsQuery";
 import type { Salon } from "@/lib/supabase/types";
 
 // Mock banners - can be replaced with real data later
@@ -18,7 +20,10 @@ type HomeViewProps = {
   salons: Salon[];
 };
 
-export function HomeView({ salons }: HomeViewProps) {
+export const HomeView = memo(function HomeView({ salons: initialSalons }: HomeViewProps) {
+  // TanStack Query로 데이터 관리 (서버에서 받은 초기 데이터 사용)
+  const { data: salons = initialSalons } = useSalonsQuery(initialSalons);
+
   return (
     <div className="bg-white min-h-screen pb-20">
       <HomeHeader />
@@ -29,10 +34,10 @@ export function HomeView({ salons }: HomeViewProps) {
 
       {/* Floating Elements */}
       <ScrollToTop
-        threshold={400}    // Show after scrolling ~1 viewport
-        bottomOffset={80}  // Above Bottom Navigation
-        rightOffset={20}   // Right margin
+        threshold={400}
+        bottomOffset={80}
+        rightOffset={20}
       />
     </div>
   );
-}
+});

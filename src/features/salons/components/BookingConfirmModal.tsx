@@ -80,12 +80,12 @@ export function BookingConfirmModal({
           </div>
 
           {/* Time Info */}
-          <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-xl mb-4">
-            <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-              <Clock className="w-6 h-6 text-purple-600" />
+          <div className="flex items-center gap-3 p-3 bg-primary-50 rounded-xl mb-4">
+            <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
+              <Clock className="w-6 h-6 text-primary-600" />
             </div>
             <div>
-              <p className="font-bold text-purple-600 text-lg">{time}</p>
+              <p className="font-bold text-primary-600 text-lg">{time}</p>
               <p className="text-sm text-gray-500">
                 {selectedDate.toLocaleDateString(localeCode, { month: "long", day: "numeric", weekday: "long" })}
               </p>
@@ -103,7 +103,7 @@ export function BookingConfirmModal({
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none appearance-none bg-white text-sm pr-10"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none appearance-none bg-white text-sm pr-10"
                 >
                   <option value="" disabled>
                     {tBooking("selectCategoryPlaceholder")}
@@ -132,7 +132,7 @@ export function BookingConfirmModal({
               value={customerNotes}
               onChange={(e) => setCustomerNotes(e.target.value)}
               placeholder={tBooking("customerNotesPlaceholder")}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none resize-none text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none resize-none text-sm"
               rows={3}
             />
           </div>
@@ -141,7 +141,7 @@ export function BookingConfirmModal({
           <button
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white font-semibold py-4 rounded-xl transition-colors"
+            className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 text-white font-semibold py-4 rounded-xl transition-colors"
           >
             {isSubmitting ? tBooking("processing") : tBooking("confirmBooking")}
           </button>

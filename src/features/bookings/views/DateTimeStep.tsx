@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { memo, useState, useMemo } from "react";
 import { Calendar, Clock, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Salon, StaffWithProfile } from "@/lib/supabase/types";
@@ -9,7 +9,7 @@ interface TimeSlot {
   available: boolean;
 }
 
-export function DateTimeStep({
+export const DateTimeStep = memo(function DateTimeStep({
   availableDates,
   timeSlots,
   selectedDate,
@@ -83,7 +83,7 @@ export function DateTimeStep({
   return (
     <div>
       <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-        <Calendar className="w-5 h-5 text-purple-500" />
+        <Calendar className="w-5 h-5 text-primary-500" />
         {t("selectDateTime")}
       </h2>
 
@@ -140,10 +140,10 @@ export function DateTimeStep({
                 disabled={!available}
                 className={`h-10 rounded-lg text-sm font-medium transition-colors ${
                   isSelected
-                    ? "bg-purple-600 text-white"
+                    ? "bg-primary-600 text-white"
                     : available
                     ? isToday
-                      ? "bg-purple-100 text-purple-600 hover:bg-purple-200"
+                      ? "bg-primary-100 text-primary-600 hover:bg-primary-200"
                       : "hover:bg-gray-200"
                     : "text-gray-300 cursor-not-allowed"
                 }`}
@@ -159,7 +159,7 @@ export function DateTimeStep({
       {selectedDate && (
         <div>
           <h3 className="font-medium mb-3 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-purple-500" />
+            <Clock className="w-4 h-4 text-primary-500" />
             {t("selectTime")}
           </h3>
 
@@ -178,7 +178,7 @@ export function DateTimeStep({
                   disabled={!available}
                   className={`py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     selectedTime === time
-                      ? "bg-purple-600 text-white"
+                      ? "bg-primary-600 text-white"
                       : available
                       ? "bg-gray-100 hover:bg-gray-200"
                       : "bg-gray-50 text-gray-300 cursor-not-allowed line-through"
@@ -197,4 +197,4 @@ export function DateTimeStep({
       )}
     </div>
   );
-}
+});

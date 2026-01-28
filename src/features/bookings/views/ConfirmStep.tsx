@@ -1,8 +1,9 @@
+import { memo } from "react";
 import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Salon, StaffWithProfile, Service } from "@/lib/supabase/types";
 
-export function ConfirmStep({
+export const ConfirmStep = memo(function ConfirmStep({
   salon,
   service,
   designer,
@@ -29,7 +30,7 @@ export function ConfirmStep({
   return (
     <div>
       <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-        <Check className="w-5 h-5 text-purple-500" />
+        <Check className="w-5 h-5 text-primary-500" />
         {t("confirmBooking")}
       </h2>
 
@@ -80,7 +81,7 @@ export function ConfirmStep({
         <div className="pt-3 border-t border-gray-200">
           <div className="flex justify-between items-center">
             <span className="text-gray-600">{t("totalPrice")}</span>
-            <span className="text-xl font-bold text-purple-600">
+            <span className="text-xl font-bold text-primary-600">
               ฿{(service.base_price || 0).toLocaleString()}
             </span>
           </div>
@@ -96,10 +97,10 @@ export function ConfirmStep({
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
           placeholder={t("customerNotesPlaceholder")}
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none resize-none"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none resize-none"
           rows={3}
         />
       </div>
     </div>
   );
-}
+});

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { useTranslations } from "next-intl";
 import { MapPin, Clock, Phone, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
@@ -45,37 +46,7 @@ function getTodayHours(businessHours: Salon["business_hours"]): string {
   return `${todayHours.open} - ${todayHours.close}`;
 }
 
-export function SalonList({ salons }: SalonListProps) {
-  const t = useTranslations("salon");
-  const tCommon = useTranslations("common");
-
-  if (salons.length === 0) {
-    return (
-      <div className="p-4">
-        <h2 className="text-lg font-bold mb-4">{t("title")}</h2>
-        <div className="text-center py-8 text-gray-400">
-          {tCommon("noResults")}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold">{t("title")}</h2>
-        <span className="text-sm text-gray-400">{salons.length}개</span>
-      </div>
-      <div className="space-y-4">
-        {salons.map((salon) => (
-          <SalonCard key={salon.id} salon={salon} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function SalonCard({ salon }: { salon: Salon }) {
+const SalonCard = memo(function SalonCard({ salon }: { salon: Salon }) {
   const t = useTranslations("salon");
   const open = isOpen(salon.business_hours);
   const hours = getTodayHours(salon.business_hours);
@@ -83,10 +54,10 @@ function SalonCard({ salon }: { salon: Salon }) {
   return (
     <Link
       href={`/salon/${salon.id}`}
-      className="block bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-purple-100 transition-all duration-200 active:scale-[0.99]"
+      className="block bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-primary-100 transition-all duration-200 active:scale-[0.99]"
     >
       {/* Cover Image */}
-      <div className="relative h-40 bg-gradient-to-br from-purple-100 to-pink-100">
+      <div className="relative h-40 bg-gradient-to-br from-primary-100 to-secondary-100">
         {salon.cover_image_url ? (
           <img
             src={salon.cover_image_url}
@@ -95,7 +66,7 @@ function SalonCard({ salon }: { salon: Salon }) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-5xl font-bold text-purple-200">
+            <span className="text-5xl font-bold text-primary-200">
               {salon.name.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -112,7 +83,7 @@ function SalonCard({ salon }: { salon: Salon }) {
         </div>
         {/* Plan Badge */}
         {salon.plan_type !== "FREE" && (
-          <div className="absolute top-3 left-3 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded-full shadow-sm">
+          <div className="absolute top-3 left-3 px-2 py-1 bg-primary-600 text-white text-xs font-medium rounded-full shadow-sm">
             {salon.plan_type}
           </div>
         )}
@@ -174,4 +145,34 @@ function SalonCard({ salon }: { salon: Salon }) {
       </div>
     </Link>
   );
-}
+});
+
+export const SalonList = memo(function SalonList({ salons }: SalonListProps) {
+  const t = useTranslations("salon");
+  const tCommon = useTranslations("common");
+
+  if (salons.length === 0) {
+    return (
+      <div className="p-4">
+        <h2 className="text-lg font-bold mb-4">{t("title")}</h2>
+        <div className="text-center py-8 text-gray-400">
+          {tCommon("noResults")}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold">{t("title")}</h2>
+        <span className="text-sm text-gray-400">{salons.length}개</span>
+      </div>
+      <div className="space-y-4">
+        {salons.map((salon) => (
+          <SalonCard key={salon.id} salon={salon} />
+        ))}
+      </div>
+    </div>
+  );
+});

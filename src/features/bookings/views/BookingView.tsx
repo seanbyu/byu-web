@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { memo, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useShallow } from "zustand/react/shallow";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, Home, Check } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useAuthContext, LoginModal } from "@/features/auth";
-import type { Salon, StaffWithProfile, Service, ServiceCategory, Booking } from "@/lib/supabase/types";
+import type { Salon, StaffWithProfile, Service, ServiceCategory } from "@/lib/supabase/types";
 import { createBookingsApi } from "../api";
 import { getDayName, formatTime, formatDateForDB, isDateInHolidays, getDesignerWorkHours } from "../utils";
+import { useBookingFlowStore } from "../stores/useBookingFlowStore";
+import { useDesignerBookingsQuery } from "../hooks/useDesignerBookingsQuery";
 import { ServiceStep } from "./ServiceStep";
 import { DesignerStep } from "./DesignerStep";
 import { DateTimeStep } from "./DateTimeStep";
@@ -28,52 +32,74 @@ interface TimeSlot {
   available: boolean;
 }
 
-export function BookingView({ salon, staff, services, categories }: Props) {
+export const BookingView = memo(function BookingView({ salon, staff, services, categories }: Props) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const t = useTranslations("booking");
   const tCommon = useTranslations("common");
   const { isAuthenticated, user } = useAuthContext();
 
-  // Booking state
-  const [currentStep, setCurrentStep] = useState<BookingStep>("service");
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [selectedDesigner, setSelectedDesigner] = useState<StaffWithProfile | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [customerNotes, setCustomerNotes] = useState("");
+  // Zustand store
+  const {
+    currentStep,
+    selectedService,
+    selectedDesigner,
+    selectedDate,
+    selectedTime,
+    customerNotes,
+    showLoginModal,
+    isSubmitting,
+    setCurrentStep,
+    goToNextStep,
+    goToPrevStep,
+    setSelectedService,
+    setSelectedDesigner,
+    setSelectedDate,
+    setSelectedTime,
+    setCustomerNotes,
+    setShowLoginModal,
+    setIsSubmitting,
+    canProceed,
+    getStepCompleted,
+    reset,
+  } = useBookingFlowStore(
+    useShallow((state) => ({
+      currentStep: state.currentStep,
+      selectedService: state.selectedService,
+      selectedDesigner: state.selectedDesigner,
+      selectedDate: state.selectedDate,
+      selectedTime: state.selectedTime,
+      customerNotes: state.customerNotes,
+      showLoginModal: state.showLoginModal,
+      isSubmitting: state.isSubmitting,
+      setCurrentStep: state.setCurrentStep,
+      goToNextStep: state.goToNextStep,
+      goToPrevStep: state.goToPrevStep,
+      setSelectedService: state.setSelectedService,
+      setSelectedDesigner: state.setSelectedDesigner,
+      setSelectedDate: state.setSelectedDate,
+      setSelectedTime: state.setSelectedTime,
+      setCustomerNotes: state.setCustomerNotes,
+      setShowLoginModal: state.setShowLoginModal,
+      setIsSubmitting: state.setIsSubmitting,
+      canProceed: state.canProceed,
+      getStepCompleted: state.getStepCompleted,
+      reset: state.reset,
+    }))
+  );
 
-  // UI state
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [existingBookings, setExistingBookings] = useState<Booking[]>([]);
-  const [loadingSlots, setLoadingSlots] = useState(false);
-
-  // Fetch existing bookings when designer and date are selected
+  // Reset store when component unmounts
   useEffect(() => {
-    if (selectedDesigner && selectedDate) {
-      fetchExistingBookings();
-    }
-  }, [selectedDesigner, selectedDate]);
+    return () => reset();
+  }, [reset]);
 
-  const fetchExistingBookings = async () => {
-    if (!selectedDesigner || !selectedDate) return;
+  // TanStack Query - 디자이너별 예약 데이터
+  const { data: existingBookings = [], isLoading: loadingSlots } = useDesignerBookingsQuery(
+    selectedDesigner?.id ?? null,
+    selectedDate
+  );
 
-    setLoadingSlots(true);
-    try {
-      const api = createBookingsApi();
-      const bookings = await api.getExistingBookings(
-        selectedDesigner.id,
-        formatDateForDB(selectedDate)
-      );
-      setExistingBookings(bookings);
-    } catch (error) {
-      console.error("Error fetching bookings:", error);
-    } finally {
-      setLoadingSlots(false);
-    }
-  };
-
-  // Generate available dates (next N days based on salon settings)
+  // Generate available dates
   const availableDates = useMemo(() => {
     const days = salon.settings?.booking_advance_days || 30;
     const dates: Date[] = [];
@@ -89,16 +115,43 @@ export function BookingView({ salon, staff, services, categories }: Props) {
   }, [salon.settings?.booking_advance_days]);
 
   // Check if a date is a salon holiday
-  const isSalonHoliday = (date: Date): boolean => {
+  const isSalonHoliday = useCallback((date: Date): boolean => {
     return isDateInHolidays(date, salon.holidays);
-  };
+  }, [salon.holidays]);
 
   // Check if a designer is on holiday
-  const isDesignerOnHoliday = (designer: StaffWithProfile, date: Date): boolean => {
+  const isDesignerOnHoliday = useCallback((designer: StaffWithProfile, date: Date): boolean => {
     return isDateInHolidays(date, designer.staff_profiles?.holidays || null);
-  };
+  }, []);
 
-  // Generate time slots for selected date (intersect salon hours + designer schedule)
+  // Check if a time slot is available
+  const checkSlotAvailable = useCallback((startTime: string, duration: number): boolean => {
+    if (!selectedDate) return false;
+
+    const [startHour, startMin] = startTime.split(":").map(Number);
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = startMinutes + duration;
+
+    const now = new Date();
+    if (selectedDate.toDateString() === now.toDateString()) {
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      if (startMinutes <= currentMinutes) return false;
+    }
+
+    for (const booking of existingBookings) {
+      const [bookingHour, bookingMin] = booking.start_time.split(":").map(Number);
+      const bookingStart = bookingHour * 60 + bookingMin;
+      const bookingEnd = bookingStart + booking.duration_minutes;
+
+      if (startMinutes < bookingEnd && endMinutes > bookingStart) {
+        return false;
+      }
+    }
+
+    return true;
+  }, [selectedDate, existingBookings]);
+
+  // Generate time slots
   const timeSlots = useMemo((): TimeSlot[] => {
     if (!selectedDate || !selectedService) return [];
 
@@ -144,37 +197,10 @@ export function BookingView({ salon, staff, services, categories }: Props) {
     }
 
     return slots;
-  }, [selectedDate, selectedService, selectedDesigner, existingBookings, salon.business_hours, salon.settings, salon.holidays]);
-
-  // Check if a time slot is available
-  const checkSlotAvailable = (startTime: string, duration: number): boolean => {
-    if (!selectedDate) return false;
-
-    const [startHour, startMin] = startTime.split(":").map(Number);
-    const startMinutes = startHour * 60 + startMin;
-    const endMinutes = startMinutes + duration;
-
-    const now = new Date();
-    if (selectedDate.toDateString() === now.toDateString()) {
-      const currentMinutes = now.getHours() * 60 + now.getMinutes();
-      if (startMinutes <= currentMinutes) return false;
-    }
-
-    for (const booking of existingBookings) {
-      const [bookingHour, bookingMin] = booking.start_time.split(":").map(Number);
-      const bookingStart = bookingHour * 60 + bookingMin;
-      const bookingEnd = bookingStart + booking.duration_minutes;
-
-      if (startMinutes < bookingEnd && endMinutes > bookingStart) {
-        return false;
-      }
-    }
-
-    return true;
-  };
+  }, [selectedDate, selectedService, selectedDesigner, salon.business_hours, salon.settings, isSalonHoliday, isDesignerOnHoliday, checkSlotAvailable]);
 
   // Handle booking submission
-  const handleSubmitBooking = async () => {
+  const handleSubmitBooking = useCallback(async () => {
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
@@ -210,6 +236,9 @@ export function BookingView({ salon, staff, services, categories }: Props) {
         customer_notes: customerNotes || null,
       });
 
+      // 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ["designer-bookings"] });
+
       router.push(`/bookings/${booking.id}`);
     } catch (error) {
       console.error("Booking error:", error);
@@ -217,65 +246,23 @@ export function BookingView({ salon, staff, services, categories }: Props) {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [isAuthenticated, selectedService, selectedDesigner, selectedDate, selectedTime, user, salon.id, customerNotes, queryClient, router, t, setShowLoginModal, setIsSubmitting]);
 
-  // Navigation helpers
-  const goToStep = (step: BookingStep) => setCurrentStep(step);
-
-  const canProceed = () => {
-    switch (currentStep) {
-      case "service":
-        return !!selectedService;
-      case "designer":
-        return !!selectedDesigner;
-      case "datetime":
-        return !!selectedDate && !!selectedTime;
-      case "confirm":
-        return true;
-      default:
-        return false;
+  const handleNext = useCallback(() => {
+    if (currentStep === "confirm") {
+      handleSubmitBooking();
+    } else {
+      goToNextStep();
     }
-  };
+  }, [currentStep, goToNextStep, handleSubmitBooking]);
 
-  const handleNext = () => {
-    switch (currentStep) {
-      case "service":
-        goToStep("designer");
-        break;
-      case "designer":
-        goToStep("datetime");
-        break;
-      case "datetime":
-        goToStep("confirm");
-        break;
-      case "confirm":
-        handleSubmitBooking();
-        break;
+  const handleBack = useCallback(() => {
+    if (currentStep === "service") {
+      router.back();
+    } else {
+      goToPrevStep();
     }
-  };
-
-  const handleBack = () => {
-    switch (currentStep) {
-      case "designer":
-        goToStep("service");
-        break;
-      case "datetime":
-        goToStep("designer");
-        break;
-      case "confirm":
-        goToStep("datetime");
-        break;
-      default:
-        router.back();
-    }
-  };
-
-  function getStepCompleted(step: BookingStep): boolean {
-    const steps: BookingStep[] = ["service", "designer", "datetime", "confirm"];
-    const currentIndex = steps.indexOf(currentStep);
-    const stepIndex = steps.indexOf(step);
-    return stepIndex < currentIndex;
-  }
+  }, [currentStep, goToPrevStep, router]);
 
   return (
     <div className="bg-white min-h-screen pb-24">
@@ -301,7 +288,7 @@ export function BookingView({ salon, staff, services, categories }: Props) {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                   currentStep === step
-                    ? "bg-purple-600 text-white"
+                    ? "bg-primary-600 text-white"
                     : getStepCompleted(step)
                     ? "bg-green-500 text-white"
                     : "bg-gray-200 text-gray-500"
@@ -357,13 +344,13 @@ export function BookingView({ salon, staff, services, categories }: Props) {
           />
         )}
 
-        {currentStep === "confirm" && (
+        {currentStep === "confirm" && selectedService && selectedDesigner && selectedDate && selectedTime && (
           <ConfirmStep
             salon={salon}
-            service={selectedService!}
-            designer={selectedDesigner!}
-            date={selectedDate!}
-            time={selectedTime!}
+            service={selectedService}
+            designer={selectedDesigner}
+            date={selectedDate}
+            time={selectedTime}
             notes={customerNotes}
             onNotesChange={setCustomerNotes}
             t={t}
@@ -376,7 +363,7 @@ export function BookingView({ salon, staff, services, categories }: Props) {
         <button
           onClick={handleNext}
           disabled={!canProceed() || isSubmitting}
-          className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl transition-colors"
+          className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl transition-colors"
         >
           {isSubmitting
             ? t("processing")
@@ -397,4 +384,4 @@ export function BookingView({ salon, staff, services, categories }: Props) {
       />
     </div>
   );
-}
+});

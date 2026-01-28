@@ -1,7 +1,8 @@
+import { memo } from "react";
 import { Check, Clock } from "lucide-react";
 import type { Service } from "@/lib/supabase/types";
 
-export function ServiceCard({
+export const ServiceCard = memo(function ServiceCard({
   service,
   selected,
   onSelect,
@@ -15,7 +16,7 @@ export function ServiceCard({
       onClick={onSelect}
       className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
         selected
-          ? "border-purple-500 bg-purple-50"
+          ? "border-primary-500 bg-primary-50"
           : "border-gray-100 hover:border-gray-200"
       }`}
     >
@@ -34,17 +35,17 @@ export function ServiceCard({
         </div>
         <div className="text-right">
           {service.base_price && (
-            <span className="font-bold text-purple-600">
+            <span className="font-bold text-primary-600">
               ฿{service.base_price.toLocaleString()}
             </span>
           )}
           {selected && (
             <div className="mt-2">
-              <Check className="w-5 h-5 text-purple-500 ml-auto" />
+              <Check className="w-5 h-5 text-primary-500 ml-auto" />
             </div>
           )}
         </div>
       </div>
     </button>
   );
-}
+});

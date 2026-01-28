@@ -1,5 +1,7 @@
+"use client";
+
+import { memo } from "react";
 import Link from "next/link";
-// Icons can be replaced with custom ones or specific lucide icons
 import { Scissors, Sun, Sparkles, Smile } from "lucide-react";
 
 // Mock categories for now
@@ -10,7 +12,7 @@ const CATEGORIES = [
   { id: "skin", name: "Skin", icon: Smile, href: "/menus/skin" },
 ];
 
-export function CategoryGrid() {
+export const CategoryGrid = memo(function CategoryGrid() {
   return (
     <section className="px-4 py-6">
       <div className="grid grid-cols-4 gap-4">
@@ -31,4 +33,4 @@ export function CategoryGrid() {
       </div>
     </section>
   );
-}
+});

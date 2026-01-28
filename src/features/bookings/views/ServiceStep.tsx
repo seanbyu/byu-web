@@ -1,10 +1,10 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { Scissors } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Service, ServiceCategory } from "@/lib/supabase/types";
 import { ServiceCard } from "./ServiceCard";
 
-export function ServiceStep({
+export const ServiceStep = memo(function ServiceStep({
   services,
   categories,
   selectedService,
@@ -39,7 +39,7 @@ export function ServiceStep({
   return (
     <div>
       <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-        <Scissors className="w-5 h-5 text-purple-500" />
+        <Scissors className="w-5 h-5 text-primary-500" />
         {t("selectService")}
       </h2>
 
@@ -81,4 +81,4 @@ export function ServiceStep({
       )}
     </div>
   );
-}
+});

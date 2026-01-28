@@ -1,17 +1,31 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useMemo, useEffect, useRef, useCallback } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useTranslations } from "next-intl";
 import type { Salon, StaffWithProfile } from "@/lib/supabase/types";
 import { getDayName, isDateInHolidays, getDesignerWorkHours } from "@/features/bookings/utils";
+import { useSalonDetailStore } from "../stores/useSalonDetailStore";
 
 export function useSalonCalendar(salon: Salon) {
   const tCommon = useTranslations("common");
 
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [calendarMonth, setCalendarMonth] = useState(() => {
-    const today = new Date();
-    return new Date(today.getFullYear(), today.getMonth(), 1);
-  });
+  // Zustand store에서 상태 가져오기
+  const {
+    selectedDate,
+    setSelectedDate,
+    showCalendar,
+    setShowCalendar,
+    calendarMonth,
+    setCalendarMonth,
+  } = useSalonDetailStore(
+    useShallow((state) => ({
+      selectedDate: state.selectedDate,
+      setSelectedDate: state.setSelectedDate,
+      showCalendar: state.showCalendar,
+      setShowCalendar: state.setShowCalendar,
+      calendarMonth: state.calendarMonth,
+      setCalendarMonth: state.setCalendarMonth,
+    }))
+  );
 
   const calendarRef = useRef<HTMLDivElement>(null);
 
@@ -25,7 +39,7 @@ export function useSalonCalendar(salon: Salon) {
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
-  }, [showCalendar]);
+  }, [showCalendar, setShowCalendar]);
 
   // Generate available dates (based on booking_advance_days)
   const availableDates = useMemo(() => {
@@ -59,25 +73,25 @@ export function useSalonCalendar(salon: Salon) {
     return days;
   }, [calendarMonth]);
 
-  const isSalonHoliday = (date: Date): boolean => {
+  const isSalonHoliday = useCallback((date: Date): boolean => {
     return isDateInHolidays(date, salon.holidays);
-  };
+  }, [salon.holidays]);
 
-  const isDesignerHoliday = (designer: StaffWithProfile, date: Date): boolean => {
+  const isDesignerHoliday = useCallback((designer: StaffWithProfile, date: Date): boolean => {
     if (isDateInHolidays(date, designer.staff_profiles?.holidays || null)) return true;
     const dayName = getDayName(date);
     const workResult = getDesignerWorkHours(designer, dayName);
     return workResult.status === "day_off";
-  };
+  }, []);
 
-  const isDateEnabled = (date: Date): boolean => {
-    if (isSalonHoliday(date)) return false;
+  const isDateEnabled = useCallback((date: Date): boolean => {
+    if (isDateInHolidays(date, salon.holidays)) return false;
     const dayName = getDayName(date);
     const hours = salon.business_hours?.[dayName];
     return !!(hours?.enabled && hours.open && hours.close);
-  };
+  }, [salon.holidays, salon.business_hours]);
 
-  const isCalendarDateAvailable = (date: Date): boolean => {
+  const isCalendarDateAvailable = useCallback((date: Date): boolean => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (date < today) return false;
@@ -86,20 +100,23 @@ export function useSalonCalendar(salon: Salon) {
     maxDate.setDate(today.getDate() + (salon.settings?.booking_advance_days || 30));
     if (date > maxDate) return false;
 
-    return !!isDateEnabled(date);
-  };
+    if (isDateInHolidays(date, salon.holidays)) return false;
+    const dayName = getDayName(date);
+    const hours = salon.business_hours?.[dayName];
+    return !!(hours?.enabled && hours.open && hours.close);
+  }, [salon.settings?.booking_advance_days, salon.holidays, salon.business_hours]);
 
-  const getDayLabel = (date: Date) => {
+  const getDayLabel = useCallback((date: Date) => {
     const dayName = getDayName(date);
     return tCommon(`days.${dayName}`);
-  };
+  }, [tCommon]);
 
-  const getOpeningTime = (date: Date) => {
-    if (isSalonHoliday(date)) return null;
+  const getOpeningTime = useCallback((date: Date) => {
+    if (isDateInHolidays(date, salon.holidays)) return null;
     const dayName = getDayName(date);
     const hours = salon.business_hours?.[dayName];
     return hours?.enabled && hours.open ? hours.open : null;
-  };
+  }, [salon.holidays, salon.business_hours]);
 
   return {
     selectedDate,

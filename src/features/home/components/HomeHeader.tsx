@@ -1,7 +1,10 @@
+"use client";
+
+import { memo } from "react";
 import { Search, ShoppingCart } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
-export function HomeHeader() {
+export const HomeHeader = memo(function HomeHeader() {
   return (
     <header className="sticky top-0 z-50 bg-white px-4 py-3 flex items-center justify-between shadow-sm">
       {/* Search Bar */}
@@ -30,4 +33,4 @@ export function HomeHeader() {
       </div>
     </header>
   );
-}
+});

@@ -13,7 +13,7 @@ export function SalonCoverImage({ salon, isOpen }: Props) {
   return (
     <>
       {/* Cover Image */}
-      <div className="relative h-48 bg-gradient-to-br from-purple-100 to-pink-100">
+      <div className="relative h-48 bg-gradient-to-br from-primary-100 to-secondary-100">
         {salon.cover_image_url ? (
           <img
             src={salon.cover_image_url}
@@ -22,7 +22,7 @@ export function SalonCoverImage({ salon, isOpen }: Props) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-6xl font-bold text-purple-200">
+            <span className="text-6xl font-bold text-primary-200">
               {salon.name.charAt(0).toUpperCase()}
             </span>
           </div>

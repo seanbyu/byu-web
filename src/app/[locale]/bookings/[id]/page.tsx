@@ -204,7 +204,7 @@ export default function BookingDetailPage() {
           <div className="bg-gray-50 rounded-xl p-4 space-y-4">
             {/* Salon */}
             <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-purple-500 mt-0.5" />
+              <MapPin className="w-5 h-5 text-primary-500 mt-0.5" />
               <div>
                 <p className="text-xs text-gray-500">{t("salon")}</p>
                 <p className="font-medium">{booking.salons.name}</p>
@@ -214,7 +214,7 @@ export default function BookingDetailPage() {
 
             {/* Service */}
             <div className="flex items-start gap-3">
-              <Scissors className="w-5 h-5 text-purple-500 mt-0.5" />
+              <Scissors className="w-5 h-5 text-primary-500 mt-0.5" />
               <div>
                 <p className="text-xs text-gray-500">{t("service")}</p>
                 <p className="font-medium">{booking.services.name}</p>
@@ -243,7 +243,7 @@ export default function BookingDetailPage() {
 
             {/* Date & Time */}
             <div className="flex items-start gap-3">
-              <Calendar className="w-5 h-5 text-purple-500 mt-0.5" />
+              <Calendar className="w-5 h-5 text-primary-500 mt-0.5" />
               <div>
                 <p className="text-xs text-gray-500">{t("dateTime")}</p>
                 <p className="font-medium">{formatDate(booking.booking_date)}</p>
@@ -265,7 +265,7 @@ export default function BookingDetailPage() {
             <div className="pt-3 border-t border-gray-200">
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">{t("totalPrice")}</span>
-                <span className="text-xl font-bold text-purple-600">
+                <span className="text-xl font-bold text-primary-600">
                   ฿{booking.total_price.toLocaleString()}
                 </span>
               </div>

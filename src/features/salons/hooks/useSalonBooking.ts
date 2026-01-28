@@ -1,15 +1,14 @@
-import { useState, useEffect } from "react";
+import { useCallback } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
 import { useAuthContext } from "@/features/auth";
-import type { Salon, StaffWithProfile, Booking, ServiceCategory } from "@/lib/supabase/types";
+import type { Salon, StaffWithProfile, ServiceCategory } from "@/lib/supabase/types";
 import { getDayName, formatTime, formatDateForDB, getDesignerWorkHours } from "@/features/bookings/utils";
 import { createBookingsApi } from "@/features/bookings/api";
-import { createSalonsApi } from "../api";
-
-interface BookingModalData {
-  designer: StaffWithProfile;
-  time: string;
-}
+import { useSalonDetailStore } from "../stores/useSalonDetailStore";
+import { useBookingsQuery } from "./useBookingsQuery";
+import { useCategoriesQuery } from "./useCategoriesQuery";
 
 type CalendarHelpers = {
   isSalonHoliday: (date: Date) => boolean;
@@ -24,68 +23,66 @@ export function useSalonBooking(
 ) {
   const tBooking = useTranslations("booking");
   const locale = useLocale();
+  const queryClient = useQueryClient();
   const { isAuthenticated, user } = useAuthContext();
 
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [bookingModal, setBookingModal] = useState<BookingModalData | null>(null);
-  const [existingBookings, setExistingBookings] = useState<Booking[]>([]);
-  const [customerNotes, setCustomerNotes] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [pendingBooking, setPendingBooking] = useState<BookingModalData | null>(null);
-  const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  // Zustand store
+  const {
+    bookingModal,
+    showLoginModal,
+    customerNotes,
+    selectedCategory,
+    isSubmitting,
+    setCustomerNotes,
+    setSelectedCategory,
+    setIsSubmitting,
+    openBookingModal,
+    closeBookingModal,
+    handleLoginRequired,
+    handleLoginSuccess,
+    setShowLoginModal,
+    setPendingBooking,
+  } = useSalonDetailStore(
+    useShallow((state) => ({
+      bookingModal: state.bookingModal,
+      showLoginModal: state.showLoginModal,
+      customerNotes: state.customerNotes,
+      selectedCategory: state.selectedCategory,
+      isSubmitting: state.isSubmitting,
+      setCustomerNotes: state.setCustomerNotes,
+      setSelectedCategory: state.setSelectedCategory,
+      setIsSubmitting: state.setIsSubmitting,
+      openBookingModal: state.openBookingModal,
+      closeBookingModal: state.closeBookingModal,
+      handleLoginRequired: state.handleLoginRequired,
+      handleLoginSuccess: state.handleLoginSuccess,
+      setShowLoginModal: state.setShowLoginModal,
+      setPendingBooking: state.setPendingBooking,
+    }))
+  );
 
   const { isSalonHoliday, isDesignerHoliday } = calendarHelpers;
 
-  // Fetch existing bookings for selected date
-  useEffect(() => {
-    fetchBookingsForDate(selectedDate);
-  }, [salon.id, selectedDate]);
+  // TanStack Query - 예약 데이터
+  const { data: existingBookings = [] } = useBookingsQuery(salon.id, selectedDate);
 
-  // Fetch categories when booking modal opens
-  useEffect(() => {
-    if (bookingModal) {
-      fetchCategories();
-    }
-  }, [bookingModal]);
+  // TanStack Query - 카테고리 데이터 (모달이 열렸을 때만)
+  const { data: categories = [] } = useCategoriesQuery(salon.id, !!bookingModal);
 
-  const fetchCategories = async () => {
-    try {
-      const api = createSalonsApi();
-      const categoryData = await api.getServiceCategories(salon.id);
-      setCategories(categoryData);
-      if (categoryData.length > 0 && !selectedCategory) {
-        setSelectedCategory(categoryData[0].id);
-      }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
-
-  const getCategoryName = (category: ServiceCategory) => {
+  const getCategoryName = useCallback((category: ServiceCategory) => {
     if (locale === "en" && category.name_en) return category.name_en;
     if (locale === "th" && category.name_th) return category.name_th;
     return category.name;
-  };
+  }, [locale]);
 
-  const fetchBookingsForDate = async (date: Date) => {
-    try {
-      const api = createBookingsApi();
-      const bookings = await api.getBookingsBySalon(salon.id, formatDateForDB(date));
-      setExistingBookings(bookings);
-    } catch (error) {
-      console.error("Error fetching bookings:", error);
-    }
-  };
-
-  const getSalonHours = (date: Date) => {
+  const getSalonHours = useCallback((date: Date) => {
     const dayName = getDayName(date);
     const hours = salon.business_hours?.[dayName];
     if (!hours?.enabled || !hours.open || !hours.close) return null;
     return { open: hours.open, close: hours.close };
-  };
+  }, [salon.business_hours]);
 
-  const getDesignerTimeSlots = (designer: StaffWithProfile): string[] => {
+  const getDesignerTimeSlots = useCallback((designer: StaffWithProfile): string[] => {
     if (isSalonHoliday(selectedDate)) return [];
 
     const dayName = getDayName(selectedDate);
@@ -138,9 +135,9 @@ export function useSalonBooking(
     }
 
     return slots;
-  };
+  }, [selectedDate, isSalonHoliday, isDesignerHoliday, getSalonHours, salon.settings?.slot_duration_minutes]);
 
-  const isSlotAvailable = (designerId: string, time: string): boolean => {
+  const isSlotAvailable = useCallback((designerId: string, time: string): boolean => {
     const now = new Date();
     const isToday = selectedDate.toDateString() === now.toDateString();
 
@@ -168,28 +165,17 @@ export function useSalonBooking(
     }
 
     return true;
-  };
+  }, [selectedDate, existingBookings, salon.settings?.slot_duration_minutes]);
 
-  const handleTimeSlotClick = (designer: StaffWithProfile, time: string) => {
+  const handleTimeSlotClick = useCallback((designer: StaffWithProfile, time: string) => {
     if (!isAuthenticated) {
-      setPendingBooking({ designer, time });
-      setShowLoginModal(true);
+      handleLoginRequired(designer, time);
       return;
     }
-    setBookingModal({ designer, time });
-    setCustomerNotes("");
-    setSelectedCategory("");
-  };
+    openBookingModal(designer, time);
+  }, [isAuthenticated, handleLoginRequired, openBookingModal]);
 
-  const handleLoginSuccess = () => {
-    setShowLoginModal(false);
-    if (pendingBooking) {
-      setBookingModal(pendingBooking);
-      setPendingBooking(null);
-    }
-  };
-
-  const handleSubmitBooking = async () => {
+  const handleSubmitBooking = useCallback(async () => {
     if (!bookingModal || !user) return;
 
     setIsSubmitting(true);
@@ -218,11 +204,12 @@ export function useSalonBooking(
         customer_notes: customerNotes || null,
       });
 
-      await fetchBookingsForDate(selectedDate);
-      setBookingModal(null);
-      setCustomerNotes("");
-      setSelectedCategory("");
+      // 예약 데이터 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: ["bookings", salon.id, formatDateForDB(selectedDate)],
+      });
 
+      closeBookingModal();
       alert(tBooking("bookingConfirmed"));
     } catch (error) {
       console.error("Booking error:", error);
@@ -230,12 +217,7 @@ export function useSalonBooking(
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const closeBookingModal = () => {
-    setBookingModal(null);
-    setSelectedCategory("");
-  };
+  }, [bookingModal, user, salon.id, salon.settings?.slot_duration_minutes, selectedDate, customerNotes, queryClient, closeBookingModal, setIsSubmitting, tBooking]);
 
   return {
     showLoginModal,
@@ -244,7 +226,7 @@ export function useSalonBooking(
     customerNotes,
     setCustomerNotes,
     isSubmitting,
-    pendingBooking,
+    pendingBooking: null, // Zustand에서 관리하므로 여기서는 null
     setPendingBooking,
     categories,
     selectedCategory,

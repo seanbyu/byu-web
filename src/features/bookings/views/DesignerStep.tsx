@@ -1,8 +1,9 @@
+import { memo } from "react";
 import { Check, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { StaffWithProfile } from "@/lib/supabase/types";
 
-export function DesignerStep({
+export const DesignerStep = memo(function DesignerStep({
   staff,
   selectedDesigner,
   onSelect,
@@ -16,7 +17,7 @@ export function DesignerStep({
   return (
     <div>
       <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-        <User className="w-5 h-5 text-purple-500" />
+        <User className="w-5 h-5 text-primary-500" />
         {t("selectDesigner")}
       </h2>
 
@@ -27,7 +28,7 @@ export function DesignerStep({
             onClick={() => onSelect(designer)}
             className={`p-4 rounded-xl border-2 text-center transition-all ${
               selectedDesigner?.id === designer.id
-                ? "border-purple-500 bg-purple-50"
+                ? "border-primary-500 bg-primary-50"
                 : "border-gray-100 hover:border-gray-200"
             }`}
           >
@@ -51,12 +52,12 @@ export function DesignerStep({
               </p>
             )}
             {designer.staff_profiles?.specialties?.[0] && (
-              <p className="text-xs text-purple-500 mt-1 truncate">
+              <p className="text-xs text-primary-500 mt-1 truncate">
                 {designer.staff_profiles.specialties[0]}
               </p>
             )}
             {selectedDesigner?.id === designer.id && (
-              <Check className="w-5 h-5 text-purple-500 mx-auto mt-2" />
+              <Check className="w-5 h-5 text-primary-500 mx-auto mt-2" />
             )}
           </button>
         ))}
@@ -69,4 +70,4 @@ export function DesignerStep({
       )}
     </div>
   );
-}
+});
