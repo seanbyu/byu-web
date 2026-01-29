@@ -53,7 +53,7 @@ export function BookingConfirmModal({
           <X className="w-5 h-5 text-gray-500" />
         </button>
 
-        <div className="px-6 pb-8">
+        <div className="px-6 pb-24">
           <h3 className="text-lg font-bold text-gray-900 mb-4">
             {tBooking("confirmBooking")}
           </h3>
