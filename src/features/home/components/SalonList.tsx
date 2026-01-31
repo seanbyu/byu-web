@@ -10,7 +10,19 @@ type SalonListProps = {
   salons: Salon[];
 };
 
-// Check if salon is currently open
+// Check if today is a holiday (not enabled)
+function isTodayHoliday(businessHours: Salon["business_hours"]): boolean {
+  if (!businessHours) return true;
+
+  const now = new Date();
+  const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  const today = days[now.getDay()];
+  const todayHours = businessHours[today];
+
+  return !todayHours?.enabled || !todayHours.open || !todayHours.close;
+}
+
+// Check if salon is currently open (within business hours)
 function isOpen(businessHours: Salon["business_hours"]): boolean {
   if (!businessHours) return false;
 
@@ -31,8 +43,8 @@ function isOpen(businessHours: Salon["business_hours"]): boolean {
 }
 
 // Get today's hours
-function getTodayHours(businessHours: Salon["business_hours"]): string {
-  if (!businessHours) return "";
+function getTodayHours(businessHours: Salon["business_hours"]): string | null {
+  if (!businessHours) return null;
 
   const now = new Date();
   const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -40,7 +52,7 @@ function getTodayHours(businessHours: Salon["business_hours"]): string {
   const todayHours = businessHours[today];
 
   if (!todayHours?.enabled || !todayHours.open || !todayHours.close) {
-    return "휴무";
+    return null;
   }
 
   return `${todayHours.open} - ${todayHours.close}`;
@@ -48,8 +60,23 @@ function getTodayHours(businessHours: Salon["business_hours"]): string {
 
 const SalonCard = memo(function SalonCard({ salon }: { salon: Salon }) {
   const t = useTranslations("salon");
+  const tCommon = useTranslations("common");
+  const holiday = isTodayHoliday(salon.business_hours);
   const open = isOpen(salon.business_hours);
   const hours = getTodayHours(salon.business_hours);
+
+  // 배지 상태: 휴무일 > 영업 중 > 준비 중
+  const getBadgeStyle = () => {
+    if (holiday) {
+      return { className: "bg-gray-800 text-white", label: tCommon("closed") }; // 휴무
+    }
+    if (open) {
+      return { className: "bg-green-500 text-white", label: t("open") }; // 영업 중
+    }
+    return { className: "bg-amber-500 text-white", label: t("beforeOpen") }; // 준비 중
+  };
+
+  const badge = getBadgeStyle();
 
   return (
     <Link
@@ -73,13 +100,9 @@ const SalonCard = memo(function SalonCard({ salon }: { salon: Salon }) {
         )}
         {/* Status Badge */}
         <div
-          className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm ${
-            open
-              ? "bg-green-500 text-white"
-              : "bg-gray-800/80 text-white"
-          }`}
+          className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm ${badge.className}`}
         >
-          {open ? t("open") : t("closed")}
+          {badge.label}
         </div>
         {/* Plan Badge */}
         {salon.plan_type !== "FREE" && (
@@ -127,10 +150,10 @@ const SalonCard = memo(function SalonCard({ salon }: { salon: Salon }) {
                 </div>
               )}
               <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
-                open ? "bg-green-50 text-green-600" : "bg-gray-50 text-gray-500"
+                holiday ? "bg-gray-100 text-gray-500" : open ? "bg-green-50 text-green-600" : "bg-gray-50 text-gray-500"
               }`}>
                 <Clock className="w-3 h-3" />
-                <span>{hours}</span>
+                <span>{hours || tCommon("closed")}</span>
               </div>
             </div>
 
