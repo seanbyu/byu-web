@@ -13,11 +13,13 @@ import "../globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 // Thai font - Noto Sans Thai for optimal readability
@@ -36,11 +38,11 @@ const notoSansKR = Noto_Sans_KR({
   display: "swap",
 });
 
-// Font class map by locale
+// Font class map by locale - className과 variable 모두 사용
 const fontClassMap: Record<Locale, string> = {
-  en: geistSans.variable,
-  ko: `${geistSans.variable} ${notoSansKR.variable}`,
-  th: `${geistSans.variable} ${notoSansThai.variable}`,
+  en: `${geistSans.className} ${geistSans.variable}`,
+  ko: `${notoSansKR.className} ${geistSans.variable} ${notoSansKR.variable}`,
+  th: `${notoSansThai.className} ${geistSans.variable} ${notoSansThai.variable}`,
 };
 
 export const metadata: Metadata = {
@@ -69,7 +71,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${localeFonts} ${geistMono.variable} antialiased font-sans`}
+        className={`${localeFonts} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
         <QueryProvider>
