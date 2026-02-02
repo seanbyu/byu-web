@@ -71,14 +71,15 @@ CREATE TABLE staff_profiles (
   }'::jsonb,
 
   -- Work schedule (JSONB for flexible schedule management)
+  -- Default matches salons.business_hours (Monday off, 10:00-21:00)
   work_schedule JSONB DEFAULT '{
-    "monday": {"enabled": true, "start": "08:00", "end": "22:00"},
-    "tuesday": {"enabled": true, "start": "08:00", "end": "22:00"},
-    "wednesday": {"enabled": true, "start": "08:00", "end": "22:00"},
-    "thursday": {"enabled": true, "start": "08:00", "end": "22:00"},
-    "friday": {"enabled": true, "start": "08:00", "end": "22:00"},
-    "saturday": {"enabled": true, "start": "08:00", "end": "22:00"},
-    "sunday": {"enabled": false, "start": null, "end": null}
+    "monday": {"enabled": false, "start": null, "end": null},
+    "tuesday": {"enabled": true, "start": "10:00", "end": "21:00"},
+    "wednesday": {"enabled": true, "start": "10:00", "end": "21:00"},
+    "thursday": {"enabled": true, "start": "10:00", "end": "21:00"},
+    "friday": {"enabled": true, "start": "10:00", "end": "21:00"},
+    "saturday": {"enabled": true, "start": "10:00", "end": "21:00"},
+    "sunday": {"enabled": true, "start": "10:00", "end": "21:00"}
   }'::jsonb,
 
   -- Holidays (휴가)

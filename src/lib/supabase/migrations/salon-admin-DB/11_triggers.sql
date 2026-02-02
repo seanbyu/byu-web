@@ -52,6 +52,8 @@ DECLARE
   v_permissions JSONB;
   v_is_approved BOOLEAN;
   v_is_owner BOOLEAN;
+  v_work_schedule JSONB;
+  v_business_hours JSONB;
 BEGIN
   -- Extract salon_id from metadata if present (for invites)
   IF (NEW.raw_user_meta_data->>'salon_id' IS NOT NULL) THEN
@@ -95,8 +97,25 @@ BEGIN
     -- Extract permissions from metadata if present
     v_permissions := COALESCE((NEW.raw_user_meta_data->>'permissions')::jsonb, NULL);
 
-    -- Insert staff_profiles with salon_id, owner flag, and approval info
-    INSERT INTO staff_profiles (user_id, salon_id, is_owner, is_approved, approved_by, approved_at, permissions)
+    -- Get salon's business_hours and convert to work_schedule format
+    IF v_salon_id IS NOT NULL THEN
+      SELECT business_hours INTO v_business_hours FROM salons WHERE id = v_salon_id;
+      IF v_business_hours IS NOT NULL THEN
+        -- Convert business_hours (open/close) to work_schedule (start/end) format
+        v_work_schedule := jsonb_build_object(
+          'monday', jsonb_build_object('enabled', COALESCE((v_business_hours->'monday'->>'enabled')::boolean, false), 'start', v_business_hours->'monday'->>'open', 'end', v_business_hours->'monday'->>'close'),
+          'tuesday', jsonb_build_object('enabled', COALESCE((v_business_hours->'tuesday'->>'enabled')::boolean, true), 'start', v_business_hours->'tuesday'->>'open', 'end', v_business_hours->'tuesday'->>'close'),
+          'wednesday', jsonb_build_object('enabled', COALESCE((v_business_hours->'wednesday'->>'enabled')::boolean, true), 'start', v_business_hours->'wednesday'->>'open', 'end', v_business_hours->'wednesday'->>'close'),
+          'thursday', jsonb_build_object('enabled', COALESCE((v_business_hours->'thursday'->>'enabled')::boolean, true), 'start', v_business_hours->'thursday'->>'open', 'end', v_business_hours->'thursday'->>'close'),
+          'friday', jsonb_build_object('enabled', COALESCE((v_business_hours->'friday'->>'enabled')::boolean, true), 'start', v_business_hours->'friday'->>'open', 'end', v_business_hours->'friday'->>'close'),
+          'saturday', jsonb_build_object('enabled', COALESCE((v_business_hours->'saturday'->>'enabled')::boolean, true), 'start', v_business_hours->'saturday'->>'open', 'end', v_business_hours->'saturday'->>'close'),
+          'sunday', jsonb_build_object('enabled', COALESCE((v_business_hours->'sunday'->>'enabled')::boolean, true), 'start', v_business_hours->'sunday'->>'open', 'end', v_business_hours->'sunday'->>'close')
+        );
+      END IF;
+    END IF;
+
+    -- Insert staff_profiles with salon_id, owner flag, approval info, and work_schedule
+    INSERT INTO staff_profiles (user_id, salon_id, is_owner, is_approved, approved_by, approved_at, permissions, work_schedule)
     VALUES (
       NEW.id,
       v_salon_id,  -- salon_id is now in staff_profiles
@@ -104,7 +123,8 @@ BEGIN
       v_is_approved,
       CASE WHEN v_is_approved = true THEN NEW.id ELSE NULL END,
       CASE WHEN v_is_approved = true THEN NOW() ELSE NULL END,
-      COALESCE(v_permissions, '{}'::jsonb)
+      COALESCE(v_permissions, '{}'::jsonb),
+      v_work_schedule  -- work_schedule synced with salon's business_hours
     );
   END IF;
 
