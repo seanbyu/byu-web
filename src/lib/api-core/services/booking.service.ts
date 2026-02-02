@@ -131,9 +131,7 @@ export class BookingService {
     const bookingData: InsertTables<"bookings"> = {
       salon_id: params.salonId,
       customer_id: params.customerId,
-      customer_user_type: "CUSTOMER",
       designer_id: params.designerId,
-      designer_user_type: "ADMIN_USER",
       service_id: params.serviceId,
       booking_date: params.bookingDate,
       start_time: params.startTime,

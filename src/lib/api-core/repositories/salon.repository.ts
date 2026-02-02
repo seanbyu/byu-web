@@ -79,47 +79,68 @@ export class SalonRepository extends BaseRepository<"salons"> {
 
   /**
    * 살롱의 예약 가능한 직원 조회
+   * staff_profiles 테이블에서 시작하여 users와 조인 (user_id FK 사용)
    */
   async findBookableStaff(salonId: string): Promise<StaffWithProfile[]> {
     const { data, error } = await this.supabase
-      .from("users")
+      .from("staff_profiles")
       .select(`
-        id,
-        name,
-        email,
-        phone,
-        profile_image,
         salon_id,
-        role,
-        is_active,
-        staff_profiles!inner (
-          is_booking_enabled,
-          bio,
-          specialties,
-          years_of_experience,
-          work_schedule,
-          holidays,
-          social_links
+        is_owner,
+        is_booking_enabled,
+        bio,
+        specialties,
+        years_of_experience,
+        work_schedule,
+        holidays,
+        social_links,
+        users!staff_profiles_user_id_fkey (
+          id,
+          name,
+          email,
+          phone,
+          profile_image,
+          role,
+          is_active,
+          user_type
         )
       `)
       .eq("salon_id", salonId)
-      .eq("user_type", "ADMIN_USER")
-      .eq("is_active", true)
-      .eq("staff_profiles.is_booking_enabled", true)
-      .order("created_at", { ascending: true });
+      .eq("is_booking_enabled", true);
 
     if (error) throw error;
 
-    // Normalize staff_profiles from array to single object
-    const normalized = (data ?? []).map((user: Record<string, unknown>) => {
-      const profiles = user.staff_profiles;
-      return {
-        ...user,
-        staff_profiles: Array.isArray(profiles) ? profiles[0] ?? null : profiles,
-      };
-    });
+    // Transform and filter data to StaffWithProfile format
+    const transformed = (data ?? [])
+      .filter((profile: Record<string, unknown>) => {
+        const user = profile.users as Record<string, unknown>;
+        return user && user.user_type === "ADMIN_USER" && user.is_active === true;
+      })
+      .map((profile: Record<string, unknown>) => {
+        const user = profile.users as Record<string, unknown>;
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          profile_image: user.profile_image,
+          role: user.role,
+          is_active: user.is_active,
+          staff_profiles: {
+            salon_id: profile.salon_id,
+            is_owner: profile.is_owner,
+            is_booking_enabled: profile.is_booking_enabled,
+            bio: profile.bio,
+            specialties: profile.specialties,
+            years_of_experience: profile.years_of_experience,
+            work_schedule: profile.work_schedule,
+            holidays: profile.holidays,
+            social_links: profile.social_links,
+          },
+        };
+      });
 
-    return normalized as StaffWithProfile[];
+    return transformed as StaffWithProfile[];
   }
 }
 

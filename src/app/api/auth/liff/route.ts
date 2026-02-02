@@ -313,7 +313,6 @@ async function syncToUsersTable(
         user_type: "CUSTOMER",
         role: "CUSTOMER",
         is_active: true,
-        is_approved: true,
       };
       await supabaseAdmin.from("users").insert(insertData);
     }

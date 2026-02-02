@@ -151,11 +151,6 @@ export type Database = {
           profile_image: string | null;
           auth_provider: AuthProvider;
           provider_user_id: string | null;
-          salon_id: string | null;
-          created_by: string | null;
-          is_approved: boolean;
-          approved_by: string | null;
-          approved_at: string | null;
           is_active: boolean;
           deleted_at: string | null;
           created_at: string;
@@ -171,11 +166,6 @@ export type Database = {
           profile_image?: string | null;
           auth_provider?: AuthProvider;
           provider_user_id?: string | null;
-          salon_id?: string | null;
-          created_by?: string | null;
-          is_approved?: boolean;
-          approved_by?: string | null;
-          approved_at?: string | null;
           is_active?: boolean;
           deleted_at?: string | null;
           created_at?: string;
@@ -190,11 +180,6 @@ export type Database = {
           profile_image?: string | null;
           auth_provider?: AuthProvider;
           provider_user_id?: string | null;
-          salon_id?: string | null;
-          created_by?: string | null;
-          is_approved?: boolean;
-          approved_by?: string | null;
-          approved_at?: string | null;
           is_active?: boolean;
           deleted_at?: string | null;
           updated_at?: string;
@@ -204,7 +189,6 @@ export type Database = {
       customer_profiles: {
         Row: {
           user_id: string;
-          user_type: "CUSTOMER";
           line_user_id: string | null;
           line_display_name: string | null;
           line_picture_url: string | null;
@@ -222,7 +206,6 @@ export type Database = {
         };
         Insert: {
           user_id: string;
-          user_type?: "CUSTOMER";
           line_user_id?: string | null;
           line_display_name?: string | null;
           line_picture_url?: string | null;
@@ -258,8 +241,14 @@ export type Database = {
       staff_profiles: {
         Row: {
           user_id: string;
-          user_type: "ADMIN_USER";
+          salon_id: string;
+          is_owner: boolean;
+          is_approved: boolean;
+          approved_by: string | null;
+          approved_at: string | null;
+          created_by: string | null;
           position_id: string | null;
+          is_booking_enabled: boolean;
           permissions: Record<string, unknown>;
           work_schedule: Record<string, unknown> | null;
           holidays: unknown[] | null;
@@ -274,14 +263,19 @@ export type Database = {
             twitter?: string | null;
             website?: string | null;
           } | null;
-          is_booking_enabled: boolean;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           user_id: string;
-          user_type?: "ADMIN_USER";
+          salon_id: string;
+          is_owner?: boolean;
+          is_approved?: boolean;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          created_by?: string | null;
           position_id?: string | null;
+          is_booking_enabled?: boolean;
           permissions?: Record<string, unknown>;
           work_schedule?: Record<string, unknown> | null;
           holidays?: unknown[] | null;
@@ -296,10 +290,16 @@ export type Database = {
             twitter?: string | null;
             website?: string | null;
           } | null;
-          is_booking_enabled?: boolean;
         };
         Update: {
+          salon_id?: string;
+          is_owner?: boolean;
+          is_approved?: boolean;
+          approved_by?: string | null;
+          approved_at?: string | null;
+          created_by?: string | null;
           position_id?: string | null;
+          is_booking_enabled?: boolean;
           permissions?: Record<string, unknown>;
           work_schedule?: Record<string, unknown> | null;
           holidays?: unknown[] | null;
@@ -314,7 +314,6 @@ export type Database = {
             twitter?: string | null;
             website?: string | null;
           } | null;
-          is_booking_enabled?: boolean;
         };
         Relationships: [];
       };
@@ -421,9 +420,7 @@ export type Database = {
           id: string;
           salon_id: string;
           customer_id: string;
-          customer_user_type: "CUSTOMER";
           designer_id: string;
-          designer_user_type: "ADMIN_USER";
           service_id: string;
           booking_date: string;
           start_time: string;
@@ -451,9 +448,7 @@ export type Database = {
           id?: string;
           salon_id: string;
           customer_id: string;
-          customer_user_type?: "CUSTOMER";
           designer_id: string;
-          designer_user_type?: "ADMIN_USER";
           service_id: string;
           booking_date: string;
           start_time: string;
@@ -564,10 +559,11 @@ export type StaffWithProfile = {
   email: string;
   phone: string | null;
   profile_image: string | null;
-  salon_id: string | null;
   role: UserRole;
   is_active: boolean;
   staff_profiles: {
+    salon_id: string;
+    is_owner: boolean;
     is_booking_enabled: boolean;
     bio: string | null;
     specialties: string[] | null;

@@ -190,9 +190,7 @@ export function useSalonBooking(
       await api.createBooking({
         salon_id: salon.id,
         customer_id: user.id,
-        customer_user_type: "CUSTOMER" as const,
         designer_id: bookingModal.designer.id,
-        designer_user_type: "ADMIN_USER" as const,
         service_id: null as unknown as string,
         booking_date: formatDateForDB(selectedDate),
         start_time: bookingModal.time,

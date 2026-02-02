@@ -220,9 +220,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       const booking = await bookingsApi.createBooking({
         salon_id: salon.id,
         customer_id: user.id,
-        customer_user_type: "CUSTOMER",
         designer_id: selectedDesigner.id,
-        designer_user_type: "ADMIN_USER",
         service_id: selectedService.id,
         booking_date: formatDateForDB(selectedDate),
         start_time: selectedTime,
