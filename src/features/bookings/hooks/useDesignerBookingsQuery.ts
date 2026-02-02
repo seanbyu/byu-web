@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createBookingsApi } from "../api";
+import { bookingsApi } from "../api";
 import { formatDateForDB } from "../utils";
 
 export function useDesignerBookingsQuery(
@@ -10,11 +10,7 @@ export function useDesignerBookingsQuery(
 
   return useQuery({
     queryKey: ["designer-bookings", designerId, dateStr],
-    queryFn: async () => {
-      if (!designerId || !selectedDate) return [];
-      const api = createBookingsApi();
-      return api.getExistingBookings(designerId, dateStr);
-    },
+    queryFn: () => bookingsApi.getExistingBookings(designerId!, dateStr),
     enabled: !!designerId && !!selectedDate,
     staleTime: 30 * 1000, // 30초
   });

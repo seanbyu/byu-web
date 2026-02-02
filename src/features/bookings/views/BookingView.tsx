@@ -9,7 +9,7 @@ import { ArrowLeft, Home, Check } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useAuthContext, LoginModal } from "@/features/auth";
 import type { Salon, StaffWithProfile, Service, ServiceCategory } from "@/lib/supabase/types";
-import { createBookingsApi } from "../api";
+import { bookingsApi } from "../api";
 import { getDayName, formatTime, formatDateForDB, isDateInHolidays, getDesignerWorkHours } from "../utils";
 import { useBookingFlowStore } from "../stores/useBookingFlowStore";
 import { useDesignerBookingsQuery } from "../hooks/useDesignerBookingsQuery";
@@ -212,14 +212,12 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
 
     setIsSubmitting(true);
     try {
-      const api = createBookingsApi();
-
       const [startHour, startMin] = selectedTime.split(":").map(Number);
       const startMinutes = startHour * 60 + startMin;
       const endMinutes = startMinutes + selectedService.duration_minutes;
       const endTime = formatTime(endMinutes);
 
-      const booking = await api.createBooking({
+      const booking = await bookingsApi.createBooking({
         salon_id: salon.id,
         customer_id: user.id,
         customer_user_type: "CUSTOMER",
