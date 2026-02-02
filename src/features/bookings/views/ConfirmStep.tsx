@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { Check } from "lucide-react";
-import { useTranslations } from "next-intl";
-import type { Salon, StaffWithProfile, Service } from "@/lib/supabase/types";
+import type { ConfirmStepProps } from "../types";
 
 export const ConfirmStep = memo(function ConfirmStep({
   salon,
@@ -12,16 +11,7 @@ export const ConfirmStep = memo(function ConfirmStep({
   notes,
   onNotesChange,
   t,
-}: {
-  salon: Salon;
-  service: Service;
-  designer: StaffWithProfile;
-  date: Date;
-  time: string;
-  notes: string;
-  onNotesChange: (notes: string) => void;
-  t: ReturnType<typeof useTranslations>;
-}) {
+}: ConfirmStepProps) {
   const formatDate = (date: Date) => {
     const days = ["일", "월", "화", "수", "목", "금", "토"];
     return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 (${days[date.getDay()]})`;

@@ -2,7 +2,6 @@
 
 import { useLocale } from "next-intl";
 import { LoginModal } from "@/features/auth";
-import type { Salon, StaffWithProfile } from "@/lib/supabase/types";
 import { isOpen } from "../utils";
 import { useSalonCalendar } from "../hooks/useSalonCalendar";
 import { useSalonBooking } from "../hooks/useSalonBooking";
@@ -12,13 +11,9 @@ import { SalonCalendar } from "../components/SalonCalendar";
 import { DesignerTimeSlots } from "../components/DesignerTimeSlots";
 import { BookingConfirmModal } from "../components/BookingConfirmModal";
 import { SalonContactInfo } from "../components/SalonContactInfo";
+import type { SalonDetailViewProps } from "../types";
 
-type Props = {
-  salon: Salon;
-  staff: StaffWithProfile[];
-};
-
-export function SalonDetailView({ salon, staff }: Props) {
+export function SalonDetailView({ salon, staff }: SalonDetailViewProps) {
   const locale = useLocale();
   const open = isOpen(salon.business_hours);
 

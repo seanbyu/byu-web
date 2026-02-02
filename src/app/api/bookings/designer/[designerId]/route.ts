@@ -7,13 +7,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createBookingService } from "@/lib/api-core";
-
-type Params = {
-  params: Promise<{ designerId: string }>;
-};
+import type { DesignerIdParams } from "../../types";
 
 // GET: 특정 디자이너의 특정 날짜 예약 조회
-export async function GET(request: NextRequest, { params }: Params) {
+export async function GET(request: NextRequest, { params }: DesignerIdParams) {
   try {
     const { designerId } = await params;
     const { searchParams } = new URL(request.url);

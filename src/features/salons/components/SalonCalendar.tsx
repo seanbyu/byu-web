@@ -1,34 +1,9 @@
 import { memo } from "react";
-import type { RefObject } from "react";
 import { useTranslations } from "next-intl";
 import { Clock, Calendar, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import type { Salon } from "@/lib/supabase/types";
 import { getDayName, formatTime } from "@/features/bookings/utils";
 import { getLocaleCode } from "../utils";
-
-type Props = {
-  salon: Salon;
-  locale: string;
-  selectedDate: Date;
-  setSelectedDate: (date: Date) => void;
-  showCalendar: boolean;
-  setShowCalendar: (show: boolean) => void;
-  calendarMonth: Date;
-  setCalendarMonth: (month: Date) => void;
-  calendarRef: RefObject<HTMLDivElement | null>;
-  availableDates: Date[];
-  calendarDays: (Date | null)[];
-  isDateEnabled: (date: Date) => boolean;
-  isCalendarDateAvailable: (date: Date) => boolean;
-  getDayLabel: (date: Date) => string;
-  isSalonHoliday: (date: Date) => boolean;
-};
-
-type BusinessHoursCardProps = {
-  salon: Salon;
-  selectedDate: Date;
-  isSalonHoliday: (date: Date) => boolean;
-};
+import type { SalonCalendarProps, BusinessHoursCardProps } from "../types";
 
 const BusinessHoursCard = memo(function BusinessHoursCard({
   salon,
@@ -111,7 +86,7 @@ export const SalonCalendar = memo(function SalonCalendar({
   isCalendarDateAvailable,
   getDayLabel,
   isSalonHoliday,
-}: Props) {
+}: SalonCalendarProps) {
   const t = useTranslations("salon");
   const tCommon = useTranslations("common");
   const localeCode = getLocaleCode(locale);

@@ -1,12 +1,8 @@
 import { useTranslations } from "next-intl";
 import { MapPin, Phone } from "lucide-react";
-import type { Salon } from "@/lib/supabase/types";
+import type { SalonContactInfoProps } from "../types";
 
-type Props = {
-  salon: Salon;
-};
-
-export function SalonContactInfo({ salon }: Props) {
+export function SalonContactInfo({ salon }: SalonContactInfoProps) {
   const t = useTranslations("salon");
 
   return (

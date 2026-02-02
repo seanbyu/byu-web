@@ -4,10 +4,7 @@ import { memo, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useHomeStore } from "../stores/useHomeStore";
-
-interface HeroBannerProps {
-  banners: { id: string; imageUrl: string; link: string }[];
-}
+import type { HeroBannerProps } from "../types";
 
 export const HeroBanner = memo(function HeroBanner({ banners }: HeroBannerProps) {
   const { currentBannerIndex, setCurrentBannerIndex, nextBanner, prevBanner } = useHomeStore(

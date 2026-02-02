@@ -1,8 +1,8 @@
 import { memo, useMemo } from "react";
 import { Scissors } from "lucide-react";
-import { useTranslations } from "next-intl";
 import type { Service, ServiceCategory } from "@/lib/supabase/types";
 import { ServiceCard } from "./ServiceCard";
+import type { ServiceStepProps } from "../types";
 
 export const ServiceStep = memo(function ServiceStep({
   services,
@@ -10,13 +10,7 @@ export const ServiceStep = memo(function ServiceStep({
   selectedService,
   onSelect,
   t,
-}: {
-  services: Service[];
-  categories: ServiceCategory[];
-  selectedService: Service | null;
-  onSelect: (service: Service) => void;
-  t: ReturnType<typeof useTranslations>;
-}) {
+}: ServiceStepProps) {
   const groupedServices = useMemo(() => {
     const uncategorized: Service[] = [];
     const categorized: Map<string, { category: ServiceCategory; services: Service[] }> = new Map();

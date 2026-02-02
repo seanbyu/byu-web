@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { Check, User, Instagram, Youtube, Facebook } from "lucide-react";
-import { useTranslations } from "next-intl";
-import type { StaffWithProfile } from "@/lib/supabase/types";
+import type { DesignerStepProps } from "../types";
 
 // TikTok 아이콘 (lucide-react에 없어서 커스텀)
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -15,12 +14,7 @@ export const DesignerStep = memo(function DesignerStep({
   selectedDesigner,
   onSelect,
   t,
-}: {
-  staff: StaffWithProfile[];
-  selectedDesigner: StaffWithProfile | null;
-  onSelect: (designer: StaffWithProfile) => void;
-  t: ReturnType<typeof useTranslations>;
-}) {
+}: DesignerStepProps) {
   return (
     <div>
       <h2 className="text-lg font-bold mb-4 flex items-center gap-2">

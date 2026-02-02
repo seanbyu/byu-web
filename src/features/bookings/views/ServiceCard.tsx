@@ -1,16 +1,12 @@
 import { memo } from "react";
 import { Check, Clock } from "lucide-react";
-import type { Service } from "@/lib/supabase/types";
+import type { ServiceCardProps } from "../types";
 
 export const ServiceCard = memo(function ServiceCard({
   service,
   selected,
   onSelect,
-}: {
-  service: Service;
-  selected: boolean;
-  onSelect: () => void;
-}) {
+}: ServiceCardProps) {
   return (
     <button
       onClick={onSelect}

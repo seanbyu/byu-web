@@ -1,13 +1,7 @@
 import { memo, useState, useMemo } from "react";
 import { Calendar, Clock, ChevronRight } from "lucide-react";
-import { useTranslations } from "next-intl";
-import type { Salon, StaffWithProfile } from "@/lib/supabase/types";
 import { getDayName, isDateInHolidays, getDesignerWorkHours } from "../utils";
-
-interface TimeSlot {
-  time: string;
-  available: boolean;
-}
+import type { DateTimeStepProps } from "../types";
 
 export const DateTimeStep = memo(function DateTimeStep({
   availableDates,
@@ -20,18 +14,7 @@ export const DateTimeStep = memo(function DateTimeStep({
   salon,
   selectedDesigner,
   t,
-}: {
-  availableDates: Date[];
-  timeSlots: TimeSlot[];
-  selectedDate: Date | null;
-  selectedTime: string | null;
-  onSelectDate: (date: Date) => void;
-  onSelectTime: (time: string) => void;
-  loadingSlots: boolean;
-  salon: Salon;
-  selectedDesigner: StaffWithProfile | null;
-  t: ReturnType<typeof useTranslations>;
-}) {
+}: DateTimeStepProps) {
   const [currentMonth, setCurrentMonth] = useState(() => {
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);

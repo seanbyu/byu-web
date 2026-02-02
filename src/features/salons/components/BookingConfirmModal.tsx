@@ -1,23 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Clock, X, ChevronDown, Tag } from "lucide-react";
-import type { StaffWithProfile, ServiceCategory } from "@/lib/supabase/types";
 import { getLocaleCode } from "../utils";
-
-type Props = {
-  designer: StaffWithProfile;
-  time: string;
-  selectedDate: Date;
-  locale: string;
-  categories: ServiceCategory[];
-  selectedCategory: string;
-  setSelectedCategory: (id: string) => void;
-  getCategoryName: (category: ServiceCategory) => string;
-  customerNotes: string;
-  setCustomerNotes: (notes: string) => void;
-  isSubmitting: boolean;
-  onSubmit: () => void;
-  onClose: () => void;
-};
+import type { BookingConfirmModalProps } from "../types";
 
 export function BookingConfirmModal({
   designer,
@@ -33,7 +17,7 @@ export function BookingConfirmModal({
   isSubmitting,
   onSubmit,
   onClose,
-}: Props) {
+}: BookingConfirmModalProps) {
   const tBooking = useTranslations("booking");
   const localeCode = getLocaleCode(locale);
 

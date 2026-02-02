@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import { ArrowLeft, Home, Check } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useAuthContext, LoginModal } from "@/features/auth";
-import type { Salon, StaffWithProfile, Service, ServiceCategory } from "@/lib/supabase/types";
+import type { StaffWithProfile } from "@/lib/supabase/types";
 import { bookingsApi } from "../api";
 import { getDayName, formatTime, formatDateForDB, isDateInHolidays, getDesignerWorkHours } from "../utils";
 import { useBookingFlowStore } from "../stores/useBookingFlowStore";
@@ -17,22 +17,9 @@ import { ServiceStep } from "./ServiceStep";
 import { DesignerStep } from "./DesignerStep";
 import { DateTimeStep } from "./DateTimeStep";
 import { ConfirmStep } from "./ConfirmStep";
+import type { BookingViewProps, BookingStep, TimeSlot } from "../types";
 
-type Props = {
-  salon: Salon;
-  staff: StaffWithProfile[];
-  services: Service[];
-  categories: ServiceCategory[];
-};
-
-type BookingStep = "service" | "designer" | "datetime" | "confirm";
-
-interface TimeSlot {
-  time: string;
-  available: boolean;
-}
-
-export const BookingView = memo(function BookingView({ salon, staff, services, categories }: Props) {
+export const BookingView = memo(function BookingView({ salon, staff, services, categories }: BookingViewProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const t = useTranslations("booking");

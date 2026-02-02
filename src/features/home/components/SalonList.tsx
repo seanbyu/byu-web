@@ -5,10 +5,9 @@ import { useTranslations } from "next-intl";
 import { MapPin, Clock, Phone, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import type { Salon } from "@/lib/supabase/types";
-
-type SalonListProps = {
-  salons: Salon[];
-};
+import { getSalonCoverUrls } from "@/lib/supabase/storage";
+import { StorageImage } from "@/components/ui/StorageImage";
+import type { SalonListProps, SalonCardProps } from "../types";
 
 // Check if today is a holiday (not enabled)
 function isTodayHoliday(businessHours: Salon["business_hours"]): boolean {
@@ -58,7 +57,7 @@ function getTodayHours(businessHours: Salon["business_hours"]): string | null {
   return `${todayHours.open} - ${todayHours.close}`;
 }
 
-const SalonCard = memo(function SalonCard({ salon }: { salon: Salon }) {
+const SalonCard = memo(function SalonCard({ salon }: SalonCardProps) {
   const t = useTranslations("salon");
   const tCommon = useTranslations("common");
   const holiday = isTodayHoliday(salon.business_hours);
@@ -85,19 +84,18 @@ const SalonCard = memo(function SalonCard({ salon }: { salon: Salon }) {
     >
       {/* Cover Image */}
       <div className="relative h-40 bg-gradient-to-br from-primary-100 to-secondary-100">
-        {salon.cover_image_url ? (
-          <img
-            src={salon.cover_image_url}
-            alt={salon.name}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="text-5xl font-bold text-primary-200">
-              {salon.name.charAt(0).toUpperCase()}
-            </span>
-          </div>
-        )}
+        <StorageImage
+          urls={getSalonCoverUrls(salon.id)}
+          alt={salon.name}
+          className="w-full h-full object-cover"
+          fallback={
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-5xl font-bold text-primary-200">
+                {salon.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          }
+        />
         {/* Status Badge */}
         <div
           className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm ${badge.className}`}
@@ -114,57 +112,37 @@ const SalonCard = memo(function SalonCard({ salon }: { salon: Salon }) {
 
       {/* Content */}
       <div className="p-4">
-        <div className="flex items-start gap-3">
-          {/* Logo */}
-          <div className="w-14 h-14 rounded-xl bg-gray-50 flex items-center justify-center flex-shrink-0 overflow-hidden border border-gray-100">
-            {salon.logo_url ? (
-              <img
-                src={salon.logo_url}
-                alt={salon.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-xl font-bold text-gray-300">
-                {salon.name.charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-gray-900 truncate text-base">{salon.name}</h3>
+          <ChevronRight className="w-5 h-5 text-gray-300 flex-shrink-0" />
+        </div>
+        {salon.description && (
+          <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">
+            {salon.description}
+          </p>
+        )}
 
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-gray-900 truncate text-base">{salon.name}</h3>
-              <ChevronRight className="w-5 h-5 text-gray-300 flex-shrink-0" />
+        <div className="mt-3 flex flex-wrap gap-2">
+          {salon.address && (
+            <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full">
+              <MapPin className="w-3 h-3" />
+              <span className="truncate max-w-[120px]">{salon.city || salon.address}</span>
             </div>
-            {salon.description && (
-              <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">
-                {salon.description}
-              </p>
-            )}
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              {salon.address && (
-                <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full">
-                  <MapPin className="w-3 h-3" />
-                  <span className="truncate max-w-[120px]">{salon.city || salon.address}</span>
-                </div>
-              )}
-              <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
-                holiday ? "bg-gray-100 text-gray-500" : open ? "bg-green-50 text-green-600" : "bg-gray-50 text-gray-500"
-              }`}>
-                <Clock className="w-3 h-3" />
-                <span>{hours || tCommon("closed")}</span>
-              </div>
-            </div>
-
-            {salon.phone && (
-              <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-400">
-                <Phone className="w-3 h-3" />
-                <span>{salon.phone}</span>
-              </div>
-            )}
+          )}
+          <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
+            holiday ? "bg-gray-100 text-gray-500" : open ? "bg-green-50 text-green-600" : "bg-gray-50 text-gray-500"
+          }`}>
+            <Clock className="w-3 h-3" />
+            <span>{hours || tCommon("closed")}</span>
           </div>
         </div>
+
+        {salon.phone && (
+          <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-400">
+            <Phone className="w-3 h-3" />
+            <span>{salon.phone}</span>
+          </div>
+        )}
       </div>
     </Link>
   );
