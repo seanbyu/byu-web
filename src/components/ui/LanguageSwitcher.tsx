@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Globe } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Globe, Check, X } from "lucide-react";
 import { useRouter, usePathname } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 
@@ -29,7 +29,7 @@ interface LanguageSwitcherProps {
  *
  * Best Practice for Tourist/International Users:
  * - Globe icon in header for instant recognition
- * - Dropdown with flag + native language names
+ * - Bottom sheet modal with flag + native language names
  * - Current language highlighted
  * - Accessible keyboard navigation
  */
@@ -38,36 +38,37 @@ export function LanguageSwitcher({
   className = "",
 }: LanguageSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
 
   const currentLanguage = LANGUAGES.find((lang) => lang.code === locale) || LANGUAGES[0];
 
-  // Close dropdown when clicking outside
+  // Prevent body scroll when modal is open
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
     }
-
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
   // Handle keyboard navigation
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Escape") {
-      setIsOpen(false);
-    }
-  };
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   // Change language
   const handleLanguageChange = (langCode: string) => {
@@ -76,13 +77,14 @@ export function LanguageSwitcher({
   };
 
   return (
-    <div ref={dropdownRef} className={`relative ${className}`} onKeyDown={handleKeyDown}>
+    <>
       {/* Trigger Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen(true)}
         className={`
           flex items-center justify-center gap-1.5
           transition-colors
+          ${className}
           ${
             variant === "icon"
               ? "w-9 h-9 rounded-full hover:bg-gray-100 text-gray-600 hover:text-gray-900"
@@ -91,7 +93,7 @@ export function LanguageSwitcher({
         `}
         aria-label="언어 선택"
         aria-expanded={isOpen}
-        aria-haspopup="listbox"
+        aria-haspopup="dialog"
       >
         {variant === "icon" ? (
           <Globe className="w-5 h-5" />
@@ -103,53 +105,80 @@ export function LanguageSwitcher({
         )}
       </button>
 
-      {/* Dropdown Menu */}
+      {/* Bottom Sheet Modal */}
       {isOpen && (
-        <div
-          className="absolute right-0 top-full mt-2
-                     w-40 py-1
-                     bg-white rounded-xl
-                     shadow-lg shadow-black/10
-                     border border-gray-100
-                     z-50
-                     animate-fade-in"
-          role="listbox"
-          aria-label="언어 목록"
-        >
-          {LANGUAGES.map((language) => (
-            <button
-              key={language.code}
-              onClick={() => handleLanguageChange(language.code)}
-              className={`
-                flex items-center gap-3 w-full px-4 py-2.5
-                text-left text-sm
-                transition-colors
-                ${
-                  language.code === locale
-                    ? "bg-green-50 text-green-700 font-medium"
-                    : "text-gray-700 hover:bg-gray-50"
-                }
-              `}
-              role="option"
-              aria-selected={language.code === locale}
+        <div className="fixed inset-0 z-50 flex justify-center">
+          {/* Container wrapper - matches project max width */}
+          <div className="relative w-full max-w-[448px] h-full flex items-end">
+            {/* Backdrop - only within container */}
+            <div
+              className="absolute inset-0 bg-black/50 animate-backdrop"
+              onClick={() => setIsOpen(false)}
+            />
+
+            {/* Modal Content */}
+            <div
+              className="relative w-full bg-white rounded-t-2xl shadow-xl animate-slide-up"
+              role="dialog"
+              aria-label="언어 변경"
             >
-              <span className="text-lg">{language.flag}</span>
-              <span>{language.label}</span>
-              {language.code === locale && (
-                <svg
-                  className="w-4 h-4 ml-auto text-green-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              )}
-            </button>
-          ))}
+              {/* Drag Handle */}
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="w-10 h-1 bg-gray-300 rounded-full" />
+              </div>
+
+              {/* Close Button */}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="닫기"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+
+              {/* Header */}
+              <div className="px-6 pb-4">
+                <h3 className="text-lg font-bold text-gray-900">언어 변경</h3>
+              </div>
+
+              {/* Language List */}
+              <div className="px-6 pb-8" role="listbox" aria-label="언어 목록">
+                {LANGUAGES.map((language) => (
+                  <button
+                    key={language.code}
+                    onClick={() => handleLanguageChange(language.code)}
+                    className={`
+                      flex items-center gap-4 w-full px-4 py-4
+                      text-left rounded-xl
+                      transition-colors
+                      ${
+                        language.code === locale
+                          ? "bg-primary-50"
+                          : "hover:bg-gray-50"
+                      }
+                    `}
+                    role="option"
+                    aria-selected={language.code === locale}
+                  >
+                    <span className="text-2xl">{language.flag}</span>
+                    <span className={`flex-1 text-base ${
+                      language.code === locale
+                        ? "text-primary-600 font-semibold"
+                        : "text-gray-900"
+                    }`}>
+                      {language.label}
+                    </span>
+                    {language.code === locale && (
+                      <Check className="w-5 h-5 text-primary-600" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
