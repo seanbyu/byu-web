@@ -8,6 +8,7 @@ import { useSalonBooking } from "../hooks/useSalonBooking";
 import { SalonHeader } from "../components/SalonHeader";
 import { SalonCoverImage } from "../components/SalonCoverImage";
 import { SalonCalendar } from "../components/SalonCalendar";
+import { SalonContactChannels } from "../components/SalonContactChannels";
 import { DesignerTimeSlots } from "../components/DesignerTimeSlots";
 import { BookingConfirmModal } from "../components/BookingConfirmModal";
 import { SalonContactInfo } from "../components/SalonContactInfo";
@@ -29,6 +30,8 @@ export function SalonDetailView({ salon, staff }: SalonDetailViewProps) {
       <SalonHeader />
 
       <SalonCoverImage salon={salon} status={status} />
+
+      <SalonContactChannels salon={salon} />
 
       <div className="h-2 bg-gray-50" />
 

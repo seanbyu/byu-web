@@ -51,6 +51,16 @@ export type Database = {
             booking_cancellation_hours: number;
             interpreter_enabled?: boolean;
             supported_languages?: string[];
+            contact_channels?: {
+              line?: {
+                id: string;
+                enabled: boolean;
+              };
+              instagram?: {
+                id: string;
+                enabled: boolean;
+              };
+            };
           } | null;
           plan_type: string;
           approval_status: ApprovalStatus;
@@ -93,6 +103,16 @@ export type Database = {
             booking_cancellation_hours: number;
             interpreter_enabled?: boolean;
             supported_languages?: string[];
+            contact_channels?: {
+              line?: {
+                id: string;
+                enabled: boolean;
+              };
+              instagram?: {
+                id: string;
+                enabled: boolean;
+              };
+            };
           } | null;
           plan_type?: string;
           approval_status?: ApprovalStatus;
@@ -134,6 +154,16 @@ export type Database = {
             booking_cancellation_hours: number;
             interpreter_enabled?: boolean;
             supported_languages?: string[];
+            contact_channels?: {
+              line?: {
+                id: string;
+                enabled: boolean;
+              };
+              instagram?: {
+                id: string;
+                enabled: boolean;
+              };
+            };
           } | null;
           plan_type?: string;
           approval_status?: ApprovalStatus;
