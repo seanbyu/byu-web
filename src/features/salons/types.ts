@@ -4,6 +4,7 @@
 
 import type { RefObject } from "react";
 import type { Salon, StaffWithProfile, ServiceCategory } from "@/lib/supabase/types";
+import type { SalonStatus } from "./utils";
 
 // ============================================
 // View Props
@@ -20,7 +21,7 @@ export type SalonDetailViewProps = {
 
 export type SalonCoverImageProps = {
   salon: Salon;
-  isOpen: boolean;
+  status: SalonStatus;
 };
 
 export type SalonContactInfoProps = {

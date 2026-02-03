@@ -8,6 +8,8 @@
   "closed": "ปิด",
   "open": "เปิด",
   "beforeOpen": "เตรียมเปิด",
+  "afterClose": "ปิดแล้ว",
+  "interpreterAvailable": "มีล่าม",
   "facilities": "สิ่งอำนวยความสะดวก",
   "parking": "มีที่จอดรถ",
   "wifi": "WiFi ฟรี",

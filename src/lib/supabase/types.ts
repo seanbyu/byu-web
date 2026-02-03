@@ -49,6 +49,8 @@ export type Database = {
             booking_advance_days: number;
             slot_duration_minutes: number;
             booking_cancellation_hours: number;
+            interpreter_enabled?: boolean;
+            supported_languages?: string[];
           } | null;
           plan_type: string;
           approval_status: ApprovalStatus;
@@ -89,6 +91,8 @@ export type Database = {
             booking_advance_days: number;
             slot_duration_minutes: number;
             booking_cancellation_hours: number;
+            interpreter_enabled?: boolean;
+            supported_languages?: string[];
           } | null;
           plan_type?: string;
           approval_status?: ApprovalStatus;
@@ -128,6 +132,8 @@ export type Database = {
             booking_advance_days: number;
             slot_duration_minutes: number;
             booking_cancellation_hours: number;
+            interpreter_enabled?: boolean;
+            supported_languages?: string[];
           } | null;
           plan_type?: string;
           approval_status?: ApprovalStatus;

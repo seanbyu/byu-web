@@ -8,6 +8,8 @@
   "closed": "휴무",
   "open": "영업 중",
   "beforeOpen": "준비 중",
+  "afterClose": "영업 종료",
+  "interpreterAvailable": "통역 가능한 매장",
   "facilities": "편의시설",
   "parking": "주차 가능",
   "wifi": "무료 와이파이",

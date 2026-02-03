@@ -8,6 +8,8 @@
   "closed": "Closed",
   "open": "Open",
   "beforeOpen": "Preparing",
+  "afterClose": "Closed",
+  "interpreterAvailable": "Interpreter Available",
   "facilities": "Facilities",
   "parking": "Parking Available",
   "wifi": "Free WiFi",

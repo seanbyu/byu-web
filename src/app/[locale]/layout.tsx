@@ -71,13 +71,17 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${localeFonts} ${geistMono.variable} antialiased`}
+        className={`${localeFonts} ${geistMono.variable} antialiased bg-white`}
         suppressHydrationWarning
       >
         <QueryProvider>
           <NextIntlClientProvider messages={messages}>
             <ClientAuthProvider liffId={process.env.NEXT_PUBLIC_LIFF_ID}>
-              {children}
+              {/* 메인 컨텐츠 */}
+              <div className="min-h-screen pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom))]">
+                {children}
+              </div>
+              {/* 하단 고정 네비게이션 */}
               <AuthBottomNav />
             </ClientAuthProvider>
           </NextIntlClientProvider>

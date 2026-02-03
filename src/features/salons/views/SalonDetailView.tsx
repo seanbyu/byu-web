@@ -2,7 +2,7 @@
 
 import { useLocale } from "next-intl";
 import { LoginModal } from "@/features/auth";
-import { isOpen } from "../utils";
+import { getSalonStatus } from "../utils";
 import { useSalonCalendar } from "../hooks/useSalonCalendar";
 import { useSalonBooking } from "../hooks/useSalonBooking";
 import { SalonHeader } from "../components/SalonHeader";
@@ -15,7 +15,7 @@ import type { SalonDetailViewProps } from "../types";
 
 export function SalonDetailView({ salon, staff }: SalonDetailViewProps) {
   const locale = useLocale();
-  const open = isOpen(salon.business_hours);
+  const status = getSalonStatus(salon.business_hours);
 
   const calendar = useSalonCalendar(salon);
   const booking = useSalonBooking(salon, calendar.selectedDate, {
@@ -25,10 +25,10 @@ export function SalonDetailView({ salon, staff }: SalonDetailViewProps) {
   });
 
   return (
-    <div className="bg-white min-h-screen pb-6">
+    <div className="bg-white">
       <SalonHeader />
 
-      <SalonCoverImage salon={salon} isOpen={open} />
+      <SalonCoverImage salon={salon} status={status} />
 
       <div className="h-2 bg-gray-50" />
 

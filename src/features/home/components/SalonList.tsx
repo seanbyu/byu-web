@@ -4,75 +4,39 @@ import { memo } from "react";
 import { useTranslations } from "next-intl";
 import { MapPin, Clock, Phone, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
-import type { Salon } from "@/lib/supabase/types";
 import { getSalonCoverUrls } from "@/lib/supabase/storage";
 import { StorageImage } from "@/components/ui/StorageImage";
+import { getSalonStatus, getTodayHours } from "@/features/salons/utils";
 import type { SalonListProps, SalonCardProps } from "../types";
 
-// Check if today is a holiday (not enabled)
-function isTodayHoliday(businessHours: Salon["business_hours"]): boolean {
-  if (!businessHours) return true;
-
-  const now = new Date();
-  const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-  const today = days[now.getDay()];
-  const todayHours = businessHours[today];
-
-  return !todayHours?.enabled || !todayHours.open || !todayHours.close;
-}
-
-// Check if salon is currently open (within business hours)
-function isOpen(businessHours: Salon["business_hours"]): boolean {
-  if (!businessHours) return false;
-
-  const now = new Date();
-  const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-  const today = days[now.getDay()];
-  const todayHours = businessHours[today];
-
-  if (!todayHours?.enabled || !todayHours.open || !todayHours.close) {
-    return false;
-  }
-
-  const currentTime = now.getHours() * 100 + now.getMinutes();
-  const openTime = parseInt(todayHours.open.replace(":", ""));
-  const closeTime = parseInt(todayHours.close.replace(":", ""));
-
-  return currentTime >= openTime && currentTime <= closeTime;
-}
-
-// Get today's hours
-function getTodayHours(businessHours: Salon["business_hours"]): string | null {
-  if (!businessHours) return null;
-
-  const now = new Date();
-  const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-  const today = days[now.getDay()];
-  const todayHours = businessHours[today];
-
-  if (!todayHours?.enabled || !todayHours.open || !todayHours.close) {
-    return null;
-  }
-
-  return `${todayHours.open} - ${todayHours.close}`;
-}
+// 언어 코드를 국기 이모지로 변환
+const languageToFlag: Record<string, string> = {
+  ko: "🇰🇷",
+  en: "🇺🇸",
+  th: "🇹🇭",
+  ja: "🇯🇵",
+  zh: "🇨🇳",
+  vi: "🇻🇳",
+};
 
 const SalonCard = memo(function SalonCard({ salon }: SalonCardProps) {
   const t = useTranslations("salon");
   const tCommon = useTranslations("common");
-  const holiday = isTodayHoliday(salon.business_hours);
-  const open = isOpen(salon.business_hours);
+  const status = getSalonStatus(salon.business_hours);
   const hours = getTodayHours(salon.business_hours);
 
-  // 배지 상태: 휴무일 > 영업 중 > 준비 중
+  // 배지 상태: 휴무 > 영업 중 > 준비 중 > 영업 종료
   const getBadgeStyle = () => {
-    if (holiday) {
-      return { className: "bg-gray-800 text-white", label: tCommon("closed") }; // 휴무
+    switch (status) {
+      case "holiday":
+        return { className: "bg-gray-800 text-white", label: tCommon("closed") }; // 휴무
+      case "open":
+        return { className: "bg-green-500 text-white", label: t("open") }; // 영업 중
+      case "preparing":
+        return { className: "bg-amber-500 text-white", label: t("beforeOpen") }; // 준비 중
+      case "closed":
+        return { className: "bg-gray-500 text-white", label: t("afterClose") }; // 영업 종료
     }
-    if (open) {
-      return { className: "bg-green-500 text-white", label: t("open") }; // 영업 중
-    }
-    return { className: "bg-amber-500 text-white", label: t("beforeOpen") }; // 준비 중
   };
 
   const badge = getBadgeStyle();
@@ -113,7 +77,22 @@ const SalonCard = memo(function SalonCard({ salon }: SalonCardProps) {
       {/* Content */}
       <div className="p-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold text-gray-900 truncate text-base">{salon.name}</h3>
+          <div className="flex items-center gap-2 min-w-0">
+            <h3 className="font-bold text-gray-900 truncate text-base">{salon.name}</h3>
+            {/* 통역 가능 매장 */}
+            {salon.settings?.interpreter_enabled && salon.settings.supported_languages && (
+              <div className="flex items-center gap-1.5 flex-shrink-0 text-gray-500">
+                <span className="text-gray-300">|</span>
+                <span className="text-lg leading-none">
+                  {salon.settings.supported_languages.map((lang) => (
+                    <span key={lang}>{languageToFlag[lang] || lang}</span>
+                  ))}
+                </span>
+                <span className="text-xs">({t("interpreterAvailable")})</span>
+              
+              </div>
+            )}
+          </div>
           <ChevronRight className="w-5 h-5 text-gray-300 flex-shrink-0" />
         </div>
         {salon.description && (
@@ -130,7 +109,7 @@ const SalonCard = memo(function SalonCard({ salon }: SalonCardProps) {
             </div>
           )}
           <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
-            holiday ? "bg-gray-100 text-gray-500" : open ? "bg-green-50 text-green-600" : "bg-gray-50 text-gray-500"
+            status === "holiday" ? "bg-gray-100 text-gray-500" : status === "open" ? "bg-green-50 text-green-600" : "bg-gray-50 text-gray-500"
           }`}>
             <Clock className="w-3 h-3" />
             <span>{hours || tCommon("closed")}</span>

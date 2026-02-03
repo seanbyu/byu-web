@@ -4,8 +4,24 @@ import { getSalonCoverUrls } from "@/lib/supabase/storage";
 import { StorageImage } from "@/components/ui/StorageImage";
 import type { SalonCoverImageProps } from "../types";
 
-export function SalonCoverImage({ salon, isOpen }: SalonCoverImageProps) {
+export function SalonCoverImage({ salon, status }: SalonCoverImageProps) {
   const t = useTranslations("salon");
+  const tCommon = useTranslations("common");
+
+  const getBadgeStyle = () => {
+    switch (status) {
+      case "holiday":
+        return { className: "bg-gray-800 text-white", label: tCommon("closed") };
+      case "open":
+        return { className: "bg-green-500 text-white", label: t("open") };
+      case "preparing":
+        return { className: "bg-amber-500 text-white", label: t("beforeOpen") };
+      case "closed":
+        return { className: "bg-gray-500 text-white", label: t("afterClose") };
+    }
+  };
+
+  const badge = getBadgeStyle();
 
   return (
     <>
@@ -24,11 +40,9 @@ export function SalonCoverImage({ salon, isOpen }: SalonCoverImageProps) {
           }
         />
         <div
-          className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full text-sm font-medium shadow-lg ${
-            isOpen ? "bg-green-500 text-white" : "bg-gray-800 text-white"
-          }`}
+          className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full text-sm font-medium shadow-lg ${badge.className}`}
         >
-          {isOpen ? t("open") : t("closed")}
+          {badge.label}
         </div>
       </div>
 

@@ -11,7 +11,7 @@ async function SalonData() {
 // Loading skeleton
 function HomeLoading() {
   return (
-    <div className="bg-white min-h-screen pb-20 animate-pulse">
+    <div className="animate-pulse">
       <div className="h-14 bg-gray-100" />
       <div className="h-48 bg-gray-200 mx-4 mt-4 rounded-xl" />
       <div className="grid grid-cols-4 gap-4 p-4 mt-4">
@@ -31,13 +31,12 @@ function HomeLoading() {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center text-gray-900">
-      <main className="w-full max-w-[448px] min-h-screen bg-white shadow-xl relative">
-        {/* Suspense boundary for streaming (async-suspense-boundaries) */}
+    <div className="flex justify-center text-gray-900">
+      <div className="w-full max-w-[448px] bg-white shadow-xl">
         <Suspense fallback={<HomeLoading />}>
           <SalonData />
         </Suspense>
-      </main>
+      </div>
     </div>
   );
 }
