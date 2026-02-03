@@ -7,6 +7,7 @@ import { routing, type Locale } from "@/i18n/routing";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { ClientAuthProvider } from "@/features/auth/providers/ClientAuthProvider";
 import { AuthBottomNav } from "@/features/auth/components/AuthBottomNav";
+import { Toaster } from "sonner";
 import "../globals.css";
 
 // Base Latin font
@@ -77,6 +78,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <QueryProvider>
           <NextIntlClientProvider messages={messages}>
             <ClientAuthProvider liffId={process.env.NEXT_PUBLIC_LIFF_ID}>
+              <Toaster position="top-center" richColors />
               {/* 모바일 앱 레이아웃: 회색 배경 + 중앙 흰색 컨테이너 */}
               <div className="min-h-screen flex justify-center">
                 {/* 모바일 컨테이너: 흰색 배경, 최대 너비, flex 구조 */}

@@ -1,0 +1,20 @@
+{
+  "title": "마이픽",
+  "tabs": {
+    "salons": "살롱",
+    "artists": "아티스트",
+    "reviews": "리뷰"
+  },
+  "salons": {
+    "empty": "찜한 살롱이 없습니다",
+    "emptyDescription": "마음에 드는 살롱을 찾아 하트를 눌러보세요"
+  },
+  "artists": {
+    "empty": "찜한 아티스트가 없습니다",
+    "emptyDescription": "마음에 드는 아티스트를 찾아 하트를 눌러보세요"
+  },
+  "reviews": {
+    "empty": "작성한 리뷰가 없습니다",
+    "emptyDescription": "방문한 살롱에 리뷰를 남겨보세요"
+  }
+}

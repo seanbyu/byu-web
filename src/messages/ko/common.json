@@ -27,5 +27,10 @@
     "saturday": "토"
   },
   "closed": "휴무",
-  "closedToday": "선택한 날짜는 휴무입니다"
+  "closedToday": "선택한 날짜는 휴무입니다",
+  "favorite": {
+    "added": "즐겨찾기에 추가되었습니다",
+    "removed": "즐겨찾기에서 삭제되었습니다",
+    "loginRequired": "로그인이 필요합니다"
+  }
 }

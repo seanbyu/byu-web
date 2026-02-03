@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { Home, Search, Store, User } from "lucide-react";
+import { Home, Search, Heart, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { clsx } from "clsx";
@@ -12,14 +12,14 @@ interface NavItem {
   id: string;
   labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
-  href: "/" | "/search" | "/store" | "/my";
+  href: "/" | "/search" | "/mypick" | "/my";
   requireAuth?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
   { id: "home", labelKey: "home", icon: Home, href: "/" },
   { id: "search", labelKey: "search", icon: Search, href: "/search" },
-  { id: "store", labelKey: "store", icon: Store, href: "/store" },
+  { id: "mypick", labelKey: "mypick", icon: Heart, href: "/mypick", requireAuth: true },
   { id: "my", labelKey: "my", icon: User, href: "/my", requireAuth: true },
 ];
 
@@ -54,7 +54,7 @@ export function AuthBottomNav() {
   const handleLoginSuccess = useCallback(() => {
     // Navigate to pending destination after successful login
     if (pendingNavigation) {
-      router.push(pendingNavigation as "/" | "/search" | "/store" | "/my");
+      router.push(pendingNavigation as "/" | "/search" | "/mypick" | "/my");
     }
     setPendingNavigation(null);
     setShowLoginModal(false);

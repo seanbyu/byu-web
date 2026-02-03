@@ -7,20 +7,20 @@ export function SalonContactInfo({ salon }: SalonContactInfoProps) {
 
   return (
     <div className="p-4">
-      <h2 className="text-lg font-bold flex items-center gap-2 mb-4">
+      <h2 className="text-lg font-bold flex items-center gap-2 mb-4 text-gray-900">
         <MapPin className="w-5 h-5 text-primary-500" />
         {t("info")}
       </h2>
       <div className="space-y-3">
         {salon.phone && (
           <a href={`tel:${salon.phone}`} className="flex items-center gap-3 text-gray-700 hover:text-primary-600">
-            <Phone className="w-5 h-5 text-gray-400" />
+            <Phone className="w-5 h-5 text-gray-500" />
             <span className="text-sm">{salon.phone}</span>
           </a>
         )}
         {salon.address && (
           <div className="flex items-start gap-3 text-gray-700">
-            <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+            <MapPin className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" />
             <span className="text-sm">
               {salon.address}
               {salon.city && `, ${salon.city}`}

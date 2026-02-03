@@ -93,7 +93,7 @@ export const SalonCalendar = memo(function SalonCalendar({
 
   return (
     <div className="p-4">
-      <h2 className="text-lg font-bold flex items-center gap-2 mb-4">
+      <h2 className="text-lg font-bold flex items-center gap-2 mb-4 text-gray-900">
         <Clock className="w-5 h-5 text-primary-500" />
         {t("hours")}
       </h2>

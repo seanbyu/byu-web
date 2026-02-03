@@ -1,0 +1,20 @@
+{
+  "title": "My Pick",
+  "tabs": {
+    "salons": "ร้าน",
+    "artists": "ช่าง",
+    "reviews": "รีวิว"
+  },
+  "salons": {
+    "empty": "ยังไม่มีร้านโปรด",
+    "emptyDescription": "ค้นหาร้านที่ชอบแล้วกดหัวใจ"
+  },
+  "artists": {
+    "empty": "ยังไม่มีช่างโปรด",
+    "emptyDescription": "ค้นหาช่างที่ชอบแล้วกดหัวใจ"
+  },
+  "reviews": {
+    "empty": "ยังไม่มีรีวิว",
+    "emptyDescription": "เขียนรีวิวให้ร้านที่ไปมาแล้ว"
+  }
+}

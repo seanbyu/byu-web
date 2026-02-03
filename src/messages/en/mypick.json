@@ -1,0 +1,20 @@
+{
+  "title": "My Pick",
+  "tabs": {
+    "salons": "Salons",
+    "artists": "Artists",
+    "reviews": "Reviews"
+  },
+  "salons": {
+    "empty": "No favorite salons yet",
+    "emptyDescription": "Find salons you love and tap the heart"
+  },
+  "artists": {
+    "empty": "No favorite artists yet",
+    "emptyDescription": "Find artists you love and tap the heart"
+  },
+  "reviews": {
+    "empty": "No reviews yet",
+    "emptyDescription": "Leave a review for salons you've visited"
+  }
+}

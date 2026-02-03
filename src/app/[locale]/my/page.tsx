@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useAuthContext } from "@/features/auth";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
-import { ArrowLeft, Home, Search, Share2 } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
 import type { User as PublicUser, CustomerProfile } from "@/lib/supabase/types";
 
 type UserWithProfile = PublicUser & {
@@ -58,27 +58,6 @@ export default function MyPage() {
   const handleLogout = async () => {
     await signOut();
     router.replace("/");
-  };
-
-  const handleBack = () => {
-    router.back();
-  };
-
-  const handleHome = () => {
-    router.push("/");
-  };
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: t("myPage.title"),
-          url: window.location.href,
-        });
-      } catch {
-        // User cancelled or share failed
-      }
-    }
   };
 
   // Show nothing while checking auth (prevents flash)
@@ -136,42 +115,7 @@ export default function MyPage() {
   return (
     <div className="bg-white">
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-          {/* Back Button */}
-          <button
-            onClick={handleBack}
-            className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
-            aria-label="Go back"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-700" />
-          </button>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleHome}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Home"
-            >
-              <Home className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Search"
-            >
-              <Search className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={handleShare}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Share"
-            >
-              <Share2 className="w-5 h-5 text-gray-700" />
-            </button>
-          </div>
-        </div>
-      </header>
+      <PageHeader />
 
       {/* Profile Section */}
       <main className="max-w-md mx-auto px-4 py-6 space-y-6">

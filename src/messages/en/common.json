@@ -27,5 +27,10 @@
     "saturday": "Sat"
   },
   "closed": "Closed",
-  "closedToday": "Selected date is closed"
+  "closedToday": "Selected date is closed",
+  "favorite": {
+    "added": "Added to favorites",
+    "removed": "Removed from favorites",
+    "loginRequired": "Login required"
+  }
 }
