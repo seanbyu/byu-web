@@ -126,42 +126,37 @@ export default function BookingDetailPage() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center">
-        <main className="w-full max-w-[448px] min-h-screen bg-white shadow-xl">
-          <div className="h-14 bg-gray-100 animate-pulse" />
-          <div className="p-4 space-y-4">
-            <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
-            <div className="h-48 bg-gray-100 rounded-xl animate-pulse" />
-          </div>
-        </main>
+      <div className="bg-white">
+        <div className="h-14 bg-gray-100 animate-pulse" />
+        <div className="p-4 space-y-4">
+          <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="h-48 bg-gray-100 rounded-xl animate-pulse" />
+        </div>
       </div>
     );
   }
 
   if (error || !booking) {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center">
-        <main className="w-full max-w-[448px] min-h-screen bg-white shadow-xl">
-          <header className="sticky top-0 bg-white border-b border-gray-100">
-            <div className="flex items-center justify-between px-4 h-14">
-              <button onClick={() => router.back()} className="p-2 -ml-2">
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <span className="font-semibold">예약 상세</span>
-              <div className="w-9" />
-            </div>
-          </header>
-          <div className="p-4 text-center text-gray-500 mt-12">
-            {error || "예약을 찾을 수 없습니다."}
+      <div className="bg-white">
+        <header className="sticky top-0 bg-white border-b border-gray-100">
+          <div className="flex items-center justify-between px-4 h-14">
+            <button onClick={() => router.back()} className="p-2 -ml-2">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <span className="font-semibold">예약 상세</span>
+            <div className="w-9" />
           </div>
-        </main>
+        </header>
+        <div className="p-4 text-center text-gray-500 mt-12">
+          {error || "예약을 찾을 수 없습니다."}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center">
-      <main className="w-full max-w-[448px] min-h-screen bg-white shadow-xl">
+    <div className="bg-white">
         {/* Header */}
         <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
           <div className="flex items-center justify-between px-4 h-14">
@@ -296,7 +291,6 @@ export default function BookingDetailPage() {
             </button>
           )}
         </div>
-      </main>
     </div>
   );
 }

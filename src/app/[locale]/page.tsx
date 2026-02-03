@@ -31,12 +31,8 @@ function HomeLoading() {
 
 export default function Home() {
   return (
-    <div className="flex justify-center text-gray-900">
-      <div className="w-full max-w-[448px] bg-white shadow-xl">
-        <Suspense fallback={<HomeLoading />}>
-          <SalonData />
-        </Suspense>
-      </div>
-    </div>
+    <Suspense fallback={<HomeLoading />}>
+      <SalonData />
+    </Suspense>
   );
 }

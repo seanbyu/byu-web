@@ -67,7 +67,7 @@ export function AuthBottomNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-2 flex justify-between items-center z-50 max-w-[448px] mx-auto pb-safe">
+      <nav className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-2 flex justify-between items-center z-50 pb-safe">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
 

@@ -71,18 +71,24 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${localeFonts} ${geistMono.variable} antialiased bg-white`}
+        className={`${localeFonts} ${geistMono.variable} antialiased bg-gray-100`}
         suppressHydrationWarning
       >
         <QueryProvider>
           <NextIntlClientProvider messages={messages}>
             <ClientAuthProvider liffId={process.env.NEXT_PUBLIC_LIFF_ID}>
-              {/* 메인 컨텐츠 */}
-              <div className="min-h-screen pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom))]">
-                {children}
+              {/* 모바일 앱 레이아웃: 회색 배경 + 중앙 흰색 컨테이너 */}
+              <div className="min-h-screen flex justify-center">
+                {/* 모바일 컨테이너: 흰색 배경, 최대 너비, flex 구조 */}
+                <div className="w-full max-w-[448px] min-h-screen flex flex-col bg-white shadow-xl">
+                  {/* 메인 컨텐츠 - flex-1로 남은 공간 차지 */}
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                  {/* 하단 네비게이션 - 컨테이너 하단에 sticky */}
+                  <AuthBottomNav />
+                </div>
               </div>
-              {/* 하단 고정 네비게이션 */}
-              <AuthBottomNav />
             </ClientAuthProvider>
           </NextIntlClientProvider>
         </QueryProvider>

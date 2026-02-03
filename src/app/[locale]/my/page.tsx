@@ -84,7 +84,7 @@ export default function MyPage() {
   // Show nothing while checking auth (prevents flash)
   if (authLoading || (!isInitialized && isAuthenticated)) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="bg-white">
         {/* Header Skeleton */}
         <header className="bg-white border-b border-gray-100">
           <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
@@ -134,7 +134,7 @@ export default function MyPage() {
   const isLineUser = profileData?.auth_provider === "LINE" || metadata.provider === "line";
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-white">
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
