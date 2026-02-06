@@ -3,7 +3,8 @@
  *
  * Handles the callback from LINE OAuth, exchanges code for tokens,
  * and creates a Supabase session using password-based auth.
- * Also syncs user data to public.users and customer_profiles tables.
+ * Uses find_or_create_user_by_identity RPC to sync user data to
+ * public.users and user_identities tables (multi-social login support).
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -268,7 +269,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Helper function to sync user data to public tables
+// Type for the find_or_create_user_by_identity RPC response
+interface FindOrCreateUserResult {
+  user_id: string;
+  is_new_user: boolean;
+  is_new_identity: boolean;
+}
+
+// Helper function to sync user data via find_or_create_user_by_identity RPC
 async function syncToPublicTables(
   supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
   userId: string,
@@ -282,105 +290,41 @@ async function syncToPublicTables(
 ) {
   const { email, lineUserId, displayName, pictureUrl, statusMessage } = data;
 
-  // Sync to public.users table
-  console.log("[LINE Auth] Syncing to public.users...");
+  console.log("[LINE Auth] Syncing via find_or_create_user_by_identity RPC...");
 
-  const { data: existingUser, error: selectError } = await supabaseAdmin
-    .from("users")
-    .select("id")
-    .eq("id", userId)
-    .maybeSingle();
+  // Build LINE profile JSONB
+  const lineProfile = {
+    displayName: displayName,
+    pictureUrl: pictureUrl,
+    statusMessage: statusMessage,
+    lineUserId: lineUserId,
+  };
 
-  if (selectError) {
-    console.error("[LINE Auth] Error checking public.users:", selectError.message);
-  }
+  try {
+    // Call the RPC function to find or create user with identity
+    // Using type assertion since the RPC function types may not be regenerated
+    const { data: rpcData, error } = await (supabaseAdmin.rpc as Function)('find_or_create_user_by_identity', {
+      p_auth_id: userId,
+      p_provider: 'LINE',
+      p_provider_user_id: lineUserId,
+      p_profile: lineProfile,
+      p_email: email.includes('@line.local') ? null : email,  // Don't pass fake email
+      p_phone: null,  // LINE doesn't provide phone
+      p_name: displayName || 'LINE User',
+    }) as { data: FindOrCreateUserResult[] | null; error: Error | null };
 
-  if (!existingUser) {
-    const { error: insertError } = await supabaseAdmin
-      .from("users")
-      .insert({
-        id: userId,
-        user_type: "CUSTOMER",
-        role: "CUSTOMER",
-        email: email,
-        name: displayName,
-        profile_image: pictureUrl || null,
-        auth_provider: "LINE",
-        provider_user_id: lineUserId,
-        is_active: true,
-        is_approved: true,
-      });
-
-    if (insertError) {
-      console.error("[LINE Auth] Insert public.users error:", insertError.message);
-    } else {
-      console.log("[LINE Auth] Created public.users entry");
+    if (error) {
+      console.error("[LINE Auth] RPC error:", error);
+      throw error;
     }
-  } else {
-    const { error: updateError } = await supabaseAdmin
-      .from("users")
-      .update({
-        name: displayName,
-        profile_image: pictureUrl || null,
-        auth_provider: "LINE",
-        provider_user_id: lineUserId,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", userId);
 
-    if (updateError) {
-      console.error("[LINE Auth] Update public.users error:", updateError.message);
-    } else {
-      console.log("[LINE Auth] Updated public.users entry");
+    // Log the result
+    if (rpcData && rpcData.length > 0) {
+      const result = rpcData[0];
+      console.log(`[LINE Auth] Sync result: user_id=${result.user_id}, is_new_user=${result.is_new_user}, is_new_identity=${result.is_new_identity}`);
     }
-  }
-
-  // Sync to customer_profiles table
-  console.log("[LINE Auth] Syncing to customer_profiles...");
-
-  const { data: existingProfile, error: profileSelectError } = await supabaseAdmin
-    .from("customer_profiles")
-    .select("user_id")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (profileSelectError) {
-    console.error("[LINE Auth] Error checking customer_profiles:", profileSelectError.message);
-  }
-
-  if (!existingProfile) {
-    const { error: insertProfileError } = await supabaseAdmin
-      .from("customer_profiles")
-      .insert({
-        user_id: userId,
-        user_type: "CUSTOMER",
-        line_user_id: lineUserId,
-        line_display_name: displayName,
-        line_picture_url: pictureUrl || null,
-        line_status_message: statusMessage || null,
-      });
-
-    if (insertProfileError) {
-      console.error("[LINE Auth] Insert customer_profiles error:", insertProfileError.message);
-    } else {
-      console.log("[LINE Auth] Created customer_profiles entry");
-    }
-  } else {
-    const { error: updateProfileError } = await supabaseAdmin
-      .from("customer_profiles")
-      .update({
-        line_user_id: lineUserId,
-        line_display_name: displayName,
-        line_picture_url: pictureUrl || null,
-        line_status_message: statusMessage || null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", userId);
-
-    if (updateProfileError) {
-      console.error("[LINE Auth] Update customer_profiles error:", updateProfileError.message);
-    } else {
-      console.log("[LINE Auth] Updated customer_profiles entry");
-    }
+  } catch (error) {
+    console.error("[LINE Auth] Failed to sync user:", error);
+    // Don't fail the auth - user is already created in Supabase Auth
   }
 }

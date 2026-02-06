@@ -8,7 +8,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import type { InsertTables, UpdateTables } from "@/lib/supabase/types";
+
+// Type for the find_or_create_user_by_identity RPC response
+interface FindOrCreateUserResult {
+  user_id: string;
+  is_new_user: boolean;
+  is_new_identity: boolean;
+}
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -57,8 +63,8 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * Sync authenticated user to database
- * Creates or updates user record in the users table
+ * Sync authenticated user to database via find_or_create_user_by_identity RPC
+ * Uses the new multi-social login system with user_identities table
  */
 async function syncUserToDatabase(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -73,37 +79,35 @@ async function syncUserToDatabase(
       (metadata.provider_id as string | undefined);
     const name = (metadata.full_name as string | undefined) || "LINE User";
     const profileImage = metadata.avatar_url as string | undefined;
+    const provider = (metadata.provider as string | undefined) || "LINE";
 
-    // Check if user exists
-    const { data: existingUser } = await supabase
-      .from("users")
-      .select("id")
-      .eq("id", user.id)
-      .single();
+    // Build profile JSONB
+    const profile = {
+      displayName: name,
+      pictureUrl: profileImage,
+      lineUserId: lineUserId,
+    };
 
-    if (existingUser) {
-      // Update existing user
-      const updateData: UpdateTables<"users"> = {
-        email: user.email,
-        name,
-        profile_image: profileImage,
-        provider_user_id: lineUserId,
-        updated_at: new Date().toISOString(),
-      };
-      await supabase.from("users").update(updateData).eq("id", user.id);
-    } else {
-      // Create new user
-      const insertData: InsertTables<"users"> = {
-        id: user.id,
-        email: user.email || "",
-        name,
-        profile_image: profileImage,
-        provider_user_id: lineUserId,
-        user_type: "CUSTOMER",
-        role: "CUSTOMER",
-        is_active: true,
-      };
-      await supabase.from("users").insert(insertData);
+    // Call the RPC function to find or create user with identity
+    const { data, error } = await (supabase.rpc as Function)('find_or_create_user_by_identity', {
+      p_auth_id: user.id,
+      p_provider: provider.toUpperCase(),
+      p_provider_user_id: lineUserId || user.id,
+      p_profile: profile,
+      p_email: user.email?.includes('.local') ? null : user.email,
+      p_phone: null,
+      p_name: name,
+    }) as { data: FindOrCreateUserResult[] | null; error: Error | null };
+
+    if (error) {
+      console.error("Failed to sync user via RPC:", error);
+      throw error;
+    }
+
+    // Log the result
+    if (data && data.length > 0) {
+      const result = data[0];
+      console.log(`User sync result: user_id=${result.user_id}, is_new_user=${result.is_new_user}, is_new_identity=${result.is_new_identity}`);
     }
   } catch (error) {
     // Log but don't fail - user is already authenticated

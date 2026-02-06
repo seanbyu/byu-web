@@ -7,32 +7,58 @@ import { useAuthContext } from "@/features/auth";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/PageHeader";
-import type { User as PublicUser, CustomerProfile } from "@/lib/supabase/types";
+import type { User as PublicUser } from "@/lib/supabase/types";
 
-type UserWithProfile = PublicUser & {
-  customer_profiles: CustomerProfile | null;
+// Type for user identity (LINE, Google, Kakao, etc.)
+interface UserIdentity {
+  id: string;
+  provider: string;
+  provider_user_id: string | null;
+  profile: {
+    displayName?: string;
+    pictureUrl?: string;
+    statusMessage?: string;
+    lineUserId?: string;
+  } | null;
+  is_primary: boolean;
+}
+
+type UserWithIdentities = PublicUser & {
+  user_identities: UserIdentity[];
 };
 
 export default function MyPage() {
   const router = useRouter();
   const t = useTranslations("auth");
   const { user, session, isAuthenticated, isLoading: authLoading, signOut } = useAuthContext();
-  const [profileData, setProfileData] = useState<UserWithProfile | null>(null);
+  const [profileData, setProfileData] = useState<UserWithIdentities | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Fetch user profile from public.users and customer_profiles
+  // Fetch user profile from public.users and user_identities
   const fetchProfile = useCallback(async (userId: string) => {
     try {
       const supabase = createClient();
 
-      const userResult = await supabase.from("users").select("*").eq("id", userId).single();
-      const profileResult = await supabase.from("customer_profiles").select("*").eq("user_id", userId).single();
+      // Fetch user with their linked identities
+      const userResult = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      // Fetch user identities (LINE, Google, Kakao, etc.)
+      // Using type assertion since user_identities table types may not be regenerated
+      const identitiesResult = await (supabase
+        .from("user_identities" as any)
+        .select("id, provider, provider_user_id, profile, is_primary")
+        .eq("user_id", userId)
+        .order("is_primary", { ascending: false })) as unknown as { data: UserIdentity[] | null };
 
       if (userResult.data) {
         setProfileData({
           ...userResult.data,
-          customer_profiles: profileResult.data || null,
-        } as UserWithProfile);
+          user_identities: identitiesResult.data || [],
+        } as UserWithIdentities);
       }
     } catch (error) {
       console.error("Profile fetch error:", error);
@@ -103,14 +129,20 @@ export default function MyPage() {
     return null;
   }
 
-  // Use data from public.users and customer_profiles, fallback to auth metadata
+  // Use data from public.users and user_identities, fallback to auth metadata
   const metadata = user.user_metadata || {};
-  const displayName = profileData?.name || metadata.full_name || metadata.name || "LINE User";
-  const avatarUrl = profileData?.profile_image || profileData?.customer_profiles?.line_picture_url || metadata.avatar_url || metadata.picture;
+
+  // Find primary identity (or first LINE identity)
+  const primaryIdentity = profileData?.user_identities?.find(i => i.is_primary)
+    || profileData?.user_identities?.find(i => i.provider === "LINE")
+    || profileData?.user_identities?.[0];
+
+  const displayName = profileData?.name || primaryIdentity?.profile?.displayName || metadata.full_name || metadata.name || "LINE User";
+  const avatarUrl = profileData?.profile_image || primaryIdentity?.profile?.pictureUrl || metadata.avatar_url || metadata.picture;
   const email = profileData?.email || user.email || "";
-  const lineUserId = profileData?.customer_profiles?.line_user_id || profileData?.provider_user_id || metadata.line_user_id || "";
-  const lineDisplayName = profileData?.customer_profiles?.line_display_name;
-  const isLineUser = profileData?.auth_provider === "LINE" || metadata.provider === "line";
+  const lineUserId = primaryIdentity?.provider_user_id || primaryIdentity?.profile?.lineUserId || metadata.line_user_id || "";
+  const lineDisplayName = primaryIdentity?.profile?.displayName;
+  const isLineUser = primaryIdentity?.provider === "LINE" || metadata.provider === "line";
 
   return (
     <div className="bg-white">
@@ -176,17 +208,23 @@ export default function MyPage() {
               <p className="text-sm text-gray-900 font-mono">{lineUserId.slice(0, 8)}...</p>
             </div>
           )}
-          {profileData?.customer_profiles && (
-            <>
-              <div className="px-4 py-3">
-                <p className="text-xs text-gray-500">{t("myPage.bookingCount")}</p>
-                <p className="text-sm text-gray-900">{profileData.customer_profiles.total_bookings}{t("myPage.times")}</p>
+          {/* Connected Social Accounts */}
+          {profileData?.user_identities && profileData.user_identities.length > 0 && (
+            <div className="px-4 py-3">
+              <p className="text-xs text-gray-500">{t("myPage.connectedAccounts") || "Connected Accounts"}</p>
+              <div className="flex gap-2 mt-1">
+                {profileData.user_identities.map((identity) => (
+                  <span
+                    key={identity.id}
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      identity.is_primary ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {identity.provider}
+                  </span>
+                ))}
               </div>
-              <div className="px-4 py-3">
-                <p className="text-xs text-gray-500">{t("myPage.totalSpent")}</p>
-                <p className="text-sm text-gray-900">฿{profileData.customer_profiles.total_spent.toLocaleString()}</p>
-              </div>
-            </>
+            </div>
           )}
           <div className="px-4 py-3">
             <p className="text-xs text-gray-500">{t("myPage.loginStatus")}</p>

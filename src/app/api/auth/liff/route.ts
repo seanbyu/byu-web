@@ -13,11 +13,14 @@ import {
   generateLinePassword,
   generateLineEmail,
 } from "@/lib/auth/password-hash";
-import type {
-  Database,
-  InsertTables,
-  UpdateTables,
-} from "@/lib/supabase/types";
+import type { Database } from "@/lib/supabase/types";
+
+// Type for the find_or_create_user_by_identity RPC response
+interface FindOrCreateUserResult {
+  user_id: string;
+  is_new_user: boolean;
+  is_new_identity: boolean;
+}
 
 // LINE API endpoints
 const LINE_VERIFY_URL = "https://api.line.me/oauth2/v2.1/verify";
@@ -278,7 +281,10 @@ async function findOrCreateUser(
 }
 
 /**
- * Sync user data to users table
+ * Sync user data to users table via find_or_create_user_by_identity RPC
+ *
+ * This function uses the new multi-social login system with user_identities table.
+ * It finds existing user by auth_id, email, or phone - or creates a new one.
  */
 async function syncToUsersTable(
   supabaseAdmin: SupabaseClient<Database>,
@@ -286,35 +292,34 @@ async function syncToUsersTable(
   tokenData: LineTokenVerifyResponse
 ): Promise<void> {
   try {
-    const { data: existingUser } = await supabaseAdmin
-      .from("users")
-      .select("id")
-      .eq("id", user.id)
-      .single();
+    // Build LINE profile JSONB
+    const lineProfile = {
+      displayName: tokenData.name,
+      pictureUrl: tokenData.picture,
+      lineUserId: tokenData.sub,
+    };
 
-    if (existingUser) {
-      const updateData: UpdateTables<"users"> = {
-        email: user.email,
-        name: tokenData.name || "LINE User",
-        profile_image: tokenData.picture,
-        provider_user_id: tokenData.sub,
-        updated_at: new Date().toISOString(),
-      };
-      await supabaseAdmin.from("users")
-        .update(updateData)
-        .eq("id", user.id);
-    } else {
-      const insertData: InsertTables<"users"> = {
-        id: user.id,
-        email: user.email || "",
-        name: tokenData.name || "LINE User",
-        profile_image: tokenData.picture,
-        provider_user_id: tokenData.sub,
-        user_type: "CUSTOMER",
-        role: "CUSTOMER",
-        is_active: true,
-      };
-      await supabaseAdmin.from("users").insert(insertData);
+    // Call the RPC function to find or create user with identity
+    // Using type assertion since the RPC function is newly added and types may not be regenerated
+    const { data, error } = await (supabaseAdmin.rpc as Function)('find_or_create_user_by_identity', {
+      p_auth_id: user.id,
+      p_provider: 'LINE',
+      p_provider_user_id: tokenData.sub,
+      p_profile: lineProfile,
+      p_email: tokenData.email || null,  // Real email if provided by LINE
+      p_phone: null,  // LINE doesn't provide phone
+      p_name: tokenData.name || 'LINE User',
+    }) as { data: FindOrCreateUserResult[] | null; error: Error | null };
+
+    if (error) {
+      console.error("Failed to sync user via RPC:", error);
+      throw error;
+    }
+
+    // Log the result for debugging
+    if (data && data.length > 0) {
+      const result = data[0];
+      console.log(`User sync result: user_id=${result.user_id}, is_new_user=${result.is_new_user}, is_new_identity=${result.is_new_identity}`);
     }
   } catch (error) {
     console.error("Failed to sync user to database:", error);
