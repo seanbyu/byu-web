@@ -114,7 +114,7 @@ export class SalonRepository extends BaseRepository<"salons"> {
     const transformed = (data ?? [])
       .filter((profile: Record<string, unknown>) => {
         const user = profile.users as Record<string, unknown>;
-        return user && user.user_type === "ADMIN_USER" && user.is_active === true;
+        return user && user.user_type === "SALON" && user.is_active === true;
       })
       .map((profile: Record<string, unknown>) => {
         const user = profile.users as Record<string, unknown>;

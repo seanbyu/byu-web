@@ -2,7 +2,7 @@
 export type AuthProvider = "EMAIL" | "LINE" | "GOOGLE" | "KAKAO";
 
 // User Type Enum
-export type UserType = "ADMIN_USER" | "CUSTOMER";
+export type UserType = "SALON" | "CUSTOMER";
 
 // User Role Enum
 export type UserRole = "SUPER_ADMIN" | "ADMIN" | "MANAGER" | "STAFF" | "CUSTOMER";

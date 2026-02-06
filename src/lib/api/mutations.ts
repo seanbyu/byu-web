@@ -15,7 +15,7 @@ export interface CreateBookingParams {
   customer_id: string;
   customer_user_type: "CUSTOMER";
   designer_id: string;
-  designer_user_type: "ADMIN_USER";
+  designer_user_type: "SALON";
   service_id: string;
   booking_date: string;
   start_time: string;

@@ -31,7 +31,7 @@ export const bookingsApi = {
       customer_id: bookingData.customer_id,
       customer_user_type: "CUSTOMER",
       designer_id: bookingData.designer_id,
-      designer_user_type: "ADMIN_USER",
+      designer_user_type: "SALON",
       service_id: bookingData.service_id,
       booking_date: bookingData.booking_date,
       start_time: bookingData.start_time,

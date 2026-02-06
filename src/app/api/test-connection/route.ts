@@ -29,7 +29,7 @@ export async function GET() {
         id, name, salon_id, is_active,
         staff_profiles (is_booking_enabled)
       `)
-      .eq("user_type", "ADMIN_USER")
+      .eq("user_type", "SALON")
       .limit(10);
 
     // Test bookable staff only (is_booking_enabled = true)
@@ -39,7 +39,7 @@ export async function GET() {
         id, name,
         staff_profiles!inner (is_booking_enabled)
       `)
-      .eq("user_type", "ADMIN_USER")
+      .eq("user_type", "SALON")
       .eq("is_active", true)
       .eq("staff_profiles.is_booking_enabled", true)
       .limit(10);
