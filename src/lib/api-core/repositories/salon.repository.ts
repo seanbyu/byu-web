@@ -106,7 +106,8 @@ export class SalonRepository extends BaseRepository<"salons"> {
         )
       `)
       .eq("salon_id", salonId)
-      .eq("is_booking_enabled", true);
+      .eq("is_booking_enabled", true)
+      .order("display_order", { ascending: true });
 
     if (error) throw error;
 
