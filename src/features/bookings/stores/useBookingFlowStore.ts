@@ -13,6 +13,8 @@ interface BookingFlowState {
   selectedDate: Date | null;
   selectedTime: string | null;
   customerNotes: string;
+  customerName: string;
+  customerPhone: string;
 
   // UI state
   showLoginModal: boolean;
@@ -29,6 +31,8 @@ interface BookingFlowState {
   setSelectedDate: (date: Date | null) => void;
   setSelectedTime: (time: string | null) => void;
   setCustomerNotes: (notes: string) => void;
+  setCustomerName: (name: string) => void;
+  setCustomerPhone: (phone: string) => void;
 
   // Actions - UI
   setShowLoginModal: (show: boolean) => void;
@@ -49,6 +53,8 @@ const initialState = {
   selectedDate: null,
   selectedTime: null,
   customerNotes: "",
+  customerName: "",
+  customerPhone: "",
   showLoginModal: false,
   isSubmitting: false,
 };
@@ -81,6 +87,8 @@ export const useBookingFlowStore = create<BookingFlowState>((set, get) => ({
   setSelectedDate: (date) => set({ selectedDate: date, selectedTime: null }),
   setSelectedTime: (time) => set({ selectedTime: time }),
   setCustomerNotes: (notes) => set({ customerNotes: notes }),
+  setCustomerName: (name) => set({ customerName: name }),
+  setCustomerPhone: (phone) => set({ customerPhone: phone }),
 
   // UI actions
   setShowLoginModal: (show) => set({ showLoginModal: show }),
@@ -88,7 +96,7 @@ export const useBookingFlowStore = create<BookingFlowState>((set, get) => ({
 
   // Helpers
   canProceed: () => {
-    const { currentStep, selectedService, selectedDesigner, selectedDate, selectedTime } = get();
+    const { currentStep, selectedService, selectedDesigner, selectedDate, selectedTime, customerName } = get();
     switch (currentStep) {
       case "service":
         return !!selectedService;
@@ -97,7 +105,7 @@ export const useBookingFlowStore = create<BookingFlowState>((set, get) => ({
       case "datetime":
         return !!selectedDate && !!selectedTime;
       case "confirm":
-        return true;
+        return !!customerName.trim();
       default:
         return false;
     }

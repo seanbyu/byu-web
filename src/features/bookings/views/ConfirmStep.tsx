@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Check } from "lucide-react";
+import PhoneInput from "react-phone-number-input";
 import type { ConfirmStepProps } from "../types";
 
 export const ConfirmStep = memo(function ConfirmStep({
@@ -10,6 +11,10 @@ export const ConfirmStep = memo(function ConfirmStep({
   time,
   notes,
   onNotesChange,
+  customerName,
+  onCustomerNameChange,
+  customerPhone,
+  onCustomerPhoneChange,
   t,
 }: ConfirmStepProps) {
   const formatDate = (date: Date) => {
@@ -78,10 +83,44 @@ export const ConfirmStep = memo(function ConfirmStep({
         </div>
       </div>
 
+      {/* Customer Information */}
+      <div className="mt-6 space-y-4">
+        <h3 className="text-sm font-semibold text-gray-700">{t("customerInfo")}</h3>
+
+        {/* Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t("customerName")} <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={customerName}
+            onChange={(e) => onCustomerNameChange(e.target.value)}
+            placeholder={t("customerNamePlaceholder")}
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+          />
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t("customerPhone")} <span className="text-gray-400 text-xs">({t("optional")})</span>
+          </label>
+          <PhoneInput
+            international
+            defaultCountry="TH"
+            value={customerPhone}
+            onChange={(value) => onCustomerPhoneChange(value || "")}
+            placeholder={t("customerPhonePlaceholder")}
+            className="phone-input-custom w-full px-4 py-3 rounded-xl border border-gray-200 focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500"
+          />
+        </div>
+      </div>
+
       {/* Notes */}
       <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          {t("customerNotes")}
+          {t("customerNotes")} <span className="text-gray-400 text-xs">({t("optional")})</span>
         </label>
         <textarea
           value={notes}

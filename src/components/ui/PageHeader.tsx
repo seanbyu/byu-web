@@ -1,8 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Home, Search, Share2 } from "lucide-react";
-import { Link } from "@/i18n/routing";
+import { useRouter, usePathname } from "next/navigation";
+import { ArrowLeft, Home, Search, Share2, Globe } from "lucide-react";
+import { Link, usePathname as useI18nPathname } from "@/i18n/routing";
+import { useLocale } from "next-intl";
+import { useState } from "react";
 
 interface PageHeaderProps {
   title?: string;
@@ -10,6 +12,7 @@ interface PageHeaderProps {
   showHome?: boolean;
   showSearch?: boolean;
   showShare?: boolean;
+  showLanguage?: boolean;
   onShare?: () => void;
 }
 
@@ -19,9 +22,13 @@ export function PageHeader({
   showHome = true,
   showSearch = true,
   showShare = true,
+  showLanguage = false,
   onShare,
 }: PageHeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = useLocale();
+  const [showLangMenu, setShowLangMenu] = useState(false);
 
   const handleShare = async () => {
     if (onShare) {
@@ -40,6 +47,19 @@ export function PageHeader({
       }
     }
   };
+
+  const switchLocale = (newLocale: string) => {
+    const segments = pathname?.split("/") || [];
+    segments[1] = newLocale;
+    router.push(segments.join("/"));
+    setShowLangMenu(false);
+  };
+
+  const languages = [
+    { code: "ko", name: "한국어", flag: "🇰🇷" },
+    { code: "en", name: "English", flag: "🇺🇸" },
+    { code: "th", name: "ไทย", flag: "🇹🇭" },
+  ];
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
@@ -65,7 +85,42 @@ export function PageHeader({
         )}
 
         {/* Right Side */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 relative">
+          {showLanguage && (
+            <div className="relative">
+              <button
+                onClick={() => setShowLangMenu(!showLangMenu)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Language"
+              >
+                <Globe className="w-5 h-5 text-gray-700" />
+              </button>
+
+              {/* Language Dropdown */}
+              {showLangMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowLangMenu(false)}
+                  />
+                  <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[140px] z-50">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.code}
+                        onClick={() => switchLocale(lang.code)}
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 ${
+                          locale === lang.code ? "bg-primary-50 text-primary-600 font-medium" : "text-gray-700"
+                        }`}
+                      >
+                        <span className="text-lg">{lang.flag}</span>
+                        <span>{lang.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
           {showHome && (
             <Link
               href="/"

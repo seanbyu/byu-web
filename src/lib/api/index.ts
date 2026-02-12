@@ -13,5 +13,10 @@ export { endpoints } from "./endpoints";
 export { bookingQueries, salonQueries } from "./queries";
 
 // Mutations (POST/PUT/DELETE)
-export { bookingMutations } from "./mutations";
-export type { CreateBookingParams, CancelBookingParams } from "./mutations";
+export { bookingMutations, customerMutations } from "./mutations";
+export type {
+  CreateBookingParams,
+  CancelBookingParams,
+  FindOrCreateCustomerParams,
+  Customer,
+} from "./mutations";

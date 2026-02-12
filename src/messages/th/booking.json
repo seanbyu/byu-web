@@ -7,7 +7,7 @@
   "bookNow": "จองเลย",
   "cancelBooking": "ยกเลิกการจอง",
   "reschedule": "เปลี่ยนเวลา",
-  "confirmBooking": "ยืนยันการจอง",
+  "confirmBooking": "จองคิว",
   "selectDate": "เลือกวันที่",
   "selectTime": "เลือกเวลา",
   "selectDateTime": "เลือกวันที่และเวลา",
@@ -19,7 +19,7 @@
   "noServices": "ไม่มีบริการ",
   "noDesigners": "ไม่มีช่างว่าง",
   "noTimeSlotsAvailable": "ไม่มีเวลาว่างในวันที่เลือก",
-  "bookingConfirmed": "ยืนยันการจองแล้ว",
+  "bookingConfirmed": "การจองของคุณอยู่ระหว่างรอดำเนินการ",
   "bookingCancelled": "ยกเลิกการจองแล้ว",
   "bookingFailed": "การจองล้มเหลว กรุณาลองใหม่อีกครั้ง",
   "totalPrice": "ราคารวม",
@@ -34,5 +34,12 @@
   "processing": "กำลังดำเนินการ...",
   "selectCategory": "เลือกหมวดหมู่",
   "selectCategoryPlaceholder": "เลือกหมวดหมู่",
-  "noCategories": "ไม่มีหมวดหมู่"
+  "selectCategoryRequired": "กรุณาเลือกหมวดหมู่",
+  "noCategories": "ไม่มีหมวดหมู่",
+  "customerInfo": "ข้อมูลลูกค้า",
+  "customerName": "ชื่อ",
+  "customerNamePlaceholder": "กรอกชื่อของคุณ",
+  "customerPhone": "เบอร์โทรศัพท์",
+  "customerPhonePlaceholder": "+66 81 234 5678",
+  "optional": "ไม่จำเป็น"
 }

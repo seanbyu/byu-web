@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const booking = await bookingService.createBooking({
       salonId: body.salon_id,
       customerId: body.customer_id,
-      designerId: body.designer_id,
+      designerId: body.artist_id,
       serviceId: body.service_id,
       bookingDate: body.booking_date,
       startTime: body.start_time,

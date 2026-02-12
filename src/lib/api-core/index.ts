@@ -13,6 +13,7 @@ export {
   SalonRepository,
   createSalonRepository,
 } from "./repositories/salon.repository";
+export { CustomerRepository } from "./repositories/customer.repository";
 
 // Services
 export {
@@ -33,3 +34,11 @@ export type {
   SalonWithStaff,
   SalonBookingData,
 } from "./services/salon.service";
+
+export {
+  CustomerService,
+  createCustomerService,
+} from "./services/customer.service";
+export type {
+  FindOrCreateCustomerParams,
+} from "./services/customer.service";

@@ -5,7 +5,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { useAuthContext } from "@/features/auth";
 import type { Salon, StaffWithProfile, ServiceCategory } from "@/lib/supabase/types";
 import { getDayName, formatTime, formatDateForDB, getDesignerWorkHours } from "@/features/bookings/utils";
-import { createBookingsApi } from "@/features/bookings/api";
+import { bookingsApi } from "@/features/bookings/api";
+import { customerMutations } from "@/lib/api/mutations";
 import { useSalonDetailStore } from "../stores/useSalonDetailStore";
 import { useBookingsQuery } from "./useBookingsQuery";
 import { useCategoriesQuery } from "./useCategoriesQuery";
@@ -153,7 +154,7 @@ export function useSalonBooking(
     const slotEnd = slotMinutes + slotDuration;
 
     for (const booking of existingBookings) {
-      if (booking.designer_id !== designerId) continue;
+      if (booking.artist_id !== designerId) continue;
 
       const [bookingHour, bookingMin] = booking.start_time.split(":").map(Number);
       const bookingStart = bookingHour * 60 + bookingMin;
@@ -180,18 +181,26 @@ export function useSalonBooking(
 
     setIsSubmitting(true);
     try {
-      const api = createBookingsApi();
       const slotDuration = salon.settings?.slot_duration_minutes || 60;
 
       const [startHour, startMin] = bookingModal.time.split(":").map(Number);
       const startMinutes = startHour * 60 + startMin;
       const endTime = formatTime(startMinutes + slotDuration);
 
-      await api.createBooking({
+      // 1. Find or create customer record
+      const userName = user.user_metadata?.name || user.user_metadata?.full_name || user.email?.split("@")[0] || "Guest";
+      const customer = await customerMutations.findOrCreate({
         salon_id: salon.id,
-        customer_id: user.id,
-        designer_id: bookingModal.designer.id,
-        service_id: null as unknown as string,
+        name: userName,
+        phone: user.user_metadata?.phone,
+      });
+
+      // 2. Create booking with customer ID
+      await bookingsApi.createBooking({
+        salon_id: salon.id,
+        customer_id: customer.id,
+        artist_id: bookingModal.designer.id,
+        service_id: null,
         booking_date: formatDateForDB(selectedDate),
         start_time: bookingModal.time,
         end_time: endTime,

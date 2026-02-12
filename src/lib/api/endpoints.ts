@@ -68,4 +68,12 @@ export const endpoints = {
       path: (id: string) => `/bookings/${id}/cancel`,
     },
   },
+
+  // 고객 (Customers)
+  customers: {
+    // 고객 찾기 또는 생성
+    findOrCreate: {
+      path: () => "/customers/find-or-create",
+    },
+  },
 } as const;

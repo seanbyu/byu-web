@@ -23,7 +23,7 @@ export class BookingRepository extends BaseRepository<"bookings"> {
     const { data, error } = await this.supabase
       .from("bookings")
       .select("*")
-      .eq("designer_id", designerId)
+      .eq("artist_id", designerId)
       .eq("booking_date", bookingDate)
       .not("status", "in", '("CANCELLED","NO_SHOW")');
 
@@ -75,7 +75,7 @@ export class BookingRepository extends BaseRepository<"bookings"> {
         *,
         salons(*),
         services(*),
-        designer:users!bookings_designer_id_fkey(id, name, profile_image)
+        designer:users!bookings_artist_id_fkey(id, name, profile_image)
       `)
       .eq("id", bookingId)
       .single();

@@ -67,6 +67,10 @@ export type ConfirmStepProps = {
   time: string;
   notes: string;
   onNotesChange: (notes: string) => void;
+  customerName: string;
+  onCustomerNameChange: (name: string) => void;
+  customerPhone: string;
+  onCustomerPhoneChange: (phone: string) => void;
   t: ReturnType<typeof useTranslations>;
 };
 

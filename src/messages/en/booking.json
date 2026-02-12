@@ -7,7 +7,7 @@
   "bookNow": "Book Now",
   "cancelBooking": "Cancel Booking",
   "reschedule": "Reschedule",
-  "confirmBooking": "Confirm Booking",
+  "confirmBooking": "Make Reservation",
   "selectDate": "Select Date",
   "selectTime": "Select Time",
   "selectDateTime": "Select Date & Time",
@@ -19,7 +19,7 @@
   "noServices": "No services available",
   "noDesigners": "No designers available",
   "noTimeSlotsAvailable": "No time slots available for selected date",
-  "bookingConfirmed": "Booking Confirmed",
+  "bookingConfirmed": "Your reservation is pending.",
   "bookingCancelled": "Booking Cancelled",
   "bookingFailed": "Booking failed. Please try again.",
   "totalPrice": "Total Price",
@@ -34,5 +34,12 @@
   "processing": "Processing...",
   "selectCategory": "Select Category",
   "selectCategoryPlaceholder": "Choose a category",
-  "noCategories": "No categories available"
+  "selectCategoryRequired": "Please select a category",
+  "noCategories": "No categories available",
+  "customerInfo": "Customer Information",
+  "customerName": "Name",
+  "customerNamePlaceholder": "Enter your name",
+  "customerPhone": "Phone Number",
+  "customerPhonePlaceholder": "+66 81 234 5678",
+  "optional": "Optional"
 }

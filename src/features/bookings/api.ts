@@ -29,9 +29,7 @@ export const bookingsApi = {
     return bookingMutations.create({
       salon_id: bookingData.salon_id,
       customer_id: bookingData.customer_id,
-      customer_user_type: "CUSTOMER",
-      designer_id: bookingData.designer_id,
-      designer_user_type: "SALON",
+      artist_id: bookingData.artist_id,
       service_id: bookingData.service_id,
       booking_date: bookingData.booking_date,
       start_time: bookingData.start_time,

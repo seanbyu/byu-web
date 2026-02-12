@@ -10,6 +10,7 @@ import { Link } from "@/i18n/routing";
 import { useAuthContext, LoginModal } from "@/features/auth";
 import type { StaffWithProfile } from "@/lib/supabase/types";
 import { bookingsApi } from "../api";
+import { customerMutations } from "@/lib/api";
 import { getDayName, formatTime, formatDateForDB, isDateInHolidays, getDesignerWorkHours } from "../utils";
 import { useBookingFlowStore } from "../stores/useBookingFlowStore";
 import { useDesignerBookingsQuery } from "../hooks/useDesignerBookingsQuery";
@@ -34,6 +35,8 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     selectedDate,
     selectedTime,
     customerNotes,
+    customerName,
+    customerPhone,
     showLoginModal,
     isSubmitting,
     setCurrentStep,
@@ -44,6 +47,8 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     setSelectedDate,
     setSelectedTime,
     setCustomerNotes,
+    setCustomerName,
+    setCustomerPhone,
     setShowLoginModal,
     setIsSubmitting,
     canProceed,
@@ -57,6 +62,8 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       selectedDate: state.selectedDate,
       selectedTime: state.selectedTime,
       customerNotes: state.customerNotes,
+      customerName: state.customerName,
+      customerPhone: state.customerPhone,
       showLoginModal: state.showLoginModal,
       isSubmitting: state.isSubmitting,
       setCurrentStep: state.setCurrentStep,
@@ -67,6 +74,8 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       setSelectedDate: state.setSelectedDate,
       setSelectedTime: state.setSelectedTime,
       setCustomerNotes: state.setCustomerNotes,
+      setCustomerName: state.setCustomerName,
+      setCustomerPhone: state.setCustomerPhone,
       setShowLoginModal: state.setShowLoginModal,
       setIsSubmitting: state.setIsSubmitting,
       canProceed: state.canProceed,
@@ -193,12 +202,20 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       return;
     }
 
-    if (!selectedService || !selectedDesigner || !selectedDate || !selectedTime || !user) {
+    if (!selectedService || !selectedDesigner || !selectedDate || !selectedTime || !user || !customerName.trim()) {
       return;
     }
 
     setIsSubmitting(true);
     try {
+      // 1. 고객 찾기 또는 생성
+      const customer = await customerMutations.findOrCreate({
+        salon_id: salon.id,
+        name: customerName,
+        phone: customerPhone || undefined,
+      });
+
+      // 2. 예약 생성
       const [startHour, startMin] = selectedTime.split(":").map(Number);
       const startMinutes = startHour * 60 + startMin;
       const endMinutes = startMinutes + selectedService.duration_minutes;
@@ -206,8 +223,8 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
 
       const booking = await bookingsApi.createBooking({
         salon_id: salon.id,
-        customer_id: user.id,
-        designer_id: selectedDesigner.id,
+        customer_id: customer.id,
+        artist_id: selectedDesigner.id,
         service_id: selectedService.id,
         booking_date: formatDateForDB(selectedDate),
         start_time: selectedTime,
@@ -229,7 +246,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     } finally {
       setIsSubmitting(false);
     }
-  }, [isAuthenticated, selectedService, selectedDesigner, selectedDate, selectedTime, user, salon.id, customerNotes, queryClient, router, t, setShowLoginModal, setIsSubmitting]);
+  }, [isAuthenticated, selectedService, selectedDesigner, selectedDate, selectedTime, user, salon.id, customerName, customerPhone, customerNotes, queryClient, router, t, setShowLoginModal, setIsSubmitting]);
 
   const handleNext = useCallback(() => {
     if (currentStep === "confirm") {
@@ -336,6 +353,10 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
             time={selectedTime}
             notes={customerNotes}
             onNotesChange={setCustomerNotes}
+            customerName={customerName}
+            onCustomerNameChange={setCustomerName}
+            customerPhone={customerPhone}
+            onCustomerPhoneChange={setCustomerPhone}
             t={t}
           />
         )}

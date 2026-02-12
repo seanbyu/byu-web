@@ -6,6 +6,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Booking, InsertTables } from "@/lib/supabase/types";
 import { BookingRepository } from "../repositories/booking.repository";
+import { createNotificationService } from "./notification.service";
 
 export interface TimeSlot {
   startTime: string;
@@ -21,7 +22,7 @@ export interface CreateBookingParams {
   salonId: string;
   customerId: string;
   designerId: string;
-  serviceId: string;
+  serviceId?: string | null;
   bookingDate: string;
   startTime: string;
   endTime: string;
@@ -32,9 +33,11 @@ export interface CreateBookingParams {
 
 export class BookingService {
   private repository: BookingRepository;
+  private supabase: SupabaseClient<Database>;
 
   constructor(supabase: SupabaseClient<Database>) {
     this.repository = new BookingRepository(supabase);
+    this.supabase = supabase;
   }
 
   /**
@@ -131,8 +134,8 @@ export class BookingService {
     const bookingData: InsertTables<"bookings"> = {
       salon_id: params.salonId,
       customer_id: params.customerId,
-      designer_id: params.designerId,
-      service_id: params.serviceId,
+      artist_id: params.designerId,
+      service_id: params.serviceId || null,
       booking_date: params.bookingDate,
       start_time: params.startTime,
       end_time: params.endTime,
@@ -144,7 +147,94 @@ export class BookingService {
     };
 
     // 4. 예약 생성
-    return this.repository.createBooking(bookingData);
+    const booking = await this.repository.createBooking(bookingData);
+
+    // 5. 알림 생성 (비동기, 실패해도 예약은 성공)
+    this.createBookingNotifications(booking, params).catch((error) => {
+      console.error("Failed to create booking notifications:", error);
+    });
+
+    return booking;
+  }
+
+  /**
+   * 예약 알림 생성
+   */
+  private async createBookingNotifications(
+    booking: Booking,
+    params: CreateBookingParams
+  ): Promise<void> {
+    try {
+      console.log("📢 Starting notification creation for booking:", booking.id);
+
+      // 살롱 정보 조회
+      console.log("🔍 Fetching salon info...");
+      const { data: salon, error: salonError } = await this.supabase
+        .from("salons")
+        .select("name")
+        .eq("id", params.salonId)
+        .single();
+
+      if (salonError) {
+        console.error("❌ Salon fetch error:", salonError);
+      } else {
+        console.log("✅ Salon fetched:", salon?.name);
+      }
+
+      // 고객 정보 조회
+      console.log("🔍 Fetching customer info...");
+      const { data: customer, error: customerError } = await this.supabase
+        .from("customers")
+        .select("name")
+        .eq("id", params.customerId)
+        .single();
+
+      if (customerError) {
+        console.error("❌ Customer fetch error:", customerError);
+      } else {
+        console.log("✅ Customer fetched:", customer?.name);
+      }
+
+      // 아티스트 정보 조회
+      console.log("🔍 Fetching artist info...");
+      const { data: artist, error: artistError } = await this.supabase
+        .from("users")
+        .select("name")
+        .eq("id", params.designerId)
+        .single();
+
+      if (artistError) {
+        console.error("❌ Artist fetch error:", artistError);
+      } else {
+        console.log("✅ Artist fetched:", artist?.name);
+      }
+
+      if (!salon || !customer || !artist) {
+        console.error("❌ Failed to fetch booking details for notifications");
+        console.error("Missing data:", { salon: !!salon, customer: !!customer, artist: !!artist });
+        return;
+      }
+
+      console.log("📢 Creating notifications...");
+      const notificationService = createNotificationService(this.supabase);
+
+      await notificationService.createNewBookingNotifications({
+        bookingId: booking.id,
+        salonId: params.salonId,
+        salonName: salon.name,
+        customerId: params.customerId,
+        customerName: customer.name,
+        artistId: params.designerId,
+        artistName: artist.name,
+        bookingDate: params.bookingDate,
+        startTime: params.startTime,
+      });
+
+      console.log("✅ Notifications created successfully!");
+    } catch (error) {
+      console.error("❌ Error in createBookingNotifications:", error);
+      throw error;
+    }
   }
 
   /**
@@ -199,7 +289,6 @@ export class BookingService {
     if (!params.salonId) throw new Error("살롱 ID가 필요합니다");
     if (!params.customerId) throw new Error("고객 ID가 필요합니다");
     if (!params.designerId) throw new Error("디자이너 ID가 필요합니다");
-    if (!params.serviceId) throw new Error("서비스 ID가 필요합니다");
     if (!params.bookingDate) throw new Error("예약 날짜가 필요합니다");
     if (!params.startTime) throw new Error("시작 시간이 필요합니다");
     if (!params.endTime) throw new Error("종료 시간이 필요합니다");
