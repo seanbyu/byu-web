@@ -20,7 +20,7 @@ export const CategoryGrid = memo(function CategoryGrid() {
           <Link
             key={cat.id}
             href={cat.href}
-            className="flex flex-col items-center gap-2"
+            className="touch-target flex flex-col items-center justify-center gap-2 rounded-xl"
           >
             <div className="w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100">
               <cat.icon className="w-6 h-6 text-gray-700" />

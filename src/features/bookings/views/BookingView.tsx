@@ -271,12 +271,12 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
         <div className="flex items-center justify-between px-4 h-14">
           <button
             onClick={handleBack}
-            className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="touch-target -ml-2 rounded-full p-2 transition-colors hover:bg-gray-100"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="font-semibold">{t("title")}</h1>
-          <Link href="/" className="p-2 -mr-2 hover:bg-gray-100 rounded-full transition-colors">
+          <Link href="/" className="touch-target -mr-2 rounded-full p-2 transition-colors hover:bg-gray-100" aria-label="Home">
             <Home className="w-5 h-5" />
           </Link>
         </div>
@@ -286,7 +286,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
           {(["service", "designer", "datetime", "confirm"] as BookingStep[]).map((step, index) => (
             <div key={step} className="flex-1 flex items-center">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                className={`h-9 w-9 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                   currentStep === step
                     ? "bg-primary-600 text-white"
                     : getStepCompleted(step)

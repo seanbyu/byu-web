@@ -141,7 +141,7 @@ export default function BookingDetailPage() {
       <div className="bg-white">
         <header className="sticky top-0 bg-white border-b border-gray-100">
           <div className="flex items-center justify-between px-4 h-14">
-            <button onClick={() => router.back()} className="p-2 -ml-2">
+            <button onClick={() => router.back()} className="touch-target -ml-2 rounded-full p-2">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <span className="font-semibold">예약 상세</span>
@@ -157,23 +157,23 @@ export default function BookingDetailPage() {
 
   return (
     <div className="bg-white">
-        {/* Header */}
-        <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
-          <div className="flex items-center justify-between px-4 h-14">
-            <button
-              onClick={() => router.back()}
-              className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <span className="font-semibold">예약 상세</span>
-            <Link href="/" className="p-2 -mr-2 hover:bg-gray-100 rounded-full transition-colors">
-              <Home className="w-5 h-5" />
-            </Link>
-          </div>
-        </header>
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 h-14">
+          <button
+            onClick={() => router.back()}
+            className="touch-target -ml-2 rounded-full p-2 transition-colors hover:bg-gray-100"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <span className="font-semibold">예약 상세</span>
+          <Link href="/" className="touch-target -mr-2 rounded-full p-2 transition-colors hover:bg-gray-100" aria-label="Home">
+            <Home className="w-5 h-5" />
+          </Link>
+        </div>
+      </header>
 
-        <div className="p-4 space-y-4">
+      <div className="p-4 space-y-4">
           {/* Success Banner (for new bookings) */}
           {booking.status === "PENDING" && (
             <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
@@ -201,7 +201,7 @@ export default function BookingDetailPage() {
             <div className="flex items-start gap-3">
               <MapPin className="w-5 h-5 text-primary-500 mt-0.5" />
               <div>
-                <p className="text-xs text-gray-500">{t("salon")}</p>
+                <p className="text-sm text-gray-500">{t("salon")}</p>
                 <p className="font-medium">{booking.salons.name}</p>
                 <p className="text-sm text-gray-500">{booking.salons.address}</p>
               </div>
@@ -211,7 +211,7 @@ export default function BookingDetailPage() {
             <div className="flex items-start gap-3">
               <Scissors className="w-5 h-5 text-primary-500 mt-0.5" />
               <div>
-                <p className="text-xs text-gray-500">{t("service")}</p>
+                <p className="text-sm text-gray-500">{t("service")}</p>
                 <p className="font-medium">{booking.services.name}</p>
                 <p className="text-sm text-gray-500">{booking.duration_minutes}분</p>
               </div>
@@ -231,7 +231,7 @@ export default function BookingDetailPage() {
                 )}
               </div>
               <div>
-                <p className="text-xs text-gray-500">{t("designer")}</p>
+                <p className="text-sm text-gray-500">{t("designer")}</p>
                 <p className="font-medium">{booking.designer.name}</p>
               </div>
             </div>
@@ -240,7 +240,7 @@ export default function BookingDetailPage() {
             <div className="flex items-start gap-3">
               <Calendar className="w-5 h-5 text-primary-500 mt-0.5" />
               <div>
-                <p className="text-xs text-gray-500">{t("dateTime")}</p>
+                <p className="text-sm text-gray-500">{t("dateTime")}</p>
                 <p className="font-medium">{formatDate(booking.booking_date)}</p>
                 <p className="text-sm text-gray-600">
                   {booking.start_time} - {booking.end_time}
@@ -251,7 +251,7 @@ export default function BookingDetailPage() {
             {/* Customer Notes */}
             {booking.customer_notes && (
               <div className="pt-3 border-t border-gray-200">
-                <p className="text-xs text-gray-500 mb-1">{t("customerNotes")}</p>
+                <p className="mb-1 text-sm text-gray-500">{t("customerNotes")}</p>
                 <p className="text-sm text-gray-700">{booking.customer_notes}</p>
               </div>
             )}
@@ -271,7 +271,7 @@ export default function BookingDetailPage() {
           {booking.salons.phone && (
             <a
               href={`tel:${booking.salons.phone}`}
-              className="flex items-center justify-center gap-2 w-full py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+              className="touch-target flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 py-3 transition-colors hover:bg-gray-50"
             >
               <Phone className="w-5 h-5 text-gray-600" />
               <span className="font-medium text-gray-700">살롱에 전화하기</span>
@@ -281,7 +281,7 @@ export default function BookingDetailPage() {
           {/* Cancel Button (only for pending/confirmed) */}
           {(booking.status === "PENDING" || booking.status === "CONFIRMED") && (
             <button
-              className="w-full py-3 text-red-500 font-medium rounded-xl hover:bg-red-50 transition-colors"
+              className="touch-target w-full rounded-xl py-3 font-medium text-red-500 transition-colors hover:bg-red-50"
               onClick={() => {
                 // TODO: Implement cancel booking
                 alert("예약 취소 기능은 준비 중입니다.");
@@ -290,7 +290,7 @@ export default function BookingDetailPage() {
               {t("cancelBooking")}
             </button>
           )}
-        </div>
+      </div>
     </div>
   );
 }

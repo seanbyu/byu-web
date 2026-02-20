@@ -112,8 +112,8 @@ export function LoginModal({
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600
-                     transition-colors rounded-full hover:bg-gray-100"
+          className="touch-target absolute top-4 right-4 rounded-full p-2 text-gray-400 hover:text-gray-600
+                     transition-colors hover:bg-gray-100"
           aria-label={tCommon("close")}
         >
           <svg
@@ -182,14 +182,14 @@ export function LoginModal({
 
             {/* Mobile hint */}
             {deviceInfo.isMobile && (
-              <p className="text-xs text-center text-gray-400">
+              <p className="text-sm text-center text-gray-400">
                 {t("lineAppWillOpen")}
               </p>
             )}
           </div>
 
           {/* Terms */}
-          <p className="mt-6 text-xs text-center text-gray-400 leading-relaxed">
+          <p className="mt-6 text-sm text-center text-gray-400 leading-relaxed">
             {t.rich("termsNotice", {
               terms: (chunks) => (
                 <a href="/terms" className="underline hover:text-gray-600">

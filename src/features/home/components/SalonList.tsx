@@ -116,7 +116,7 @@ const SalonCard = memo(function SalonCard({
             {/* Favorite Button */}
             <button
               onClick={handleFavoriteClick}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="touch-target rounded-full p-2 transition-colors hover:bg-gray-100"
               aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
             >
               <Heart

@@ -67,7 +67,7 @@ export function AuthBottomNav() {
 
   return (
     <>
-      <nav className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-2 flex justify-between items-center z-50 pb-safe">
+      <nav className="sticky bottom-0 z-50 flex items-center justify-between border-t border-gray-100 bg-white px-4 py-2 pb-safe">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
 
@@ -76,7 +76,7 @@ export function AuthBottomNav() {
               key={item.id}
               href={item.href}
               onClick={(e) => handleNavClick(e, item)}
-              className="flex flex-col items-center gap-1 min-w-[3rem]"
+              className="touch-target flex min-w-[3.25rem] flex-col items-center justify-center gap-1 rounded-lg px-2"
             >
               <item.icon
                 className={clsx(
@@ -86,7 +86,7 @@ export function AuthBottomNav() {
               />
               <span
                 className={clsx(
-                  "text-[10px] font-medium transition-colors",
+                  "text-xs font-medium transition-colors",
                   isActive ? "text-gray-900" : "text-gray-300"
                 )}
               >

@@ -119,7 +119,7 @@ export const SalonCalendar = memo(function SalonCalendar({
                     : "opacity-50 cursor-not-allowed"
                 }`}
               >
-                <div className={`text-[11px] font-medium ${
+                <div className={`text-xs font-medium ${
                   isSelected ? "text-primary-700" : isToday ? "text-primary-600" : "text-gray-600"
                 }`}>
                   {getDayLabel(date)}
@@ -155,7 +155,7 @@ export const SalonCalendar = memo(function SalonCalendar({
             <div className="flex items-center justify-between mb-3">
               <button
                 onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}
-                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                className="touch-target rounded-lg p-1.5 transition-colors hover:bg-gray-100"
               >
                 <ChevronLeft className="w-4 h-4 text-gray-600" />
               </button>
@@ -164,7 +164,7 @@ export const SalonCalendar = memo(function SalonCalendar({
               </span>
               <button
                 onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}
-                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                className="touch-target rounded-lg p-1.5 transition-colors hover:bg-gray-100"
               >
                 <ChevronRight className="w-4 h-4 text-gray-600" />
               </button>
@@ -182,7 +182,7 @@ export const SalonCalendar = memo(function SalonCalendar({
               ].map((day, i) => (
                 <div
                   key={day}
-                  className={`text-center text-[10px] font-medium py-1 ${
+                  className={`py-1 text-center text-xs font-medium ${
                     i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-gray-400"
                   }`}
                 >
@@ -194,7 +194,7 @@ export const SalonCalendar = memo(function SalonCalendar({
             <div className="grid grid-cols-7 gap-1">
               {calendarDays.map((date, index) => {
                 if (!date) {
-                  return <div key={`empty-${index}`} className="h-9" />;
+                  return <div key={`empty-${index}`} className="h-11" />;
                 }
 
                 const available = isCalendarDateAvailable(date);
@@ -211,7 +211,7 @@ export const SalonCalendar = memo(function SalonCalendar({
                       }
                     }}
                     disabled={!available}
-                    className={`h-9 rounded-lg text-sm font-medium transition-colors ${
+                    className={`h-11 rounded-lg text-sm font-medium transition-colors ${
                       isSelected
                         ? "bg-primary-600 text-white"
                         : available

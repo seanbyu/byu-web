@@ -167,6 +167,39 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+html,
+body {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+/* Mobile baseline (320px+): readable text + touch-friendly target size */
+@media (max-width: 640px) and (pointer: coarse) {
+  :root {
+    --font-size-xs: 0.8125rem;  /* 13px (모바일 최소 가독성 기준) */
+  }
+
+  button,
+  [role="button"],
+  a[role="button"],
+  a[aria-label],
+  nav a {
+    font-size: var(--font-size-sm);
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    font-size: var(--font-size-base);
+  }
+
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 /* ============================================
    ANIMATIONS
    ============================================ */

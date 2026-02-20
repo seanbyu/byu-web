@@ -76,7 +76,7 @@ export const DateTimeStep = memo(function DateTimeStep({
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
-            className="p-2 hover:bg-gray-200 rounded-lg"
+            className="touch-target rounded-lg p-2 hover:bg-gray-200"
           >
             <ChevronRight className="w-5 h-5 rotate-180" />
           </button>
@@ -85,7 +85,7 @@ export const DateTimeStep = memo(function DateTimeStep({
           </span>
           <button
             onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
-            className="p-2 hover:bg-gray-200 rounded-lg"
+            className="touch-target rounded-lg p-2 hover:bg-gray-200"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -109,7 +109,7 @@ export const DateTimeStep = memo(function DateTimeStep({
         <div className="grid grid-cols-7 gap-1">
           {daysInMonth.map((date, index) => {
             if (!date) {
-              return <div key={`empty-${index}`} className="h-10" />;
+              return <div key={`empty-${index}`} className="h-11" />;
             }
 
             const available = isDateAvailable(date);
@@ -121,7 +121,7 @@ export const DateTimeStep = memo(function DateTimeStep({
                 key={date.toISOString()}
                 onClick={() => available && onSelectDate(date)}
                 disabled={!available}
-                className={`h-10 rounded-lg text-sm font-medium transition-colors ${
+                className={`h-11 rounded-lg text-sm font-medium transition-colors ${
                   isSelected
                     ? "bg-primary-600 text-white"
                     : available
@@ -149,7 +149,7 @@ export const DateTimeStep = memo(function DateTimeStep({
           {loadingSlots ? (
             <div className="grid grid-cols-4 gap-2">
               {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <div key={i} className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+                <div key={i} className="h-11 bg-gray-100 rounded-lg animate-pulse" />
               ))}
             </div>
           ) : timeSlots.length > 0 ? (
@@ -159,7 +159,7 @@ export const DateTimeStep = memo(function DateTimeStep({
                   key={time}
                   onClick={() => available && onSelectTime(time)}
                   disabled={!available}
-                  className={`py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`touch-target rounded-lg py-2.5 text-sm font-medium transition-colors ${
                     selectedTime === time
                       ? "bg-primary-600 text-white"
                       : available

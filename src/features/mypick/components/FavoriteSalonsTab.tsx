@@ -67,7 +67,7 @@ const FavoriteSalonCard = memo(function FavoriteSalonCard({
           />
           {/* Status Badge */}
           <div
-            className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-medium ${badge.className}`}
+            className={`absolute top-2 left-2 rounded-full px-2 py-1 text-xs font-medium ${badge.className}`}
           >
             {badge.label}
           </div>
@@ -81,7 +81,7 @@ const FavoriteSalonCard = memo(function FavoriteSalonCard({
               <div className="flex items-center gap-1 flex-shrink-0">
                 <button
                   onClick={handleRemove}
-                  className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+                  className="touch-target rounded-full p-1.5 transition-colors hover:bg-gray-100"
                   aria-label="Remove from favorites"
                 >
                   <Heart className="w-4 h-4 fill-red-500 text-red-500" />
@@ -90,7 +90,7 @@ const FavoriteSalonCard = memo(function FavoriteSalonCard({
               </div>
             </div>
             {salon.description && (
-              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+              <p className="mt-0.5 text-sm text-gray-500 line-clamp-1">
                 {salon.description}
               </p>
             )}
@@ -98,12 +98,12 @@ const FavoriteSalonCard = memo(function FavoriteSalonCard({
 
           <div className="flex flex-wrap gap-1.5 mt-2">
             {salon.address && (
-              <div className="flex items-center gap-1 text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded-full">
+              <div className="flex items-center gap-1 rounded-full bg-gray-50 px-2 py-1 text-xs text-gray-500">
                 <MapPin className="w-2.5 h-2.5" />
                 <span className="truncate max-w-[80px]">{salon.city || salon.address}</span>
               </div>
             )}
-            <div className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full ${
+            <div className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs ${
               status === "open" ? "bg-green-50 text-green-600" : "bg-gray-50 text-gray-500"
             }`}>
               <Clock className="w-2.5 h-2.5" />

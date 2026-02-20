@@ -33,13 +33,13 @@ export const ConfirmStep = memo(function ConfirmStep({
       <div className="bg-gray-50 rounded-xl p-4 space-y-4">
         {/* Salon */}
         <div>
-          <p className="text-xs text-gray-500">{t("salon")}</p>
+          <p className="text-sm text-gray-500">{t("salon")}</p>
           <p className="font-medium">{salon.name}</p>
         </div>
 
         {/* Service */}
         <div>
-          <p className="text-xs text-gray-500">{t("service")}</p>
+          <p className="text-sm text-gray-500">{t("service")}</p>
           <p className="font-medium">{service.name}</p>
           <p className="text-sm text-gray-500">{service.duration_minutes}분</p>
         </div>
@@ -60,14 +60,14 @@ export const ConfirmStep = memo(function ConfirmStep({
             )}
           </div>
           <div>
-            <p className="text-xs text-gray-500">{t("designer")}</p>
+            <p className="text-sm text-gray-500">{t("designer")}</p>
             <p className="font-medium">{designer.name}</p>
           </div>
         </div>
 
         {/* Date & Time */}
         <div>
-          <p className="text-xs text-gray-500">{t("dateTime")}</p>
+          <p className="text-sm text-gray-500">{t("dateTime")}</p>
           <p className="font-medium">{formatDate(date)}</p>
           <p className="text-sm text-gray-600">{time}</p>
         </div>
@@ -104,7 +104,7 @@ export const ConfirmStep = memo(function ConfirmStep({
         {/* Phone */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t("customerPhone")} <span className="text-gray-400 text-xs">({t("optional")})</span>
+            {t("customerPhone")} <span className="text-gray-400 text-sm">({t("optional")})</span>
           </label>
           <PhoneInput
             international
@@ -120,7 +120,7 @@ export const ConfirmStep = memo(function ConfirmStep({
       {/* Notes */}
       <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          {t("customerNotes")} <span className="text-gray-400 text-xs">({t("optional")})</span>
+          {t("customerNotes")} <span className="text-gray-400 text-sm">({t("optional")})</span>
         </label>
         <textarea
           value={notes}

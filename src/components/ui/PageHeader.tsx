@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { ArrowLeft, Home, Search, Share2, Globe } from "lucide-react";
-import { Link, usePathname as useI18nPathname } from "@/i18n/routing";
+import { Link } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 import { useState } from "react";
 
@@ -69,7 +69,7 @@ export function PageHeader({
           {showBack && (
             <button
               onClick={() => router.back()}
-              className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="touch-target -ml-2 rounded-full p-2 transition-colors hover:bg-gray-100"
               aria-label="Go back"
             >
               <ArrowLeft className="w-5 h-5 text-gray-700" />
@@ -90,7 +90,7 @@ export function PageHeader({
             <div className="relative">
               <button
                 onClick={() => setShowLangMenu(!showLangMenu)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="touch-target rounded-full p-2 transition-colors hover:bg-gray-100"
                 aria-label="Language"
               >
                 <Globe className="w-5 h-5 text-gray-700" />
@@ -108,7 +108,7 @@ export function PageHeader({
                       <button
                         key={lang.code}
                         onClick={() => switchLocale(lang.code)}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 ${
+                        className={`touch-target flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-50 ${
                           locale === lang.code ? "bg-primary-50 text-primary-600 font-medium" : "text-gray-700"
                         }`}
                       >
@@ -124,7 +124,7 @@ export function PageHeader({
           {showHome && (
             <Link
               href="/"
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="touch-target rounded-full p-2 transition-colors hover:bg-gray-100"
               aria-label="Home"
             >
               <Home className="w-5 h-5 text-gray-700" />
@@ -132,7 +132,7 @@ export function PageHeader({
           )}
           {showSearch && (
             <button
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="touch-target rounded-full p-2 transition-colors hover:bg-gray-100"
               aria-label="Search"
             >
               <Search className="w-5 h-5 text-gray-700" />
@@ -141,7 +141,7 @@ export function PageHeader({
           {showShare && (
             <button
               onClick={handleShare}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="touch-target rounded-full p-2 transition-colors hover:bg-gray-100"
               aria-label="Share"
             >
               <Share2 className="w-5 h-5 text-gray-700" />

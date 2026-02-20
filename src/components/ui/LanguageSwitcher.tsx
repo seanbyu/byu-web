@@ -87,7 +87,7 @@ export function LanguageSwitcher({
           ${className}
           ${
             variant === "icon"
-              ? "w-9 h-9 rounded-full hover:bg-gray-100 text-gray-600 hover:text-gray-900"
+              ? "touch-target h-10 w-10 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900"
               : "px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium"
           }
         `}
@@ -130,7 +130,7 @@ export function LanguageSwitcher({
               {/* Close Button */}
               <button
                 onClick={() => setIsOpen(false)}
-                className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="touch-target absolute right-4 top-4 rounded-full p-2 transition-colors hover:bg-gray-100"
                 aria-label="닫기"
               >
                 <X className="w-5 h-5 text-gray-500" />

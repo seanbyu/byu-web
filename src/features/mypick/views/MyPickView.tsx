@@ -31,7 +31,7 @@ export function MyPickView() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
+              className={`touch-target relative flex-1 py-3 text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? "text-primary-600"
                   : "text-gray-400 hover:text-gray-600"

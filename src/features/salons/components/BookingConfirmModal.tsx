@@ -32,7 +32,7 @@ export function BookingConfirmModal({
 
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full"
+          className="touch-target absolute right-4 top-4 rounded-full p-2 hover:bg-gray-100"
         >
           <X className="w-5 h-5 text-gray-500" />
         </button>

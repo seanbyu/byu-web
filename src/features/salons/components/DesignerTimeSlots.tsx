@@ -58,7 +58,7 @@ const DesignerSlots = memo(function DesignerSlots({
               key={time}
               onClick={() => available && onTimeSlotClick(designer, time)}
               disabled={!available}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`touch-target rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                 available
                   ? "bg-white border border-primary-200 text-primary-600 hover:bg-primary-50 hover:border-primary-400"
                   : "bg-gray-100 text-gray-400 cursor-not-allowed line-through"
@@ -142,7 +142,7 @@ export const DesignerTimeSlots = memo(function DesignerTimeSlots({
                       {/* Favorite Button */}
                       <button
                         onClick={() => handleToggleFavorite(designer.id)}
-                        className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                        className="touch-target rounded-full p-1 transition-colors hover:bg-gray-200"
                         aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
                       >
                         <Heart

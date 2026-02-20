@@ -23,21 +23,21 @@ function TrendingCard({ item }: { item: TrendingItem }) {
           className="w-full h-full object-cover"
         />
         {item.dDay !== undefined && (
-          <div className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
+          <div className="absolute top-2 left-2 rounded-sm bg-red-500 px-2 py-1 text-xs font-bold text-white">
             D-{item.dDay}
           </div>
         )}
-        <button className="absolute bottom-2 right-2 p-1.5 bg-white/80 rounded-full backdrop-blur-sm">
+        <button className="touch-target absolute bottom-1 right-1 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm">
           <Heart
             className={`w-4 h-4 ${item.isLiked ? "fill-red-500 text-red-500" : "text-gray-400"}`}
           />
         </button>
       </div>
       <div>
-        <p className="text-[10px] text-gray-500 font-medium mb-0.5">
+        <p className="mb-0.5 text-xs font-medium text-gray-500">
           {item.shopName}
         </p>
-        <h3 className="text-xs text-gray-900 font-normal line-clamp-2 min-h-[32px]">
+        <h3 className="line-clamp-2 min-h-[36px] text-sm font-normal text-gray-900">
           {item.name}
         </h3>
         <div className="flex items-center gap-1 mt-1">
@@ -58,7 +58,7 @@ export function TrendingSection({ items }: TrendingSectionProps) {
     <section className="py-6">
       <div className="px-4 mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">지금 가장 트렌디한</h2>
-        <button className="text-xs text-gray-400">전체보기</button>
+        <button className="touch-target px-2 text-sm text-gray-500">전체보기</button>
       </div>
       <div className="flex overflow-x-auto px-4 pb-4 gap-3 scrollbar-hide">
         {items.map((item) => (

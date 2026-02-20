@@ -51,7 +51,7 @@ const FavoriteArtistCard = memo(function FavoriteArtistCard({
               <h3 className="font-bold text-gray-900 truncate">{artist.name}</h3>
               <button
                 onClick={handleRemove}
-                className="p-1.5 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                className="touch-target flex-shrink-0 rounded-full p-1.5 transition-colors hover:bg-gray-100"
                 aria-label="Remove from favorites"
               >
                 <Heart className="w-4 h-4 fill-red-500 text-red-500" />
@@ -90,7 +90,7 @@ const FavoriteArtistCard = memo(function FavoriteArtistCard({
             <div className="min-w-0">
               <h3 className="font-bold text-gray-900 truncate">{artist.name}</h3>
               {artist.staff_profiles?.specialties && artist.staff_profiles.specialties.length > 0 && (
-                <p className="text-xs text-gray-500 mt-0.5 truncate">
+                <p className="mt-0.5 truncate text-sm text-gray-500">
                   {artist.staff_profiles.specialties.slice(0, 2).join(", ")}
                 </p>
               )}
@@ -98,7 +98,7 @@ const FavoriteArtistCard = memo(function FavoriteArtistCard({
             <div className="flex items-center gap-1 flex-shrink-0">
               <button
                 onClick={handleRemove}
-                className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+                className="touch-target rounded-full p-1.5 transition-colors"
                 aria-label="Remove from favorites"
               >
                 <Heart className="w-4 h-4 fill-red-500 text-red-500" />

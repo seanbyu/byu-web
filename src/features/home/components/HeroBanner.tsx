@@ -50,13 +50,13 @@ export const HeroBanner = memo(function HeroBanner({ banners }: HeroBannerProps)
         <>
           <button
             onClick={() => prevBanner(banners.length)}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+            className="touch-target absolute left-2 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white opacity-100 transition hover:bg-black/50 md:opacity-0 md:group-hover:opacity-100"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={() => nextBanner(banners.length)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+            className="touch-target absolute right-2 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white opacity-100 transition hover:bg-black/50 md:opacity-0 md:group-hover:opacity-100"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -75,10 +75,14 @@ export const HeroBanner = memo(function HeroBanner({ banners }: HeroBannerProps)
             <button
               key={index}
               onClick={() => setCurrentBannerIndex(index)}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                index === currentBannerIndex ? "bg-white" : "bg-white/50"
-              }`}
-            />
+              className="touch-target flex items-center justify-center"
+            >
+              <span
+                className={`h-2.5 w-2.5 rounded-full transition-colors ${
+                  index === currentBannerIndex ? "bg-white" : "bg-white/50"
+                }`}
+              />
+            </button>
           ))}
         </div>
       )}

@@ -87,7 +87,7 @@ export default function LoginPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-gray-500">
+        <p className="text-center text-sm text-gray-500">
           {t.rich("termsNotice", {
             terms: (chunks) => <a href="/terms" className="underline">{chunks}</a>,
             privacy: (chunks) => <a href="/privacy" className="underline">{chunks}</a>,
