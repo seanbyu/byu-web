@@ -2,22 +2,32 @@
 
 import { memo } from "react";
 import { Search, ShoppingCart } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 export const HomeHeader = memo(function HomeHeader() {
+  const tStylingBook = useTranslations("stylingBook");
+  const router = useRouter();
+
   return (
-    <header className="sticky top-0 z-50 bg-white px-4 py-3 flex items-center justify-between shadow-sm">
+    <header className="sticky top-0 z-50 flex items-center justify-between bg-white px-3 py-2.5 shadow-sm sm:px-4 sm:py-3">
       {/* Search Bar */}
-      <div className="flex-1 mr-3">
-        <div className="relative bg-gray-100 rounded-full px-4 py-2 flex items-center">
-          <Search className="w-4 h-4 text-gray-400 mr-2" />
+      <div className="mr-2.5 flex-1 sm:mr-3">
+        <button
+          type="button"
+          onClick={() => router.push("/search")}
+          className="relative flex w-full items-center rounded-full bg-gray-100 px-3 py-2 text-left sm:px-4"
+          aria-label={tStylingBook("title")}
+        >
+          <Search className="mr-1.5 h-4 w-4 text-gray-400 sm:mr-2" />
           <input
             type="text"
-            placeholder="검색어를 입력해주세요"
-            className="bg-transparent border-none outline-none text-sm w-full placeholder:text-gray-400"
+            placeholder={tStylingBook("searchPlaceholder")}
+            className="pointer-events-none w-full border-none bg-transparent text-xs outline-none placeholder:text-gray-400 sm:text-sm"
             readOnly // Temporary
           />
-        </div>
+        </button>
       </div>
 
       {/* Right Actions */}

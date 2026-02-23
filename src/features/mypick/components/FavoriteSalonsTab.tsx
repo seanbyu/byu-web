@@ -52,7 +52,7 @@ const FavoriteSalonCard = memo(function FavoriteSalonCard({
     >
       <div className="flex">
         {/* Cover Image */}
-        <div className="relative w-28 h-28 flex-shrink-0 bg-gradient-to-br from-primary-100 to-secondary-100">
+        <div className="relative h-24 w-24 flex-shrink-0 bg-gradient-to-br from-primary-100 to-secondary-100 sm:h-28 sm:w-28">
           <StorageImage
             urls={getSalonCoverUrls(salon.id)}
             alt={salon.name}
@@ -66,22 +66,20 @@ const FavoriteSalonCard = memo(function FavoriteSalonCard({
             }
           />
           {/* Status Badge */}
-          <div
-            className={`absolute top-2 left-2 rounded-full px-2 py-1 text-xs font-medium ${badge.className}`}
-          >
+          <div className={`absolute left-1.5 top-1.5 rounded-full px-1.5 py-0.5 text-[11px] font-medium sm:left-2 sm:top-2 sm:px-2 sm:py-1 sm:text-xs ${badge.className}`}>
             {badge.label}
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
+        <div className="flex min-w-0 flex-1 flex-col justify-between p-2.5 sm:p-3">
           <div>
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-gray-900 truncate text-sm">{salon.name}</h3>
               <div className="flex items-center gap-1 flex-shrink-0">
                 <button
                   onClick={handleRemove}
-                  className="touch-target rounded-full p-1.5 transition-colors hover:bg-gray-100"
+                  className="touch-target rounded-full p-1 transition-colors hover:bg-gray-100 sm:p-1.5"
                   aria-label="Remove from favorites"
                 >
                   <Heart className="w-4 h-4 fill-red-500 text-red-500" />
@@ -96,7 +94,7 @@ const FavoriteSalonCard = memo(function FavoriteSalonCard({
             )}
           </div>
 
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="mt-2 flex flex-wrap gap-1.5">
             {salon.address && (
               <div className="flex items-center gap-1 rounded-full bg-gray-50 px-2 py-1 text-xs text-gray-500">
                 <MapPin className="w-2.5 h-2.5" />
@@ -140,11 +138,11 @@ function EmptyState() {
   const t = useTranslations("mypick");
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-4">
-      <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+    <div className="flex flex-col items-center justify-center px-4 py-14 sm:py-20">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
         <Heart className="w-8 h-8 text-gray-300" />
       </div>
-      <p className="text-gray-500 font-medium mb-1">{t("salons.empty")}</p>
+      <p className="mb-1 text-sm font-medium text-gray-500 sm:text-base">{t("salons.empty")}</p>
       <p className="text-gray-400 text-sm text-center">{t("salons.emptyDescription")}</p>
     </div>
   );
@@ -168,7 +166,7 @@ export function FavoriteSalonsTab() {
 
   if (isLoading) {
     return (
-      <div className="p-4 space-y-3">
+      <div className="space-y-2.5 p-3 sm:space-y-3 sm:p-4">
         {[1, 2, 3].map((i) => (
           <SalonSkeleton key={i} />
         ))}
@@ -181,7 +179,7 @@ export function FavoriteSalonsTab() {
   }
 
   return (
-    <div className="p-4 space-y-3">
+    <div className="space-y-2.5 p-3 sm:space-y-3 sm:p-4">
       {salons.map((salon) => (
         <FavoriteSalonCard
           key={salon.id}

@@ -25,14 +25,14 @@ const BusinessHoursCard = memo(function BusinessHoursCard({
 
   if (isHoliday) {
     return (
-      <div className="bg-red-50 border border-red-100 rounded-xl p-4 mb-4">
-        <div className="text-center text-red-500 font-medium">
+      <div className="mb-3 rounded-xl border border-red-100 bg-red-50 p-3 sm:mb-4 sm:p-4">
+        <div className="text-center text-sm font-medium text-red-500 sm:text-base">
           {t("holiday")}
         </div>
         {regularHolidays.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-red-100 flex justify-between text-sm">
+          <div className="mt-2 flex justify-between border-t border-red-100 pt-2 text-xs sm:text-sm">
             <span className="text-gray-500">{t("regularHoliday")}</span>
-            <span className="text-gray-700">{t("everyWeek")} {regularHolidays.join(", ")}</span>
+            <span className="text-right text-gray-700">{t("everyWeek")} {regularHolidays.join(", ")}</span>
           </div>
         )}
       </div>
@@ -47,7 +47,7 @@ const BusinessHoursCard = memo(function BusinessHoursCard({
   const unitLabel = `${slotDuration}${tCommon("minutes")}`;
 
   return (
-    <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 mb-4 space-y-2 text-sm">
+    <div className="mb-4 space-y-2 rounded-xl border border-primary-100 bg-primary-50 p-3 text-xs sm:p-4 sm:text-sm">
       <div className="flex justify-between">
         <span className="text-gray-500">{t("businessHours")}</span>
         <span className="text-gray-700 font-medium">{openTime} - {closeTime}</span>
@@ -92,14 +92,14 @@ export const SalonCalendar = memo(function SalonCalendar({
   const localeCode = getLocaleCode(locale);
 
   return (
-    <div className="p-4">
-      <h2 className="text-lg font-bold flex items-center gap-2 mb-4 text-gray-900">
-        <Clock className="w-5 h-5 text-primary-500" />
+    <div className="p-3 sm:p-4">
+      <h2 className="mb-3 flex items-center gap-2 text-base font-bold text-gray-900 sm:mb-4 sm:text-lg">
+        <Clock className="h-4 w-4 text-primary-500 sm:h-5 sm:w-5" />
         {t("hours")}
       </h2>
 
       {/* Weekly Quick Selector */}
-      <div className="bg-gray-50 rounded-xl p-3 mb-3">
+      <div className="mb-3 rounded-xl bg-gray-50 p-2.5 sm:p-3">
         <div className="grid grid-cols-7 gap-1">
           {availableDates.slice(0, 7).map((date) => {
             const isSelected = date.toDateString() === selectedDate.toDateString();
@@ -111,7 +111,7 @@ export const SalonCalendar = memo(function SalonCalendar({
                 key={date.toISOString()}
                 onClick={() => enabled && setSelectedDate(date)}
                 disabled={!enabled}
-                className={`py-2 rounded-xl text-center transition-colors ${
+                className={`rounded-xl py-1.5 text-center transition-colors sm:py-2 ${
                   isSelected
                     ? "bg-primary-100 border-2 border-primary-400"
                     : enabled
@@ -119,12 +119,12 @@ export const SalonCalendar = memo(function SalonCalendar({
                     : "opacity-50 cursor-not-allowed"
                 }`}
               >
-                <div className={`text-xs font-medium ${
+                <div className={`text-[11px] font-medium sm:text-xs ${
                   isSelected ? "text-primary-700" : isToday ? "text-primary-600" : "text-gray-600"
                 }`}>
                   {getDayLabel(date)}
                 </div>
-                <div className={`text-base font-bold mt-0.5 ${
+                <div className={`mt-0.5 text-sm font-bold sm:text-base ${
                   isSelected ? "text-primary-700" : enabled ? "text-gray-900" : "text-gray-400"
                 }`}>
                   {date.getDate()}
@@ -139,11 +139,11 @@ export const SalonCalendar = memo(function SalonCalendar({
       <div ref={calendarRef} className="relative mb-4">
         <button
           onClick={() => setShowCalendar(!showCalendar)}
-          className="w-full bg-gray-50 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-gray-100 transition-colors"
+          className="flex w-full items-center justify-between rounded-xl bg-gray-50 px-3 py-2.5 transition-colors hover:bg-gray-100 sm:px-4 sm:py-3"
         >
-          <div className="flex items-center gap-3">
-            <Calendar className="w-5 h-5 text-primary-500" />
-            <span className="text-sm font-medium text-gray-900">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <Calendar className="h-4 w-4 text-primary-500 sm:h-5 sm:w-5" />
+            <span className="text-xs font-medium text-gray-900 sm:text-sm">
               {selectedDate.toLocaleDateString(localeCode, { year: "numeric", month: "long", day: "numeric", weekday: "long" })}
             </span>
           </div>
@@ -151,7 +151,7 @@ export const SalonCalendar = memo(function SalonCalendar({
         </button>
 
         {showCalendar && (
-          <div className="absolute z-30 left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+          <div className="absolute left-0 right-0 z-30 mt-2 rounded-xl border border-gray-200 bg-white p-3 shadow-lg sm:p-4">
             <div className="flex items-center justify-between mb-3">
               <button
                 onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}

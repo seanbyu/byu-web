@@ -26,9 +26,9 @@ export async function GET(request: NextRequest, { params }: SalonIdParams) {
     const supabase = await createClient();
     const bookingService = createBookingService(supabase);
 
-    const bookings = await bookingService.getSalonBookings(salonId, date);
+    const slots = await bookingService.getSalonAvailability(salonId, date);
 
-    return NextResponse.json({ success: true, data: bookings });
+    return NextResponse.json({ success: true, data: slots });
   } catch (error) {
     console.error("Salon bookings API error:", error);
     const message = error instanceof Error ? error.message : "서버 오류가 발생했습니다";

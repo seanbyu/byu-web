@@ -30,22 +30,22 @@ export function SalonContactChannels({ salon }: SalonContactChannelsProps) {
   }
 
   return (
-    <div className="p-4">
-      <h2 className="text-lg font-bold flex items-center gap-2 mb-4 text-gray-900">
-        <MessageCircle className="w-5 h-5 text-primary-500" />
+    <div className="p-3 sm:p-4">
+      <h2 className="mb-3 flex items-center gap-2 text-base font-bold text-gray-900 sm:mb-4 sm:text-lg">
+        <MessageCircle className="h-4 w-4 text-primary-500 sm:h-5 sm:w-5" />
         {t("contact")}
       </h2>
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-2.5 sm:gap-3">
         {/* Instagram DM */}
         {contactChannels?.instagram?.enabled && contactChannels.instagram.id && (
           <a
             href={contactChannels.instagram.id}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white rounded-xl hover:opacity-90 transition-opacity"
+            className="touch-target flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 px-3 py-2 text-white transition-opacity hover:opacity-90 sm:gap-2 sm:px-4 sm:py-2.5"
           >
-            <Instagram className="w-5 h-5" />
-            <span className="text-sm font-medium">Instagram</span>
+            <Instagram className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="text-xs font-medium sm:text-sm">Instagram</span>
           </a>
         )}
 
@@ -57,10 +57,10 @@ export function SalonContactChannels({ salon }: SalonContactChannelsProps) {
               : `https://line.me/R/ti/p/${contactChannels.line.id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#06C755] text-white rounded-xl hover:opacity-90 transition-opacity"
+            className="touch-target flex items-center gap-1.5 rounded-xl bg-line-500 px-3 py-2 text-white transition-colors hover:bg-line-600 sm:gap-2 sm:px-4 sm:py-2.5"
           >
-            <LineIcon className="w-5 h-5" />
-            <span className="text-sm font-medium">LINE</span>
+            <LineIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="text-xs font-medium sm:text-sm">LINE</span>
           </a>
         )}
       </div>

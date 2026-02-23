@@ -5,7 +5,16 @@
 
 import { apiClient } from "./client";
 import { endpoints } from "./endpoints";
-import type { Booking, Salon, Service, ServiceCategory, StaffWithProfile } from "@/lib/supabase/types";
+import type { Salon, Service, ServiceCategory, StaffWithProfile } from "@/lib/supabase/types";
+
+/** 예약 가용성 슬롯 (RPC 반환 타입) */
+export interface AvailabilitySlot {
+  artist_id: string;
+  start_time: string;
+  end_time: string;
+  duration_minutes: number;
+  status: string;
+}
 
 /**
  * Booking Queries
@@ -14,8 +23,8 @@ export const bookingQueries = {
   /**
    * 디자이너별 예약 조회
    */
-  getByDesigner: async (designerId: string, date: string): Promise<Booking[]> => {
-    const response = await apiClient.get<Booking[]>(
+  getByDesigner: async (designerId: string, date: string): Promise<AvailabilitySlot[]> => {
+    const response = await apiClient.get<AvailabilitySlot[]>(
       endpoints.bookings.byDesigner.path(designerId),
       { date }
     );
@@ -25,8 +34,8 @@ export const bookingQueries = {
   /**
    * 살롱별 예약 조회
    */
-  getBySalon: async (salonId: string, date: string): Promise<Booking[]> => {
-    const response = await apiClient.get<Booking[]>(
+  getBySalon: async (salonId: string, date: string): Promise<AvailabilitySlot[]> => {
+    const response = await apiClient.get<AvailabilitySlot[]>(
       endpoints.bookings.bySalon.path(salonId),
       { date }
     );

@@ -11,18 +11,18 @@ export function MyReviewsTab() {
 
   if (reviews.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 px-4">
-        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+      <div className="flex flex-col items-center justify-center px-4 py-14 sm:py-20">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
           <MessageSquare className="w-8 h-8 text-gray-300" />
         </div>
-        <p className="text-gray-500 font-medium mb-1">{t("reviews.empty")}</p>
+        <p className="mb-1 text-sm font-medium text-gray-500 sm:text-base">{t("reviews.empty")}</p>
         <p className="text-gray-400 text-sm text-center">{t("reviews.emptyDescription")}</p>
       </div>
     );
   }
 
   return (
-    <div className="p-4">
+    <div className="p-3 sm:p-4">
       {/* TODO: Render reviews list */}
     </div>
   );

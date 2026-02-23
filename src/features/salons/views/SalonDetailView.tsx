@@ -26,7 +26,7 @@ export function SalonDetailView({ salon, staff }: SalonDetailViewProps) {
   });
 
   return (
-    <div className="bg-white">
+    <div className="app-page-bleed bg-white">
       <SalonHeader />
 
       <SalonCoverImage salon={salon} status={status} />
@@ -53,7 +53,7 @@ export function SalonDetailView({ salon, staff }: SalonDetailViewProps) {
         isSalonHoliday={calendar.isSalonHoliday}
       />
 
-      <div className="px-4">
+      <div className="px-3 sm:px-4">
         <DesignerTimeSlots
           staff={staff}
           selectedDate={calendar.selectedDate}
@@ -93,6 +93,12 @@ export function SalonDetailView({ salon, staff }: SalonDetailViewProps) {
           setCustomerNotes={booking.setCustomerNotes}
           isSubmitting={booking.isSubmitting}
           onSubmit={booking.handleSubmitBooking}
+          showPhoneConfirmModal={booking.showPhoneConfirmModal}
+          phoneInput={booking.phoneInput}
+          setPhoneInput={booking.setPhoneInput}
+          phoneValidationError={booking.phoneValidationError}
+          onConfirmPhoneSubmit={booking.handleConfirmPhoneAndSubmit}
+          onCancelPhoneConfirm={booking.handleCancelPhoneConfirm}
           onClose={booking.closeBookingModal}
         />
       )}

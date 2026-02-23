@@ -72,22 +72,18 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
-        className={`${localeFonts} ${geistMono.variable} antialiased bg-gray-100`}
+        className={`${localeFonts} ${geistMono.variable} bg-gray-100 antialiased text-gray-900`}
         suppressHydrationWarning
       >
         <QueryProvider>
           <NextIntlClientProvider messages={messages}>
             <ClientAuthProvider liffId={process.env.NEXT_PUBLIC_LIFF_ID}>
               <Toaster position="top-center" richColors />
-              {/* 모바일 앱 레이아웃: 회색 배경 + 중앙 흰색 컨테이너 */}
-              <div className="min-h-screen flex justify-center">
-                {/* 모바일 컨테이너: 흰색 배경, 최대 너비, flex 구조 */}
-                <div className="w-full max-w-[448px] min-h-screen flex flex-col bg-white shadow-xl">
-                  {/* 메인 컨텐츠 - flex-1로 남은 공간 차지 */}
-                  <main className="flex-1">
+              <div className="flex min-h-dvh w-full justify-center bg-gray-100">
+                <div className="relative flex min-h-dvh w-full max-w-[var(--app-max-width)] flex-col bg-white shadow-xl">
+                  <main className="min-h-0 flex-1">
                     {children}
                   </main>
-                  {/* 하단 네비게이션 - 컨테이너 하단에 sticky */}
                   <AuthBottomNav />
                 </div>
               </div>

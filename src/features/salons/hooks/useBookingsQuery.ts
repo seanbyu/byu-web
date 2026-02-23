@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createBookingsApi } from "@/features/bookings/api";
+import { bookingsApi } from "@/features/bookings/api";
 import { formatDateForDB } from "@/features/bookings/utils";
 
 export function useBookingsQuery(salonId: string, selectedDate: Date) {
@@ -7,10 +7,7 @@ export function useBookingsQuery(salonId: string, selectedDate: Date) {
 
   return useQuery({
     queryKey: ["bookings", salonId, dateStr],
-    queryFn: async () => {
-      const api = createBookingsApi();
-      return api.getBookingsBySalon(salonId, dateStr);
-    },
+    queryFn: () => bookingsApi.getBookingsBySalon(salonId, dateStr),
     staleTime: 30 * 1000, // 30초
   });
 }

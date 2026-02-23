@@ -11,7 +11,7 @@ async function SalonData() {
 // Loading skeleton
 function HomeLoading() {
   return (
-    <div className="animate-pulse">
+    <div className="app-page-bleed animate-pulse">
       <div className="h-14 bg-gray-100" />
       <div className="h-48 bg-gray-200 mx-4 mt-4 rounded-xl" />
       <div className="grid grid-cols-4 gap-4 p-4 mt-4">

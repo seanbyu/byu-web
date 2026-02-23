@@ -107,9 +107,9 @@ export function LanguageSwitcher({
 
       {/* Bottom Sheet Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex justify-center">
+        <div className="fixed inset-0 z-[120] flex justify-center">
           {/* Container wrapper - matches project max width */}
-          <div className="relative w-full max-w-[448px] h-full flex items-end">
+          <div className="relative flex h-full w-full max-w-[var(--app-max-width)] items-end">
             {/* Backdrop - only within container */}
             <div
               className="absolute inset-0 bg-black/50 animate-backdrop"
@@ -118,7 +118,7 @@ export function LanguageSwitcher({
 
             {/* Modal Content */}
             <div
-              className="relative w-full bg-white rounded-t-2xl shadow-xl animate-slide-up"
+              className="relative w-full max-h-[min(72dvh,34rem)] overflow-y-auto rounded-t-2xl bg-white shadow-xl animate-slide-up pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+0.5rem)]"
               role="dialog"
               aria-label="언어 변경"
             >
@@ -142,7 +142,7 @@ export function LanguageSwitcher({
               </div>
 
               {/* Language List */}
-              <div className="px-6 pb-8" role="listbox" aria-label="언어 목록">
+              <div className="px-6 pb-2" role="listbox" aria-label="언어 목록">
                 {LANGUAGES.map((language) => (
                   <button
                     key={language.code}

@@ -109,21 +109,21 @@ export const DesignerTimeSlots = memo(function DesignerTimeSlots({
 
   return (
     <>
-      <h3 className="text-base font-bold flex items-center gap-2 mb-3 text-gray-900">
-        <Star className="w-4 h-4 text-primary-500" />
+      <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 sm:text-base">
+        <Star className="h-4 w-4 text-primary-500" />
         {tBooking("selectDesigner")}
       </h3>
 
       {staff.length > 0 ? (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {staff.map((designer) => {
             const isFavorited = isArtistFavorited(designer.id);
 
             return (
-              <div key={designer.id} className="bg-gray-50 rounded-xl p-4">
+              <div key={designer.id} className="rounded-xl bg-gray-50 p-3 sm:p-4">
                 {/* Designer Info */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <div className="mb-3 flex items-center gap-3">
+                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200 sm:h-12 sm:w-12">
                     {designer.profile_image ? (
                       <img
                         src={designer.profile_image}
@@ -138,7 +138,7 @@ export const DesignerTimeSlots = memo(function DesignerTimeSlots({
                   </div>
                   <div className="flex-1 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <p className="font-medium text-gray-900">{designer.name}</p>
+                      <p className="text-sm font-medium text-gray-900 sm:text-base">{designer.name}</p>
                       {/* Favorite Button */}
                       <button
                         onClick={() => handleToggleFavorite(designer.id)}
@@ -161,25 +161,25 @@ export const DesignerTimeSlots = memo(function DesignerTimeSlots({
                         socialLinks.instagram && {
                           key: 'instagram',
                           href: socialLinks.instagram,
-                          icon: <Instagram className="w-4 h-4" />,
+                          icon: <Instagram className="h-3.5 w-3.5 sm:h-4 sm:w-4" />,
                           color: 'text-pink-500',
                         },
                         socialLinks.youtube && {
                           key: 'youtube',
                           href: socialLinks.youtube,
-                          icon: <Youtube className="w-4 h-4" />,
+                          icon: <Youtube className="h-3.5 w-3.5 sm:h-4 sm:w-4" />,
                           color: 'text-red-500',
                         },
                         socialLinks.tiktok && {
                           key: 'tiktok',
                           href: socialLinks.tiktok,
-                          icon: <TikTokIcon className="w-4 h-4" />,
+                          icon: <TikTokIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />,
                           color: 'text-black',
                         },
                         socialLinks.facebook && {
                           key: 'facebook',
                           href: socialLinks.facebook,
-                          icon: <Facebook className="w-4 h-4" />,
+                          icon: <Facebook className="h-3.5 w-3.5 sm:h-4 sm:w-4" />,
                           color: 'text-blue-600',
                         },
                       ].filter(Boolean) as { key: string; href: string; icon: React.ReactNode; color: string }[];

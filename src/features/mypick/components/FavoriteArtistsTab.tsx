@@ -28,10 +28,10 @@ const FavoriteArtistCard = memo(function FavoriteArtistCard({
   // If no salon_id, render non-clickable card
   if (!salonId) {
     return (
-      <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+      <div className="rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-4">
         <div className="flex items-center gap-3">
           {/* Avatar */}
-          <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200 sm:h-14 sm:w-14">
             {artist.profile_image ? (
               <img
                 src={artist.profile_image}
@@ -48,7 +48,7 @@ const FavoriteArtistCard = memo(function FavoriteArtistCard({
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-gray-900 truncate">{artist.name}</h3>
+              <h3 className="truncate text-sm font-bold text-gray-900 sm:text-base">{artist.name}</h3>
               <button
                 onClick={handleRemove}
                 className="touch-target flex-shrink-0 rounded-full p-1.5 transition-colors hover:bg-gray-100"
@@ -66,11 +66,11 @@ const FavoriteArtistCard = memo(function FavoriteArtistCard({
   return (
     <Link
       href={`/salon/${salonId}`}
-      className="block bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-lg hover:border-primary-100 transition-all duration-200"
+      className="block rounded-xl border border-gray-100 bg-white p-3 shadow-sm transition-all duration-200 hover:border-primary-100 hover:shadow-lg sm:p-4"
     >
       <div className="flex items-center gap-3">
         {/* Avatar */}
-        <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200 sm:h-14 sm:w-14">
           {artist.profile_image ? (
             <img
               src={artist.profile_image}
@@ -90,7 +90,7 @@ const FavoriteArtistCard = memo(function FavoriteArtistCard({
             <div className="min-w-0">
               <h3 className="font-bold text-gray-900 truncate">{artist.name}</h3>
               {artist.staff_profiles?.specialties && artist.staff_profiles.specialties.length > 0 && (
-                <p className="mt-0.5 truncate text-sm text-gray-500">
+                <p className="mt-0.5 truncate text-xs text-gray-500 sm:text-sm">
                   {artist.staff_profiles.specialties.slice(0, 2).join(", ")}
                 </p>
               )}
@@ -115,9 +115,9 @@ const FavoriteArtistCard = memo(function FavoriteArtistCard({
 // Loading Skeleton
 function ArtistSkeleton() {
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-4 animate-pulse">
+    <div className="animate-pulse rounded-xl border border-gray-100 bg-white p-3 sm:p-4">
       <div className="flex items-center gap-3">
-        <div className="w-14 h-14 rounded-full bg-gray-200" />
+        <div className="h-12 w-12 rounded-full bg-gray-200 sm:h-14 sm:w-14" />
         <div className="flex-1 space-y-2">
           <div className="h-4 bg-gray-200 rounded w-1/2" />
           <div className="h-3 bg-gray-200 rounded w-1/3" />
@@ -132,11 +132,11 @@ function EmptyState() {
   const t = useTranslations("mypick");
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-4">
-      <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+    <div className="flex flex-col items-center justify-center px-4 py-14 sm:py-20">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
         <User className="w-8 h-8 text-gray-300" />
       </div>
-      <p className="text-gray-500 font-medium mb-1">{t("artists.empty")}</p>
+      <p className="mb-1 text-sm font-medium text-gray-500 sm:text-base">{t("artists.empty")}</p>
       <p className="text-gray-400 text-sm text-center">{t("artists.emptyDescription")}</p>
     </div>
   );
@@ -160,7 +160,7 @@ export function FavoriteArtistsTab() {
 
   if (isLoading) {
     return (
-      <div className="p-4 space-y-3">
+      <div className="space-y-2.5 p-3 sm:space-y-3 sm:p-4">
         {[1, 2, 3].map((i) => (
           <ArtistSkeleton key={i} />
         ))}
@@ -173,7 +173,7 @@ export function FavoriteArtistsTab() {
   }
 
   return (
-    <div className="p-4 space-y-3">
+    <div className="space-y-2.5 p-3 sm:space-y-3 sm:p-4">
       {artists.map((artist) => (
         <FavoriteArtistCard
           key={artist.id}

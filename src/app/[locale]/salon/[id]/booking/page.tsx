@@ -26,7 +26,7 @@ async function BookingData({ id }: { id: string }) {
 
 function BookingLoading() {
   return (
-    <div className="bg-white animate-pulse">
+    <div className="app-page-tight bg-white animate-pulse">
       {/* Header skeleton */}
       <div className="h-14 bg-gray-100" />
       {/* Content skeleton */}

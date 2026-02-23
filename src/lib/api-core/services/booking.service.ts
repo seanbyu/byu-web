@@ -5,7 +5,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Booking, InsertTables } from "@/lib/supabase/types";
-import { BookingRepository } from "../repositories/booking.repository";
+import { BookingRepository, type AvailabilitySlot } from "../repositories/booking.repository";
 import { createNotificationService } from "./notification.service";
 
 export interface TimeSlot {
@@ -29,6 +29,7 @@ export interface CreateBookingParams {
   durationMinutes: number;
   servicePrice: number;
   customerNotes?: string;
+  bookingMeta?: Record<string, unknown> | null;
 }
 
 export class BookingService {
@@ -51,6 +52,17 @@ export class BookingService {
   }
 
   /**
+   * 디자이너의 특정 날짜 예약 가용성 조회 (RPC)
+   * RLS를 우회하여 시간 정보만 반환
+   */
+  async getDesignerAvailability(
+    designerId: string,
+    bookingDate: string
+  ): Promise<AvailabilitySlot[]> {
+    return this.repository.getDesignerAvailability(designerId, bookingDate);
+  }
+
+  /**
    * 살롱의 특정 날짜 예약 조회
    */
   async getSalonBookings(
@@ -58,6 +70,17 @@ export class BookingService {
     bookingDate: string
   ): Promise<Booking[]> {
     return this.repository.findBySalonAndDate(salonId, bookingDate);
+  }
+
+  /**
+   * 살롱의 특정 날짜 예약 가용성 조회 (RPC)
+   * RLS를 우회하여 모든 예약의 시간 정보만 반환
+   */
+  async getSalonAvailability(
+    salonId: string,
+    bookingDate: string
+  ): Promise<AvailabilitySlot[]> {
+    return this.repository.getSalonAvailability(salonId, bookingDate);
   }
 
   /**
@@ -131,19 +154,20 @@ export class BookingService {
     }
 
     // 3. 예약 데이터 구성
-    const bookingData: InsertTables<"bookings"> = {
+    const bookingData = {
       salon_id: params.salonId,
       customer_id: params.customerId,
       artist_id: params.designerId,
-      service_id: params.serviceId || null,
+      service_id: params.serviceId!,
       booking_date: params.bookingDate,
       start_time: params.startTime,
       end_time: params.endTime,
       duration_minutes: params.durationMinutes,
-      status: "PENDING",
+      status: "PENDING" as const,
       service_price: params.servicePrice,
       total_price: params.servicePrice,
       customer_notes: params.customerNotes || null,
+      ...(params.bookingMeta ? { booking_meta: params.bookingMeta as InsertTables<"bookings">["booking_meta"] } : {}),
     };
 
     // 4. 예약 생성

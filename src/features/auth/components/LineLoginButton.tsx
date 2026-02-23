@@ -71,7 +71,7 @@ export function LineLoginButton({
       disabled={isLoading}
       className={
         className ||
-        "flex items-center justify-center gap-2 w-full px-4 py-3 bg-[#00B900] hover:bg-[#00a000] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        "ds-btn-line-compact"
       }
     >
       {isLoading ? (

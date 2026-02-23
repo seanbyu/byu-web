@@ -1,0 +1,18 @@
+{
+  "title": "Stylebook",
+  "heroBadge": "NEW",
+  "heroTitle": "Explore styles before booking",
+  "heroDescription": "Haircut, color, and perm looks will connect directly to booking soon.",
+  "categoryTitle": "Style Categories",
+  "bookTitle": "Featured Stylebooks",
+  "comingSoon": "Coming soon",
+  "bookCardTitle": "Style Sample",
+  "bookCardSubtitle": "Designer portfolio integration planned",
+  "categories": {
+    "haircut": "Haircut",
+    "color": "Color",
+    "perm": "Perm",
+    "daily": "Daily"
+  },
+  "searchPlaceholder": "Search styles in Stylebook"
+}

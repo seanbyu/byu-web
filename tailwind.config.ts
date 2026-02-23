@@ -44,6 +44,31 @@ const config: Config = {
           DEFAULT: "var(--color-secondary-500)",
         },
 
+        // Neutral palette
+        gray: {
+          50: "var(--color-gray-50)",
+          100: "var(--color-gray-100)",
+          200: "var(--color-gray-200)",
+          300: "var(--color-gray-300)",
+          400: "var(--color-gray-400)",
+          500: "var(--color-gray-500)",
+          600: "var(--color-gray-600)",
+          700: "var(--color-gray-700)",
+          800: "var(--color-gray-800)",
+          900: "var(--color-gray-900)",
+        },
+
+        // Brand colors
+        line: {
+          50: "var(--color-line-50)",
+          100: "var(--color-line-100)",
+          200: "var(--color-line-200)",
+          500: "var(--color-line-500)",
+          600: "var(--color-line-600)",
+          700: "var(--color-line-700)",
+          DEFAULT: "var(--color-line-500)",
+        },
+
         // Semantic colors
         success: {
           DEFAULT: "var(--color-success)",

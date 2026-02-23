@@ -17,7 +17,7 @@ export default function MyPickPage() {
 
   if (isLoading) {
     return (
-      <div className="bg-white">
+      <div className="app-page-bleed bg-white">
         {/* Header Skeleton */}
         <div className="px-4 py-4 border-b border-gray-100">
           <div className="h-7 w-20 bg-gray-200 rounded animate-pulse mx-auto" />

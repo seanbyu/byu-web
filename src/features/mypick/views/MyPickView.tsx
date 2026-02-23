@@ -20,7 +20,7 @@ export function MyPickView() {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="app-page-bleed bg-white">
       {/* Common Header */}
       <PageHeader title={t("title")} showSearch={false} />
 
@@ -31,7 +31,7 @@ export function MyPickView() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`touch-target relative flex-1 py-3 text-sm font-medium transition-colors ${
+              className={`touch-target relative flex-1 px-1 py-2.5 text-xs font-medium transition-colors sm:py-3 sm:text-sm ${
                 activeTab === tab.id
                   ? "text-primary-600"
                   : "text-gray-400 hover:text-gray-600"
@@ -47,7 +47,7 @@ export function MyPickView() {
       </div>
 
       {/* Tab Content */}
-      <div className="min-h-[calc(100vh-200px)]">
+      <div className="pt-0.5 sm:pt-1">
         {activeTab === "salons" && <FavoriteSalonsTab />}
         {activeTab === "artists" && <FavoriteArtistsTab />}
         {activeTab === "reviews" && <MyReviewsTab />}

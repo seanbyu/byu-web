@@ -50,16 +50,26 @@ export class CustomerService {
     if (phone && phone.trim()) {
       customer = await this.repository.findByPhone(salonId, phone);
 
-      // 기존 고객이 있으면 LINE 정보 업데이트
+      // 기존 고객이 있으면 LINE 정보 + 이름 동기화
       if (customer) {
+        const updates: Record<string, unknown> = {};
+
         // user_id나 LINE 정보가 없으면 업데이트
         if (!customer.user_id || !customer.line_user_id) {
-          customer = await this.repository.update(customer.id, {
-            user_id: userId,
-            line_user_id: lineUserId,
-            line_display_name: lineDisplayName,
-            line_picture_url: linePictureUrl,
-          });
+          updates.user_id = userId;
+          updates.line_user_id = lineUserId;
+          updates.line_display_name = lineDisplayName;
+          updates.line_picture_url = linePictureUrl;
+        }
+
+        // 이름이 다르면 업데이트 + 이력 기록
+        if (name && customer.name !== name) {
+          await this.repository.logNameChange(customer.id, customer.name, name, 'web_booking');
+          updates.name = name;
+        }
+
+        if (Object.keys(updates).length > 0) {
+          customer = await this.repository.update(customer.id, updates);
         }
         return customer;
       }

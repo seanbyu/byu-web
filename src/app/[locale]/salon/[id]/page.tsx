@@ -19,7 +19,7 @@ async function SalonDetailData({ id }: { id: string }) {
 
 function DetailLoading() {
   return (
-    <div className="bg-white animate-pulse">
+    <div className="app-page-bleed bg-white animate-pulse">
       {/* Header skeleton */}
       <div className="h-14 bg-gray-100" />
       {/* Image skeleton */}

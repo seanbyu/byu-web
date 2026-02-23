@@ -21,7 +21,7 @@ export const HomeView = memo(function HomeView({ salons: initialSalons }: HomeVi
   const { data: salons = initialSalons } = useSalonsQuery(initialSalons);
 
   return (
-    <div className="bg-white">
+    <div className="app-page-bleed bg-white">
       <HomeHeader />
       <HeroBanner banners={MOCK_BANNERS} />
       <CategoryGrid />

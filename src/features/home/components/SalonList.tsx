@@ -66,7 +66,7 @@ const SalonCard = memo(function SalonCard({
       className="block bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-primary-100 transition-all duration-200 active:scale-[0.99]"
     >
       {/* Cover Image */}
-      <div className="relative h-40 bg-gradient-to-br from-primary-100 to-secondary-100">
+      <div className="relative h-36 bg-gradient-to-br from-primary-100 to-secondary-100 sm:h-40">
         <StorageImage
           urls={getSalonCoverUrls(salon.id)}
           alt={salon.name}
@@ -80,24 +80,22 @@ const SalonCard = memo(function SalonCard({
           }
         />
         {/* Status Badge */}
-        <div
-          className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm ${badge.className}`}
-        >
+        <div className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-medium shadow-sm sm:right-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-xs ${badge.className}`}>
           {badge.label}
         </div>
         {/* Plan Badge */}
         {salon.plan_type !== "FREE" && (
-          <div className="absolute top-3 left-3 px-2 py-1 bg-primary-600 text-white text-xs font-medium rounded-full shadow-sm">
+          <div className="absolute left-2 top-2 rounded-full bg-primary-600 px-2 py-0.5 text-[11px] font-medium text-white shadow-sm sm:left-3 sm:top-3 sm:py-1 sm:text-xs">
             {salon.plan_type}
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <h3 className="font-bold text-gray-900 truncate text-base">{salon.name}</h3>
+            <h3 className="truncate text-sm font-bold text-gray-900 sm:text-base">{salon.name}</h3>
             {/* 통역 가능 매장 */}
             {salon.settings?.interpreter_enabled && salon.settings.supported_languages && (
               <div className="flex items-center gap-1.5 flex-shrink-0 text-gray-500">
@@ -107,7 +105,7 @@ const SalonCard = memo(function SalonCard({
                     <span key={lang}>{languageToFlag[lang] || lang}</span>
                   ))}
                 </span>
-                <span className="text-xs">({t("interpreterAvailable")})</span>
+                <span className="hidden text-xs sm:inline">({t("interpreterAvailable")})</span>
 
               </div>
             )}
@@ -116,7 +114,7 @@ const SalonCard = memo(function SalonCard({
             {/* Favorite Button */}
             <button
               onClick={handleFavoriteClick}
-              className="touch-target rounded-full p-2 transition-colors hover:bg-gray-100"
+              className="touch-target rounded-full p-1.5 transition-colors hover:bg-gray-100 sm:p-2"
               aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
             >
               <Heart
@@ -187,8 +185,8 @@ export const SalonList = memo(function SalonList({ salons }: SalonListProps) {
 
   if (salons.length === 0) {
     return (
-      <div className="p-4">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">{t("title")}</h2>
+      <div className="p-3 sm:p-4">
+        <h2 className="mb-3 text-base font-bold text-gray-900 sm:mb-4 sm:text-lg">{t("title")}</h2>
         <div className="text-center py-8 text-gray-400">
           {tCommon("noResults")}
         </div>
@@ -198,12 +196,12 @@ export const SalonList = memo(function SalonList({ salons }: SalonListProps) {
 
   return (
     <>
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900">{t("title")}</h2>
-          <span className="text-sm text-gray-500">{salons.length}개</span>
+          <h2 className="text-base font-bold text-gray-900 sm:text-lg">{t("title")}</h2>
+          <span className="text-xs text-gray-500 sm:text-sm">{salons.length}개</span>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {salons.map((salon) => (
             <SalonCard
               key={salon.id}

@@ -2309,11 +2309,31 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_designer_availability: {
+        Args: { p_artist_id: string; p_booking_date: string }
+        Returns: {
+          artist_id: string
+          start_time: string
+          end_time: string
+          duration_minutes: number
+          status: string
+        }[]
+      }
       get_my_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
       }
       get_my_salon_id: { Args: never; Returns: string }
+      get_salon_availability: {
+        Args: { p_salon_id: string; p_booking_date: string }
+        Returns: {
+          artist_id: string
+          start_time: string
+          end_time: string
+          duration_minutes: number
+          status: string
+        }[]
+      }
       get_next_customer_number: {
         Args: { p_salon_id: string }
         Returns: string

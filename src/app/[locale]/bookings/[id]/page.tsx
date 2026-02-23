@@ -126,7 +126,7 @@ export default function BookingDetailPage() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="bg-white">
+      <div className="app-page-bleed bg-white">
         <div className="h-14 bg-gray-100 animate-pulse" />
         <div className="p-4 space-y-4">
           <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
@@ -138,7 +138,7 @@ export default function BookingDetailPage() {
 
   if (error || !booking) {
     return (
-      <div className="bg-white">
+      <div className="app-page-bleed bg-white">
         <header className="sticky top-0 bg-white border-b border-gray-100">
           <div className="flex items-center justify-between px-4 h-14">
             <button onClick={() => router.back()} className="touch-target -ml-2 rounded-full p-2">
@@ -156,7 +156,7 @@ export default function BookingDetailPage() {
   }
 
   return (
-    <div className="bg-white">
+    <div className="app-page-bleed bg-white">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
         <div className="flex items-center justify-between px-4 h-14">

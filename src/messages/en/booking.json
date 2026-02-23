@@ -41,5 +41,10 @@
   "customerNamePlaceholder": "Enter your name",
   "customerPhone": "Phone Number",
   "customerPhonePlaceholder": "+66 81 234 5678",
-  "optional": "Optional"
+  "optional": "Optional",
+  "cancel": "Cancel",
+  "phoneConfirmTitle": "Confirm Contact Number",
+  "phoneConfirmMessage": "Proceed with this number for booking? It will be automatically saved to your profile.",
+  "phoneConfirmPlaceholder": "Enter your phone number",
+  "phoneValidationError": "Phone number must be 10 or 11 digits."
 }

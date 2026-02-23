@@ -7,9 +7,54 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Booking, InsertTables } from "@/lib/supabase/types";
 import { BaseRepository } from "./base.repository";
 
+/** RPC get_salon_availability 반환 타입 */
+export interface AvailabilitySlot {
+  artist_id: string;
+  start_time: string;
+  end_time: string;
+  duration_minutes: number;
+  status: string;
+}
+
 export class BookingRepository extends BaseRepository<"bookings"> {
   constructor(supabase: SupabaseClient<Database>) {
     super(supabase, "bookings");
+  }
+
+  /**
+   * 살롱의 특정 날짜 예약 가용성 조회 (RPC)
+   * SECURITY DEFINER로 RLS를 우회하여 모든 예약의 시간 정보만 반환
+   */
+  async getSalonAvailability(
+    salonId: string,
+    bookingDate: string
+  ): Promise<AvailabilitySlot[]> {
+    const { data, error } = await this.supabase
+      .rpc("get_salon_availability", {
+        p_salon_id: salonId,
+        p_booking_date: bookingDate,
+      });
+
+    if (error) throw error;
+    return (data || []) as AvailabilitySlot[];
+  }
+
+  /**
+   * 디자이너의 특정 날짜 예약 가용성 조회 (RPC)
+   * SECURITY DEFINER로 RLS를 우회하여 시간 정보만 반환
+   */
+  async getDesignerAvailability(
+    designerId: string,
+    bookingDate: string
+  ): Promise<AvailabilitySlot[]> {
+    const { data, error } = await this.supabase
+      .rpc("get_designer_availability", {
+        p_artist_id: designerId,
+        p_booking_date: bookingDate,
+      });
+
+    if (error) throw error;
+    return (data || []) as AvailabilitySlot[];
   }
 
   /**

@@ -5,20 +5,21 @@
  */
 
 import { bookingQueries, bookingMutations } from "@/lib/api";
+import type { AvailabilitySlot } from "@/lib/api/queries";
 import type { Booking, InsertTables } from "@/lib/supabase/types";
 
 export const bookingsApi = {
   /**
    * 특정 디자이너의 특정 날짜 예약 조회
    */
-  getExistingBookings: (designerId: string, bookingDate: string): Promise<Booking[]> => {
+  getExistingBookings: (designerId: string, bookingDate: string): Promise<AvailabilitySlot[]> => {
     return bookingQueries.getByDesigner(designerId, bookingDate);
   },
 
   /**
    * 특정 살롱의 특정 날짜 예약 조회
    */
-  getBookingsBySalon: (salonId: string, bookingDate: string): Promise<Booking[]> => {
+  getBookingsBySalon: (salonId: string, bookingDate: string): Promise<AvailabilitySlot[]> => {
     return bookingQueries.getBySalon(salonId, bookingDate);
   },
 
@@ -39,6 +40,7 @@ export const bookingsApi = {
       service_price: bookingData.service_price || 0,
       total_price: bookingData.total_price || bookingData.service_price || 0,
       customer_notes: bookingData.customer_notes,
+      booking_meta: (bookingData.booking_meta as Record<string, unknown>) ?? null,
     });
   },
 };

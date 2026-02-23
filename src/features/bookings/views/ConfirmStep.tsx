@@ -89,7 +89,7 @@ export const ConfirmStep = memo(function ConfirmStep({
 
         {/* Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="ds-label">
             {t("customerName")} <span className="text-red-500">*</span>
           </label>
           <input
@@ -97,13 +97,13 @@ export const ConfirmStep = memo(function ConfirmStep({
             value={customerName}
             onChange={(e) => onCustomerNameChange(e.target.value)}
             placeholder={t("customerNamePlaceholder")}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+            className="ds-input"
           />
         </div>
 
         {/* Phone */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="ds-label">
             {t("customerPhone")} <span className="text-gray-400 text-sm">({t("optional")})</span>
           </label>
           <PhoneInput
@@ -112,21 +112,21 @@ export const ConfirmStep = memo(function ConfirmStep({
             value={customerPhone}
             onChange={(value) => onCustomerPhoneChange(value || "")}
             placeholder={t("customerPhonePlaceholder")}
-            className="phone-input-custom w-full px-4 py-3 rounded-xl border border-gray-200 focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500"
+            className="phone-input-custom ds-field-shell"
           />
         </div>
       </div>
 
       {/* Notes */}
       <div className="mt-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="ds-label">
           {t("customerNotes")} <span className="text-gray-400 text-sm">({t("optional")})</span>
         </label>
         <textarea
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
           placeholder={t("customerNotesPlaceholder")}
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none resize-none"
+          className="ds-textarea"
           rows={3}
         />
       </div>

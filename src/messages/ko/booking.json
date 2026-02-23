@@ -41,5 +41,10 @@
   "customerNamePlaceholder": "이름을 입력하세요",
   "customerPhone": "연락처",
   "customerPhonePlaceholder": "+66 81 234 5678",
-  "optional": "선택"
+  "optional": "선택",
+  "cancel": "취소",
+  "phoneConfirmTitle": "연락처 확인",
+  "phoneConfirmMessage": "해당 번호로 예약을 진행하시겠습니까? 프로필정보에 자동 저장됩니다.",
+  "phoneConfirmPlaceholder": "휴대폰 번호를 입력하세요",
+  "phoneValidationError": "휴대폰 번호는 숫자 10자리 또는 11자리여야 합니다."
 }

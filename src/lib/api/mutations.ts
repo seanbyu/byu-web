@@ -49,6 +49,7 @@ export interface CreateBookingParams {
   service_price: number;
   total_price: number;
   customer_notes?: string | null;
+  booking_meta?: Record<string, unknown> | null;
 }
 
 /**

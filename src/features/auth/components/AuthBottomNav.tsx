@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { Home, Search, Heart, User } from "lucide-react";
+import { Home, BookOpen, Heart, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { clsx } from "clsx";
@@ -18,7 +18,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: "home", labelKey: "home", icon: Home, href: "/" },
-  { id: "search", labelKey: "search", icon: Search, href: "/search" },
+  { id: "stylingBook", labelKey: "stylingBook", icon: BookOpen, href: "/search" },
   { id: "mypick", labelKey: "mypick", icon: Heart, href: "/mypick", requireAuth: true },
   { id: "my", labelKey: "my", icon: User, href: "/my", requireAuth: true },
 ];
@@ -65,9 +65,19 @@ export function AuthBottomNav() {
     setPendingNavigation(null);
   }, []);
 
+  const normalizedPath = pathname?.replace(/^\/(ko|en|th)(?=\/|$)/, "") || pathname;
+
+  const shouldHideNav =
+    normalizedPath === "/login" ||
+    (normalizedPath?.startsWith("/salon/") && normalizedPath?.endsWith("/booking"));
+
+  if (shouldHideNav) {
+    return null;
+  }
+
   return (
     <>
-      <nav className="sticky bottom-0 z-50 flex items-center justify-between border-t border-gray-100 bg-white px-4 py-2 pb-safe">
+      <nav className="fixed bottom-0 left-1/2 z-50 flex w-full max-w-[var(--app-max-width)] -translate-x-1/2 items-center justify-between border-t border-gray-100 bg-white px-4 py-2 pb-safe shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
 

@@ -26,7 +26,7 @@ export function SalonCoverImage({ salon, status }: SalonCoverImageProps) {
   return (
     <>
       {/* Cover Image */}
-      <div className="relative h-48 bg-gradient-to-br from-primary-100 to-secondary-100">
+      <div className="relative h-44 bg-gradient-to-br from-primary-100 to-secondary-100 sm:h-48">
         <StorageImage
           urls={getSalonCoverUrls(salon.id)}
           alt={salon.name}
@@ -39,22 +39,20 @@ export function SalonCoverImage({ salon, status }: SalonCoverImageProps) {
             </div>
           }
         />
-        <div
-          className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full text-sm font-medium shadow-lg ${badge.className}`}
-        >
+        <div className={`absolute bottom-3 left-3 rounded-full px-2.5 py-1 text-xs font-medium shadow-lg sm:bottom-4 sm:left-4 sm:px-3 sm:py-1.5 sm:text-sm ${badge.className}`}>
           {badge.label}
         </div>
       </div>
 
       {/* Salon Info */}
-      <div className="p-4">
-        <h1 className="text-lg font-bold text-gray-900">{salon.name}</h1>
+      <div className="p-3 sm:p-4">
+        <h1 className="text-base font-bold text-gray-900 sm:text-lg">{salon.name}</h1>
         {salon.address && (
           <a
             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(salon.address)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-gray-500 mt-1 flex items-center gap-1 hover:text-primary-600 transition-colors"
+            className="mt-1 flex items-center gap-1 text-xs text-gray-500 transition-colors hover:text-primary-600 sm:text-sm"
           >
             <MapPin className="w-3 h-3" />
             <span className="underline underline-offset-2">{salon.address}</span>

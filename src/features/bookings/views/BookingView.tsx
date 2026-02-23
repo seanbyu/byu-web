@@ -265,7 +265,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
   }, [currentStep, goToPrevStep, router]);
 
   return (
-    <div className="bg-white min-h-screen pb-24">
+    <div className="bg-white min-h-dvh pb-24">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
         <div className="flex items-center justify-between px-4 h-14">
@@ -363,7 +363,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       </div>
 
       {/* Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 max-w-[448px] mx-auto">
+      <div className="fixed bottom-0 left-1/2 z-50 w-full max-w-[var(--app-max-width)] -translate-x-1/2 border-t border-gray-100 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <button
           onClick={handleNext}
           disabled={!canProceed() || isSubmitting}

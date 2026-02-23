@@ -1,11 +1,12 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
 import { useAuthContext } from "@/features/auth";
 import type { Salon, StaffWithProfile, ServiceCategory } from "@/lib/supabase/types";
 import { getDayName, formatTime, formatDateForDB, getDesignerWorkHours } from "@/features/bookings/utils";
 import { bookingsApi } from "@/features/bookings/api";
+import { salonsApi } from "../api";
 import { customerMutations } from "@/lib/api/mutations";
 import { useSalonDetailStore } from "../stores/useSalonDetailStore";
 import { useBookingsQuery } from "./useBookingsQuery";
@@ -26,6 +27,9 @@ export function useSalonBooking(
   const locale = useLocale();
   const queryClient = useQueryClient();
   const { isAuthenticated, user } = useAuthContext();
+  const [showPhoneConfirmModal, setShowPhoneConfirmModal] = useState(false);
+  const [phoneInput, setPhoneInput] = useState("");
+  const [phoneValidationError, setPhoneValidationError] = useState("");
 
   // Zustand store
   const {
@@ -69,6 +73,14 @@ export function useSalonBooking(
 
   // TanStack Query - 카테고리 데이터 (모달이 열렸을 때만)
   const { data: categories = [] } = useCategoriesQuery(salon.id, !!bookingModal);
+
+  // TanStack Query - 서비스 데이터 (카테고리→서비스 매핑용)
+  const { data: services = [] } = useQuery({
+    queryKey: ["services", salon.id],
+    queryFn: () => salonsApi.getServices(salon.id),
+    enabled: !!bookingModal,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const getCategoryName = useCallback((category: ServiceCategory) => {
     if (locale === "en" && category.name_en) return category.name_en;
@@ -176,9 +188,32 @@ export function useSalonBooking(
     openBookingModal(designer, time);
   }, [isAuthenticated, handleLoginRequired, openBookingModal]);
 
-  const handleSubmitBooking = useCallback(async () => {
-    if (!bookingModal || !user) return;
+  const normalizePhoneDigits = useCallback((value: string): string => {
+    return value.replace(/\D/g, "");
+  }, []);
 
+  const isValidPhoneDigits = useCallback((value: string): boolean => {
+    const digits = normalizePhoneDigits(value);
+    return digits.length === 10 || digits.length === 11;
+  }, [normalizePhoneDigits]);
+
+  const persistUserPhone = useCallback(async (phoneDigits: string) => {
+    const response = await fetch("/api/users/me", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ phone: phoneDigits }),
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || tBooking("bookingFailed"));
+    }
+  }, [tBooking]);
+
+  const submitBookingWithPhone = useCallback(async (phoneDigits: string) => {
+    if (!bookingModal || !user) return;
     setIsSubmitting(true);
     try {
       const slotDuration = salon.settings?.slot_duration_minutes || 60;
@@ -192,23 +227,44 @@ export function useSalonBooking(
       const customer = await customerMutations.findOrCreate({
         salon_id: salon.id,
         name: userName,
-        phone: user.user_metadata?.phone,
+        phone: phoneDigits,
       });
 
-      // 2. Create booking with customer ID
+      // 2. 선택된 카테고리에 해당하는 서비스 찾기
+      const matchedService = selectedCategory
+        ? services.find((s) => s.category_id === selectedCategory)
+        : services[0];
+
+      if (!matchedService) {
+        alert(tBooking("bookingFailed"));
+        return;
+      }
+
+      // 3. 카테고리명을 booking_meta에 저장 (어드민에서 카테고리명으로 표시)
+      const selectedCat = categories.find((c) => c.id === selectedCategory);
+      const categoryName = selectedCat
+        ? getCategoryName(selectedCat)
+        : "";
+
+      // 4. Create booking with customer ID + service + category meta
       await bookingsApi.createBooking({
         salon_id: salon.id,
         customer_id: customer.id,
         artist_id: bookingModal.designer.id,
-        service_id: null,
+        service_id: matchedService.id,
         booking_date: formatDateForDB(selectedDate),
         start_time: bookingModal.time,
         end_time: endTime,
-        duration_minutes: slotDuration,
+        duration_minutes: matchedService.duration_minutes || slotDuration,
         status: "PENDING" as const,
-        service_price: 0,
-        total_price: 0,
+        service_price: matchedService.base_price || 0,
+        total_price: matchedService.base_price || 0,
         customer_notes: customerNotes || null,
+        booking_meta: {
+          category_id: selectedCategory || null,
+          category_name: categoryName || null,
+          customer_phone: phoneDigits,
+        },
       });
 
       // 예약 데이터 캐시 무효화
@@ -216,6 +272,8 @@ export function useSalonBooking(
         queryKey: ["bookings", salon.id, formatDateForDB(selectedDate)],
       });
 
+      setShowPhoneConfirmModal(false);
+      setPhoneValidationError("");
       closeBookingModal();
       alert(tBooking("bookingConfirmed"));
     } catch (error) {
@@ -224,7 +282,55 @@ export function useSalonBooking(
     } finally {
       setIsSubmitting(false);
     }
-  }, [bookingModal, user, salon.id, salon.settings?.slot_duration_minutes, selectedDate, customerNotes, queryClient, closeBookingModal, setIsSubmitting, tBooking]);
+  }, [bookingModal, user, salon.id, salon.settings?.slot_duration_minutes, selectedDate, customerNotes, selectedCategory, services, categories, getCategoryName, queryClient, closeBookingModal, setIsSubmitting, tBooking]);
+
+  const handleConfirmPhoneAndSubmit = useCallback(async () => {
+    const phoneDigits = normalizePhoneDigits(phoneInput);
+
+    if (!isValidPhoneDigits(phoneDigits)) {
+      setPhoneValidationError(tBooking("phoneValidationError"));
+      return;
+    }
+
+    setPhoneValidationError("");
+
+    try {
+      await persistUserPhone(phoneDigits);
+    } catch (error) {
+      console.error("Phone save failed before booking:", error);
+      alert(tBooking("bookingFailed"));
+      return;
+    }
+
+    await submitBookingWithPhone(phoneDigits);
+  }, [phoneInput, isValidPhoneDigits, normalizePhoneDigits, persistUserPhone, submitBookingWithPhone, tBooking]);
+
+  const handleSubmitBooking = useCallback(async () => {
+    if (!bookingModal || !user) return;
+
+    const profilePhone = typeof user.user_metadata?.phone === "string" ? user.user_metadata.phone : "";
+    const phoneDigits = normalizePhoneDigits(profilePhone);
+
+    if (!isValidPhoneDigits(phoneDigits)) {
+      setPhoneInput(profilePhone);
+      setPhoneValidationError("");
+      setShowPhoneConfirmModal(true);
+      return;
+    }
+
+    await submitBookingWithPhone(phoneDigits);
+  }, [bookingModal, user, normalizePhoneDigits, isValidPhoneDigits, submitBookingWithPhone]);
+
+  const handleCancelPhoneConfirm = useCallback(() => {
+    setShowPhoneConfirmModal(false);
+    setPhoneValidationError("");
+  }, []);
+
+  const handleCloseBookingModal = useCallback(() => {
+    setShowPhoneConfirmModal(false);
+    setPhoneValidationError("");
+    closeBookingModal();
+  }, [closeBookingModal]);
 
   return {
     showLoginModal,
@@ -244,6 +350,12 @@ export function useSalonBooking(
     handleTimeSlotClick,
     handleLoginSuccess,
     handleSubmitBooking,
-    closeBookingModal,
+    closeBookingModal: handleCloseBookingModal,
+    showPhoneConfirmModal,
+    phoneInput,
+    setPhoneInput,
+    phoneValidationError,
+    handleConfirmPhoneAndSubmit,
+    handleCancelPhoneConfirm,
   };
 }

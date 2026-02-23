@@ -14,17 +14,44 @@ export class CustomerRepository {
 
   /**
    * 전화번호로 고객 조회 (살롱 내)
+   * phone_normalized 컬럼을 사용하여 포맷에 무관하게 매칭
    */
   async findByPhone(salonId: string, phone: string): Promise<Customer | null> {
-    const { data, error } = await this.supabase
+    const normalized = phone.replace(/[^0-9+]/g, '');
+    if (!normalized) return null;
+
+    const { data, error } = await (this.supabase as any)
       .from("customers")
       .select("*")
       .eq("salon_id", salonId)
-      .eq("phone", phone)
+      .eq("phone_normalized", normalized)
       .maybeSingle();
 
     if (error) throw error;
     return data;
+  }
+
+  /**
+   * 이름 변경 이력 기록
+   */
+  async logNameChange(
+    customerId: string,
+    oldName: string,
+    newName: string,
+    changedBy: string
+  ): Promise<void> {
+    const { error } = await (this.supabase as any)
+      .from("customer_name_history")
+      .insert({
+        customer_id: customerId,
+        old_name: oldName,
+        new_name: newName,
+        changed_by: changedBy,
+      });
+
+    if (error) {
+      console.error("Failed to log name change:", error);
+    }
   }
 
   /**

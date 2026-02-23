@@ -5,14 +5,23 @@
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createAuthClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { createCustomerService } from "@/lib/api-core";
+import type { Database } from "@/lib/supabase/types";
+
+function getSupabaseAdmin() {
+  return createClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // 인증 확인
+    // 인증 확인 (cookie 기반 클라이언트)
+    const supabase = await createAuthClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -26,26 +35,9 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // 먼저 customers 테이블이 존재하는지 테스트
-    const { error: testError } = await supabase
-      .from("customers")
-      .select("id")
-      .limit(1);
-
-    if (testError) {
-      console.error("Customers table access error:", testError);
-      return NextResponse.json(
-        {
-          success: false,
-          message: "customers 테이블 접근 실패: " + testError.message,
-          code: testError.code,
-          details: testError.details,
-        },
-        { status: 500 }
-      );
-    }
-
-    const customerService = createCustomerService(supabase);
+    // RLS를 우회하기 위해 service_role 클라이언트 사용
+    const supabaseAdmin = getSupabaseAdmin();
+    const customerService = createCustomerService(supabaseAdmin);
 
     console.log("Customer find-or-create request:", {
       salon_id: body.salon_id,
@@ -68,13 +60,14 @@ export async function POST(request: NextRequest) {
     console.log("Customer found/created:", customer.id);
 
     return NextResponse.json({ success: true, data: customer });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Customer find-or-create error:", error);
-    console.error("Error details:", {
-      message: error instanceof Error ? error.message : "Unknown error",
-      stack: error instanceof Error ? error.stack : undefined,
-    });
-    const message = error instanceof Error ? error.message : "서버 오류가 발생했습니다";
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === "object" && error !== null && "message" in error
+          ? String((error as { message: unknown }).message)
+          : "서버 오류가 발생했습니다";
 
     return NextResponse.json(
       { success: false, message },

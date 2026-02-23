@@ -132,13 +132,13 @@ export function LoginModal({
         <div className="px-6 pt-6 pb-8 sm:p-8">
           {/* Icon */}
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-line-50 text-line-500">
               <svg
                 width="32"
                 height="32"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#00B900"
+                stroke="currentColor"
                 strokeWidth="2"
               >
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -164,11 +164,7 @@ export function LoginModal({
             <button
               onClick={handleLineLogin}
               disabled={isLoading}
-              className="flex items-center justify-center gap-3 w-full px-4 py-4
-                         bg-[#00B900] hover:bg-[#00a000] active:bg-[#009000]
-                         text-white font-medium rounded-xl transition-colors
-                         disabled:opacity-50 disabled:cursor-not-allowed
-                         shadow-lg shadow-green-500/20"
+              className="ds-btn-line shadow-lg shadow-line-500/20"
             >
               {isLoading ? (
                 <LoadingSpinner />

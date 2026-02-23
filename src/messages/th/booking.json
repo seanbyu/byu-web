@@ -41,5 +41,10 @@
   "customerNamePlaceholder": "กรอกชื่อของคุณ",
   "customerPhone": "เบอร์โทรศัพท์",
   "customerPhonePlaceholder": "+66 81 234 5678",
-  "optional": "ไม่จำเป็น"
+  "optional": "ไม่จำเป็น",
+  "cancel": "ยกเลิก",
+  "phoneConfirmTitle": "ยืนยันเบอร์ติดต่อ",
+  "phoneConfirmMessage": "ต้องการจองด้วยหมายเลขนี้หรือไม่? หมายเลขจะถูกบันทึกในโปรไฟล์โดยอัตโนมัติ",
+  "phoneConfirmPlaceholder": "กรอกเบอร์โทรศัพท์",
+  "phoneValidationError": "เบอร์โทรศัพท์ต้องมี 10 หรือ 11 หลัก"
 }

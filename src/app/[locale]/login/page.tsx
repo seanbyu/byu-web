@@ -43,14 +43,14 @@ export default function LoginPage() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-white">
+      <div className="app-page-tight flex min-h-[60vh] items-center justify-center bg-white">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500" />
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 bg-white">
+    <div className="app-page-tight flex min-h-[calc(100dvh-3.5rem)] flex-col items-center justify-center bg-white">
       <div className="w-full max-w-sm space-y-8">
         {/* Logo / Title */}
         <div className="text-center">

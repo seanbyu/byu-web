@@ -87,5 +87,11 @@ export type BookingConfirmModalProps = {
   setCustomerNotes: (notes: string) => void;
   isSubmitting: boolean;
   onSubmit: () => void;
+  showPhoneConfirmModal: boolean;
+  phoneInput: string;
+  setPhoneInput: (phone: string) => void;
+  phoneValidationError: string;
+  onConfirmPhoneSubmit: () => void;
+  onCancelPhoneConfirm: () => void;
   onClose: () => void;
 };
