@@ -1,6 +1,13 @@
 {
   "title": "ตั้งค่า",
   "language": "ภาษา",
+  "languageSelect": "เลือกภาษา",
+  "languageList": "รายการภาษา",
+  "languageNames": {
+    "ko": "เกาหลี",
+    "en": "อังกฤษ",
+    "th": "ไทย"
+  },
   "notifications": "การแจ้งเตือน",
   "pushNotifications": "การแจ้งเตือนแบบพุช",
   "emailNotifications": "การแจ้งเตือนทางอีเมล",

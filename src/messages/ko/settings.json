@@ -1,6 +1,13 @@
 {
   "title": "설정",
   "language": "언어",
+  "languageSelect": "언어 선택",
+  "languageList": "언어 목록",
+  "languageNames": {
+    "ko": "한국어",
+    "en": "영어",
+    "th": "태국어"
+  },
   "notifications": "알림",
   "pushNotifications": "푸시 알림",
   "emailNotifications": "이메일 알림",

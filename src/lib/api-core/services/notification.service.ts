@@ -69,8 +69,9 @@ export class NotificationService {
     artistName: string;
     bookingDate: string;
     startTime: string;
+    serviceName?: string;
   }): Promise<void> {
-    const { bookingId, salonId, salonName, customerId, customerName, artistId, artistName, bookingDate, startTime } = params;
+    const { bookingId, salonId, salonName, customerId, customerName, artistId, artistName, bookingDate, startTime, serviceName } = params;
 
     const formattedDate = new Date(bookingDate).toLocaleDateString("ko-KR", {
       month: "long",
@@ -142,6 +143,13 @@ export class NotificationService {
 
       const adminTitle = "새 예약 요청";
       const adminBody = `${formattedDate} ${startTime}에 ${customerName}님의 새 예약 요청이 있습니다. (담당: ${artistName})`;
+      const adminMetadata = {
+        artist_name: artistName,
+        customer_name: customerName,
+        service_name: serviceName || null,
+        booking_date: bookingDate,
+        start_time: startTime,
+      };
 
       for (const owner of owners) {
         await Promise.all([
@@ -155,6 +163,7 @@ export class NotificationService {
             recipientUserId: owner.user_id,
             title: adminTitle,
             body: adminBody,
+            metadata: adminMetadata,
           }),
           // 인앱 알림
           this.createBookingNotification({
@@ -166,6 +175,7 @@ export class NotificationService {
             recipientUserId: owner.user_id,
             title: adminTitle,
             body: adminBody,
+            metadata: adminMetadata,
           }),
         ]);
       }

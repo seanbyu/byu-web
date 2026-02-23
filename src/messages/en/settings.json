@@ -1,6 +1,13 @@
 {
   "title": "Settings",
   "language": "Language",
+  "languageSelect": "Select Language",
+  "languageList": "Language List",
+  "languageNames": {
+    "ko": "Korean",
+    "en": "English",
+    "th": "Thai"
+  },
   "notifications": "Notifications",
   "pushNotifications": "Push Notifications",
   "emailNotifications": "Email Notifications",

@@ -213,7 +213,7 @@ export function useSalonBooking(
   }, [tBooking]);
 
   const submitBookingWithPhone = useCallback(async (phoneDigits: string) => {
-    if (!bookingModal || !user) return;
+    if (!bookingModal || !user || !selectedCategory) return;
     setIsSubmitting(true);
     try {
       const slotDuration = salon.settings?.slot_duration_minutes || 60;
@@ -231,9 +231,7 @@ export function useSalonBooking(
       });
 
       // 2. 선택된 카테고리에 해당하는 서비스 찾기
-      const matchedService = selectedCategory
-        ? services.find((s) => s.category_id === selectedCategory)
-        : services[0];
+      const matchedService = services.find((s) => s.category_id === selectedCategory);
 
       if (!matchedService) {
         alert(tBooking("bookingFailed"));
@@ -306,7 +304,7 @@ export function useSalonBooking(
   }, [phoneInput, isValidPhoneDigits, normalizePhoneDigits, persistUserPhone, submitBookingWithPhone, tBooking]);
 
   const handleSubmitBooking = useCallback(async () => {
-    if (!bookingModal || !user) return;
+    if (!bookingModal || !user || !selectedCategory) return;
 
     const profilePhone = typeof user.user_metadata?.phone === "string" ? user.user_metadata.phone : "";
     const phoneDigits = normalizePhoneDigits(profilePhone);
@@ -319,7 +317,7 @@ export function useSalonBooking(
     }
 
     await submitBookingWithPhone(phoneDigits);
-  }, [bookingModal, user, normalizePhoneDigits, isValidPhoneDigits, submitBookingWithPhone]);
+  }, [bookingModal, user, selectedCategory, normalizePhoneDigits, isValidPhoneDigits, submitBookingWithPhone]);
 
   const handleCancelPhoneConfirm = useCallback(() => {
     setShowPhoneConfirmModal(false);

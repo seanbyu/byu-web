@@ -26,6 +26,7 @@ export function BookingConfirmModal({
 }: BookingConfirmModalProps) {
   const tBooking = useTranslations("booking");
   const localeCode = getLocaleCode(locale);
+  const isCategorySelected = Boolean(selectedCategory);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
@@ -132,7 +133,7 @@ export function BookingConfirmModal({
           {/* Submit Button */}
           <button
             onClick={onSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isCategorySelected}
             className="ds-btn-primary"
           >
             {isSubmitting ? tBooking("processing") : tBooking("confirmBooking")}

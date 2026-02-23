@@ -239,6 +239,18 @@ export class BookingService {
         return;
       }
 
+      // 서비스 카테고리 조회 (CUT, PERM, COLOR 등)
+      let serviceName: string | undefined;
+      if (params.serviceId) {
+        const { data: service } = await this.supabase
+          .from("services")
+          .select("service_categories(name)")
+          .eq("id", params.serviceId)
+          .single();
+        const category = service?.service_categories as { name: string } | null;
+        serviceName = category?.name || undefined;
+      }
+
       console.log("📢 Creating notifications...");
       const notificationService = createNotificationService(this.supabase);
 
@@ -252,6 +264,7 @@ export class BookingService {
         artistName: artist.name,
         bookingDate: params.bookingDate,
         startTime: params.startTime,
+        serviceName,
       });
 
       console.log("✅ Notifications created successfully!");

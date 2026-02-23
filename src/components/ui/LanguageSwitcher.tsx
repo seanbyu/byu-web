@@ -3,19 +3,20 @@
 import { useState, useEffect } from "react";
 import { Globe, Check, X } from "lucide-react";
 import { useRouter, usePathname } from "@/i18n/routing";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface Language {
   code: string;
-  label: string;
   flag: string;
 }
 
 const LANGUAGES: Language[] = [
-  { code: "ko", label: "한국어", flag: "🇰🇷" },
-  { code: "en", label: "English", flag: "🇺🇸" },
-  { code: "th", label: "ไทย", flag: "🇹🇭" },
+  { code: "ko", flag: "🇰🇷" },
+  { code: "en", flag: "🇺🇸" },
+  { code: "th", flag: "🇹🇭" },
 ];
+
+const FIRST_HOME_LANGUAGE_MODAL_KEY = "first-home-language-modal-v1";
 
 interface LanguageSwitcherProps {
   /** Show as icon only (for header) or full button */
@@ -39,8 +40,17 @@ export function LanguageSwitcher({
 }: LanguageSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
   const locale = useLocale();
+  const tSettings = useTranslations("settings");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const pathname = usePathname();
+
+  const getLanguageLabel = (code: string) => {
+    if (code === "ko") return tSettings("languageNames.ko");
+    if (code === "en") return tSettings("languageNames.en");
+    if (code === "th") return tSettings("languageNames.th");
+    return code;
+  };
 
   const currentLanguage = LANGUAGES.find((lang) => lang.code === locale) || LANGUAGES[0];
 
@@ -70,9 +80,28 @@ export function LanguageSwitcher({
     };
   }, [isOpen]);
 
+  // First homepage visit: force English as default and open this modal once
+  useEffect(() => {
+    if (variant !== "icon") return;
+    if (pathname !== "/") return;
+
+    const stored = localStorage.getItem(FIRST_HOME_LANGUAGE_MODAL_KEY);
+    if (stored === "done") return;
+
+    if (locale !== "en") {
+      localStorage.setItem(FIRST_HOME_LANGUAGE_MODAL_KEY, "pending");
+      router.replace(pathname, { locale: "en" });
+      return;
+    }
+
+    setIsOpen(true);
+    localStorage.setItem(FIRST_HOME_LANGUAGE_MODAL_KEY, "done");
+  }, [variant, pathname, locale, router]);
+
   // Change language
   const handleLanguageChange = (langCode: string) => {
     router.replace(pathname, { locale: langCode as "ko" | "en" | "th" });
+    localStorage.setItem(FIRST_HOME_LANGUAGE_MODAL_KEY, "done");
     setIsOpen(false);
   };
 
@@ -91,7 +120,7 @@ export function LanguageSwitcher({
               : "px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium"
           }
         `}
-        aria-label="언어 선택"
+        aria-label={tSettings("languageSelect")}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
       >
@@ -100,7 +129,7 @@ export function LanguageSwitcher({
         ) : (
           <>
             <span>{currentLanguage.flag}</span>
-            <span>{currentLanguage.label}</span>
+            <span>{getLanguageLabel(currentLanguage.code)}</span>
           </>
         )}
       </button>
@@ -120,7 +149,7 @@ export function LanguageSwitcher({
             <div
               className="relative w-full max-h-[min(72dvh,34rem)] overflow-y-auto rounded-t-2xl bg-white shadow-xl animate-slide-up pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+0.5rem)]"
               role="dialog"
-              aria-label="언어 변경"
+              aria-label={tSettings("languageSelect")}
             >
               {/* Drag Handle */}
               <div className="flex justify-center pt-3 pb-2">
@@ -131,18 +160,18 @@ export function LanguageSwitcher({
               <button
                 onClick={() => setIsOpen(false)}
                 className="touch-target absolute right-4 top-4 rounded-full p-2 transition-colors hover:bg-gray-100"
-                aria-label="닫기"
+                aria-label={tCommon("close")}
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
 
               {/* Header */}
               <div className="px-6 pb-4">
-                <h3 className="text-lg font-bold text-gray-900">언어 변경</h3>
+                <h3 className="text-lg font-bold text-gray-900">{tSettings("languageSelect")}</h3>
               </div>
 
               {/* Language List */}
-              <div className="px-6 pb-2" role="listbox" aria-label="언어 목록">
+              <div className="px-6 pb-2" role="listbox" aria-label={tSettings("languageList")}>
                 {LANGUAGES.map((language) => (
                   <button
                     key={language.code}
@@ -166,7 +195,7 @@ export function LanguageSwitcher({
                         ? "text-primary-600 font-semibold"
                         : "text-gray-900"
                     }`}>
-                      {language.label}
+                      {getLanguageLabel(language.code)}
                     </span>
                     {language.code === locale && (
                       <Check className="w-5 h-5 text-primary-600" />
