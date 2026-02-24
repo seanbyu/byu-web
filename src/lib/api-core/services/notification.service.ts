@@ -4,7 +4,7 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/lib/supabase/types";
+import type { Database, Json } from "@/lib/supabase/types";
 
 type NotificationChannel = Database["public"]["Enums"]["notification_channel"];
 type NotificationType = Database["public"]["Enums"]["notification_type"];
@@ -20,7 +20,7 @@ interface CreateNotificationParams {
   recipientUserId?: string;
   title: string;
   body: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, Json | undefined>;
 }
 
 export class NotificationService {
@@ -184,6 +184,77 @@ export class NotificationService {
     } catch (error) {
       console.error("Error creating booking notifications:", error);
       // 알림 생성 실패는 예약 자체를 실패시키지 않음
+    }
+  }
+
+  /**
+   * 예약 변경 시 알림 생성 (아티스트 + 관리자)
+   * 고객이 직접 변경한 경우이므로 고객에게는 알림을 보내지 않음
+   */
+  async createRescheduleNotifications(params: {
+    bookingId: string;
+    salonId: string;
+    customerName: string;
+    artistId: string;
+    artistName: string;
+    newBookingDate: string;
+    newStartTime: string;
+    serviceName?: string;
+  }): Promise<void> {
+    const { bookingId, salonId, customerName, artistId, artistName, newBookingDate, newStartTime, serviceName } = params;
+
+    const formattedDate = new Date(newBookingDate).toLocaleDateString("ko-KR", {
+      month: "long",
+      day: "numeric",
+      weekday: "short",
+    });
+
+    try {
+      // 1. 아티스트에게 알림 (IN_APP)
+      const artistTitle = "예약 일정 변경";
+      const artistBody = `${customerName}님의 예약이 ${formattedDate} ${newStartTime}으로 변경되었습니다.`;
+
+      await this.createBookingNotification({
+        bookingId,
+        salonId,
+        channel: "IN_APP",
+        notificationType: "BOOKING_MODIFIED",
+        recipientType: "ARTIST",
+        recipientUserId: artistId,
+        title: artistTitle,
+        body: artistBody,
+      });
+
+      // 2. 살롱 관리자/오너에게 알림 (IN_APP)
+      const owners = await this.getSalonOwners(salonId);
+
+      const adminTitle = "예약 일정 변경";
+      const adminBody = `${customerName}님의 예약이 ${formattedDate} ${newStartTime}으로 변경되었습니다. (담당: ${artistName})`;
+      const adminMetadata = {
+        artist_name: artistName,
+        customer_name: customerName,
+        service_name: serviceName || null,
+        booking_date: newBookingDate,
+        start_time: newStartTime,
+      };
+
+      for (const owner of owners) {
+        await this.createBookingNotification({
+          bookingId,
+          salonId,
+          channel: "IN_APP",
+          notificationType: "BOOKING_MODIFIED",
+          recipientType: "ADMIN",
+          recipientUserId: owner.user_id,
+          title: adminTitle,
+          body: adminBody,
+          metadata: adminMetadata,
+        });
+      }
+
+      console.log(`✅ Reschedule notifications created for booking ${bookingId}`);
+    } catch (error) {
+      console.error("Error creating reschedule notifications:", error);
     }
   }
 
