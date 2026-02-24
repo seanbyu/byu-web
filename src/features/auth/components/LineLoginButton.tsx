@@ -3,6 +3,7 @@
 import React, { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useAuthContext } from "../providers/AuthProvider";
+import { useLineAuthUrl } from "../hooks/useLineAuthUrl";
 import { LiffService } from "../services/liff-service";
 
 interface LineLoginButtonProps {
@@ -16,7 +17,7 @@ interface LineLoginButtonProps {
  * LINE Login Button Component
  *
  * Automatically detects environment and uses appropriate auth flow:
- * - Web: Supabase OAuth redirect flow
+ * - Web: <a> tag with direct LINE authorize URL (iOS Universal Link 지원)
  * - LIFF: LIFF SDK token-based authentication
  */
 export function LineLoginButton({
@@ -34,55 +35,59 @@ export function LineLoginButton({
     authenticateWithLiff,
   } = useAuthContext();
 
-  const handleLogin = useCallback(async () => {
-    try {
-      // LIFF environment: use LIFF SDK authentication
-      if (environment === "liff" || LiffService.detectLiffEnvironment()) {
-        if (liff.isLoggedIn && liff.idToken) {
-          // Already logged in to LINE, authenticate with Supabase
-          const result = await authenticateWithLiff();
-          if (result.success) {
-            onSuccess?.();
-          } else {
-            onError?.(result.error || "LIFF authentication failed");
-          }
-        } else {
-          // Not logged in to LINE, trigger LIFF login
-          // This will redirect to LINE login
-          window.liff?.login();
-        }
-        return;
-      }
+  const lineAuthUrl = useLineAuthUrl();
+  const isLiffEnv = environment === "liff" || LiffService.detectLiffEnvironment();
 
-      // Web environment: redirect to LINE OAuth
-      window.location.href = "/api/auth/line";
+  const handleLiffLogin = useCallback(async () => {
+    try {
+      if (liff.isLoggedIn && liff.idToken) {
+        const result = await authenticateWithLiff();
+        if (result.success) {
+          onSuccess?.();
+        } else {
+          onError?.(result.error || "LIFF authentication failed");
+        }
+      } else {
+        window.liff?.login();
+      }
     } catch (error) {
       onError?.(error instanceof Error ? error.message : "Login failed");
     }
-  }, [environment, liff, authenticateWithLiff, onSuccess, onError]);
+  }, [liff, authenticateWithLiff, onSuccess, onError]);
 
   if (isAuthenticated) {
     return null;
   }
 
+  // LIFF: button with onClick
+  if (isLiffEnv) {
+    return (
+      <button
+        onClick={handleLiffLogin}
+        disabled={isLoading}
+        className={className || "ds-btn-line-compact"}
+      >
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          <>
+            <LineIcon />
+            {children || t("loginWithLine")}
+          </>
+        )}
+      </button>
+    );
+  }
+
+  // Web: <a> tag for iOS Universal Link support
   return (
-    <button
-      onClick={handleLogin}
-      disabled={isLoading}
-      className={
-        className ||
-        "ds-btn-line-compact"
-      }
+    <a
+      href={lineAuthUrl}
+      className={className || "ds-btn-line-compact"}
     >
-      {isLoading ? (
-        <LoadingSpinner />
-      ) : (
-        <>
-          <LineIcon />
-          {children || t("loginWithLine")}
-        </>
-      )}
-    </button>
+      <LineIcon />
+      {children || t("loginWithLine")}
+    </a>
   );
 }
 

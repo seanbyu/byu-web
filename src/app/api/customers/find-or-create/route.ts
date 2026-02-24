@@ -52,9 +52,9 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       name: body.name,
       phone: body.phone,
-      lineUserId: user.user_metadata?.provider_id,
-      lineDisplayName: user.user_metadata?.name,
-      linePictureUrl: user.user_metadata?.picture,
+      lineUserId: user.user_metadata?.line_user_id,
+      lineDisplayName: user.user_metadata?.full_name,
+      linePictureUrl: user.user_metadata?.avatar_url,
     });
 
     console.log("Customer found/created:", customer.id);

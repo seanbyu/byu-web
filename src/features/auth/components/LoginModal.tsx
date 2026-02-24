@@ -3,6 +3,7 @@
 import React, { useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useAuthContext } from "../providers/AuthProvider";
+import { useLineAuthUrl } from "../hooks/useLineAuthUrl";
 import { getDeviceInfo } from "../utils/device";
 
 interface LoginModalProps {
@@ -34,12 +35,12 @@ export function LoginModal({
   const {
     isLoading,
     isAuthenticated,
-    signInWithLine,
     liff,
     environment,
     authenticateWithLiff,
   } = useAuthContext();
 
+  const lineAuthUrl = useLineAuthUrl();
   const deviceInfo = getDeviceInfo();
 
   // Handle successful authentication
@@ -67,19 +68,17 @@ export function LoginModal({
     };
   }, [isOpen, onClose]);
 
-  const handleLineLogin = useCallback(async () => {
+  const handleLiffLogin = useCallback(async () => {
     // LIFF environment - use token-based auth
     if (environment === "liff" && liff.isLoggedIn) {
       const result = await authenticateWithLiff();
       if (result.success) {
         onSuccess?.();
       }
-      return;
     }
+  }, [environment, liff, authenticateWithLiff, onSuccess]);
 
-    // Standard OAuth flow (handles app detection automatically)
-    await signInWithLine();
-  }, [environment, liff, signInWithLine, authenticateWithLiff, onSuccess]);
+  const isLiffEnv = environment === "liff";
 
   if (!isOpen) return null;
 
@@ -160,21 +159,31 @@ export function LoginModal({
 
           {/* Login Buttons */}
           <div className="space-y-3">
-            {/* LINE Login Button */}
-            <button
-              onClick={handleLineLogin}
-              disabled={isLoading}
-              className="ds-btn-line shadow-lg shadow-line-500/20"
-            >
-              {isLoading ? (
-                <LoadingSpinner />
-              ) : (
-                <>
-                  <LineIcon />
-                  <span>{t("loginWithLine")}</span>
-                </>
-              )}
-            </button>
+            {/* LINE Login - LIFF: button, Web: <a> tag for iOS Universal Link */}
+            {isLiffEnv ? (
+              <button
+                onClick={handleLiffLogin}
+                disabled={isLoading}
+                className="ds-btn-line shadow-lg shadow-line-500/20"
+              >
+                {isLoading ? (
+                  <LoadingSpinner />
+                ) : (
+                  <>
+                    <LineIcon />
+                    <span>{t("loginWithLine")}</span>
+                  </>
+                )}
+              </button>
+            ) : (
+              <a
+                href={lineAuthUrl}
+                className="ds-btn-line shadow-lg shadow-line-500/20"
+              >
+                <LineIcon />
+                <span>{t("loginWithLine")}</span>
+              </a>
+            )}
 
             {/* Mobile hint */}
             {deviceInfo.isMobile && (

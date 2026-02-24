@@ -42,3 +42,9 @@ export {
 export type {
   FindOrCreateCustomerParams,
 } from "./services/customer.service";
+
+export {
+  LineService,
+  createLineService,
+} from "./services/line.service";
+export type { LineFriendStatus } from "./services/line.service";

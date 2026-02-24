@@ -6,6 +6,7 @@
 import { apiClient } from "./client";
 import { endpoints } from "./endpoints";
 import type { Salon, Service, ServiceCategory, StaffWithProfile } from "@/lib/supabase/types";
+import type { LineFriendStatus } from "@/lib/api-core";
 
 /** 예약 가용성 슬롯 (RPC 반환 타입) */
 export interface AvailabilitySlot {
@@ -50,6 +51,29 @@ export const bookingQueries = {
       endpoints.bookings.detail.path(bookingId)
     );
     return response.data;
+  },
+
+  /**
+   * 내 예약 목록 조회
+   */
+  getMy: async () => {
+    const response = await apiClient.get(
+      endpoints.bookings.my.path()
+    );
+    return response.data ?? [];
+  },
+};
+
+/**
+ * LINE Queries
+ */
+export const lineQueries = {
+  getFriendStatus: async (salonId: string): Promise<LineFriendStatus> => {
+    const response = await apiClient.get<LineFriendStatus>(
+      endpoints.line.friendStatus.path(),
+      { salonId }
+    );
+    return response.data ?? { isFriend: false, lineUserId: null, salonHasLine: false };
   },
 };
 

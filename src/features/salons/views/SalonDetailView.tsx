@@ -11,6 +11,7 @@ import { SalonCalendar } from "../components/SalonCalendar";
 import { SalonContactChannels } from "../components/SalonContactChannels";
 import { DesignerTimeSlots } from "../components/DesignerTimeSlots";
 import { BookingConfirmModal } from "../components/BookingConfirmModal";
+import { BookingSuccessModal } from "../components/BookingSuccessModal";
 import { SalonContactInfo } from "../components/SalonContactInfo";
 import type { SalonDetailViewProps } from "../types";
 
@@ -100,6 +101,15 @@ export function SalonDetailView({ salon, staff }: SalonDetailViewProps) {
           onConfirmPhoneSubmit={booking.handleConfirmPhoneAndSubmit}
           onCancelPhoneConfirm={booking.handleCancelPhoneConfirm}
           onClose={booking.closeBookingModal}
+        />
+      )}
+
+      {booking.showSuccessModal && (
+        <BookingSuccessModal
+          bookingId={booking.successBookingId}
+          salonId={salon.id}
+          lineChannel={booking.lineChannel}
+          onClose={booking.closeSuccessModal}
         />
       )}
     </div>

@@ -91,10 +91,50 @@ export class BookingService {
   }
 
   /**
+   * 예약 상세 + LINE 연동 상태 조회
+   */
+  async getBookingDetailsWithLineStatus(bookingId: string) {
+    const booking = await this.repository.findByIdWithDetails(bookingId);
+    if (!booking) return null;
+
+    const salonId = (booking.salons as { id: string } | null)?.id;
+    let lineVerified = false;
+
+    if (salonId) {
+      const { data: lineSettings } = await this.supabase
+        .from("salon_line_settings")
+        .select("is_verified, is_active")
+        .eq("salon_id", salonId)
+        .maybeSingle();
+
+      lineVerified = !!lineSettings?.is_verified && !!lineSettings?.is_active;
+    }
+
+    return { ...booking, lineVerified };
+  }
+
+  /**
    * 고객의 예약 목록 조회
    */
   async getCustomerBookings(customerId: string): Promise<Booking[]> {
     return this.repository.findByCustomer(customerId);
+  }
+
+  /**
+   * 인증된 사용자의 전체 예약 목록 조회
+   * customers 테이블에서 user_id로 customer_id 목록을 찾아서 예약 조회
+   */
+  async getUserBookings(userId: string) {
+    const { data: customers, error } = await this.supabase
+      .from("customers")
+      .select("id")
+      .eq("user_id", userId);
+
+    if (error) throw error;
+    if (!customers || customers.length === 0) return [];
+
+    const customerIds = customers.map((c) => c.id);
+    return this.repository.findByCustomerIds(customerIds);
   }
 
   /**
@@ -275,6 +315,56 @@ export class BookingService {
   }
 
   /**
+   * 예약 일정 변경
+   */
+  async rescheduleBooking(
+    bookingId: string,
+    params: {
+      artistId: string;
+      bookingDate: string;
+      startTime: string;
+      endTime: string;
+    }
+  ): Promise<Booking> {
+    const booking = await this.repository.findById(bookingId);
+    if (!booking) throw new Error("예약을 찾을 수 없습니다");
+
+    if (booking.status === "CANCELLED" || booking.status === "COMPLETED") {
+      throw new Error("취소/완료된 예약은 변경할 수 없습니다");
+    }
+
+    // 새 시간대 충돌 확인
+    const existingBookings = await this.repository.findByDesignerAndDate(
+      params.artistId,
+      params.bookingDate
+    );
+
+    const newStart = this.timeToMinutes(params.startTime);
+    const newEnd = this.timeToMinutes(params.endTime);
+
+    for (const existing of existingBookings) {
+      if (existing.id === bookingId) continue; // 자기 자신 제외
+      const existingStart = this.timeToMinutes(existing.start_time);
+      const existingEnd = this.timeToMinutes(existing.end_time);
+
+      if (
+        (newStart >= existingStart && newStart < existingEnd) ||
+        (newEnd > existingStart && newEnd <= existingEnd) ||
+        (newStart <= existingStart && newEnd >= existingEnd)
+      ) {
+        throw new Error("선택한 시간에 이미 예약이 있습니다");
+      }
+    }
+
+    return this.repository.rescheduleBooking(bookingId, {
+      artist_id: params.artistId,
+      booking_date: params.bookingDate,
+      start_time: params.startTime,
+      end_time: params.endTime,
+    });
+  }
+
+  /**
    * 예약 취소
    */
   async cancelBooking(
@@ -296,6 +386,31 @@ export class BookingService {
     // 완료된 예약은 취소 불가
     if (booking.status === "COMPLETED") {
       throw new Error("완료된 예약은 취소할 수 없습니다");
+    }
+
+    // 고객 취소 시 시간 제한 검증
+    if (cancelledBy === "customer") {
+      const { data: salon } = await this.supabase
+        .from("salons")
+        .select("settings")
+        .eq("id", booking.salon_id)
+        .single();
+
+      const settings = salon?.settings as Record<string, unknown> | null;
+      const cancellationHours = (settings?.booking_cancellation_hours as number) ?? 24;
+
+      if (cancellationHours === 0) {
+        throw new Error("이 살롱은 온라인 예약 취소가 불가합니다");
+      }
+
+      const [hours, minutes] = booking.start_time.split(":").map(Number);
+      const bookingDateTime = new Date(booking.booking_date);
+      bookingDateTime.setHours(hours, minutes, 0, 0);
+      const deadline = new Date(bookingDateTime.getTime() - cancellationHours * 60 * 60 * 1000);
+
+      if (new Date() >= deadline) {
+        throw new Error(`예약 ${cancellationHours}시간 전까지만 취소할 수 있습니다`);
+      }
     }
 
     return this.repository.cancelBooking(bookingId, cancelledBy, reason);

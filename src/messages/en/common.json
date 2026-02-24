@@ -26,6 +26,7 @@
     "friday": "Fri",
     "saturday": "Sat"
   },
+  "today": "Today",
   "closed": "Closed",
   "closedToday": "Selected date is closed",
   "favorite": {

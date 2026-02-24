@@ -63,9 +63,26 @@ export const endpoints = {
       queryKey: (salonId: string, date: string) =>
         ["bookings", "salon", salonId, date] as const,
     },
+    // 내 예약 목록
+    my: {
+      path: () => "/bookings/my",
+      queryKey: () => ["bookings", "my"] as const,
+    },
     // 예약 취소
     cancel: {
       path: (id: string) => `/bookings/${id}/cancel`,
+    },
+    // 예약 일정 변경
+    reschedule: {
+      path: (id: string) => `/bookings/${id}/reschedule`,
+    },
+  },
+
+  // LINE
+  line: {
+    friendStatus: {
+      path: () => "/line/friend-status",
+      queryKey: (salonId: string) => ["line", "friend-status", salonId] as const,
     },
   },
 

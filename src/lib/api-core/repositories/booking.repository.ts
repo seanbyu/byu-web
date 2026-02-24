@@ -111,6 +111,28 @@ export class BookingRepository extends BaseRepository<"bookings"> {
   }
 
   /**
+   * 사용자의 customer ID 목록으로 예약 조회 (관련 데이터 포함)
+   */
+  async findByCustomerIds(customerIds: string[]) {
+    if (customerIds.length === 0) return [];
+
+    const { data, error } = await this.supabase
+      .from("bookings")
+      .select(`
+        *,
+        salons(id, name, address, phone, settings),
+        services(id, name),
+        designer:users!bookings_artist_id_fkey(id, name, profile_image)
+      `)
+      .in("customer_id", customerIds)
+      .order("booking_date", { ascending: false })
+      .order("start_time", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  /**
    * 예약 상세 조회 (관련 데이터 포함)
    */
   async findByIdWithDetails(bookingId: string) {
@@ -153,6 +175,33 @@ export class BookingRepository extends BaseRepository<"bookings"> {
     const { data, error } = await this.supabase
       .from("bookings")
       .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", bookingId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data as Booking;
+  }
+
+  /**
+   * 예약 일정 변경
+   */
+  async rescheduleBooking(
+    bookingId: string,
+    updates: {
+      artist_id: string;
+      booking_date: string;
+      start_time: string;
+      end_time: string;
+    }
+  ): Promise<Booking> {
+    const { data, error } = await this.supabase
+      .from("bookings")
+      .update({
+        ...updates,
+        status: "PENDING",
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", bookingId)
       .select()
       .single();

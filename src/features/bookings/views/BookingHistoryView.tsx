@@ -1,8 +1,264 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
+import {
+  Calendar,
+  MapPin,
+  User,
+  Scissors,
+  Clock,
+} from "lucide-react";
+import { clsx } from "clsx";
+import { Link } from "@/i18n/routing";
+import { useAuthContext } from "@/features/auth";
+import { bookingQueries } from "@/lib/api/queries";
+import { PageHeader } from "@/components/ui/PageHeader";
+import type { Booking, Salon, Service } from "@/lib/supabase/types";
+
+type BookingWithDetails = Booking & {
+  salons: Pick<Salon, "id" | "name" | "address" | "phone" | "settings">;
+  services: Pick<Service, "id" | "name">;
+  designer: {
+    id: string;
+    name: string;
+    profile_image: string | null;
+  };
+};
+
+type TabKey = "upcoming" | "past" | "cancelled";
+
 export function BookingHistoryView() {
+  const router = useRouter();
+  const t = useTranslations("booking");
+  const locale = useLocale();
+  const { isAuthenticated, isLoading: authLoading } = useAuthContext();
+
+  const [bookings, setBookings] = useState<BookingWithDetails[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabKey>("upcoming");
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!isAuthenticated) {
+      router.replace("/login");
+      return;
+    }
+
+    fetchBookings();
+  }, [authLoading, isAuthenticated]);
+
+  const fetchBookings = async () => {
+    try {
+      const data = await bookingQueries.getMy();
+      setBookings((data || []) as BookingWithDetails[]);
+    } catch {
+      // silently fail
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const filteredBookings = bookings.filter((b) => {
+    if (activeTab === "cancelled") {
+      return b.status === "CANCELLED" || b.status === "NO_SHOW";
+    }
+    if (activeTab === "past") {
+      return (
+        (b.status === "COMPLETED" || b.booking_date < today) &&
+        b.status !== "CANCELLED" &&
+        b.status !== "NO_SHOW"
+      );
+    }
+    // upcoming
+    return (
+      b.booking_date >= today &&
+      b.status !== "CANCELLED" &&
+      b.status !== "NO_SHOW" &&
+      b.status !== "COMPLETED"
+    );
+  });
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr + "T00:00:00");
+    if (locale === "ko") {
+      const days = ["일", "월", "화", "수", "목", "금", "토"];
+      return `${date.getMonth() + 1}월 ${date.getDate()}일 (${days[date.getDay()]})`;
+    }
+    if (locale === "th") {
+      return date.toLocaleDateString("th-TH", {
+        month: "short",
+        day: "numeric",
+        weekday: "short",
+      });
+    }
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      weekday: "short",
+    });
+  };
+
+  const getStatusColor = (status: Booking["status"]) => {
+    switch (status) {
+      case "CONFIRMED":
+        return "bg-green-100 text-green-700";
+      case "PENDING":
+        return "bg-yellow-100 text-yellow-700";
+      case "IN_PROGRESS":
+        return "bg-blue-100 text-blue-700";
+      case "COMPLETED":
+        return "bg-gray-100 text-gray-600";
+      case "CANCELLED":
+      case "NO_SHOW":
+        return "bg-red-100 text-red-700";
+      default:
+        return "bg-gray-100 text-gray-600";
+    }
+  };
+
+  const getStatusText = (status: Booking["status"]) => {
+    switch (status) {
+      case "CONFIRMED":
+        return t("statusConfirmed");
+      case "PENDING":
+        return t("statusPending");
+      case "IN_PROGRESS":
+        return t("statusInProgress");
+      case "COMPLETED":
+        return t("statusCompleted");
+      case "CANCELLED":
+        return t("statusCancelled");
+      case "NO_SHOW":
+        return t("statusNoShow");
+      default:
+        return status;
+    }
+  };
+
+  const tabs: { key: TabKey; label: string }[] = [
+    { key: "upcoming", label: t("upcoming") },
+    { key: "past", label: t("past") },
+    { key: "cancelled", label: t("cancelled") },
+  ];
+
+  if (authLoading || isLoading) {
+    return (
+      <div className="app-page-bleed bg-white">
+        <PageHeader title={t("myBookings")} showLanguage showHome showSearch={false} showShare={false} />
+        <div className="p-4 space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-28 bg-gray-100 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="app-page bg-white">
-      <h1 className="app-title mb-4">Bookings</h1>
-      <p className="text-gray-500">Booking history will be displayed here.</p>
+    <div className="app-page-bleed bg-white min-h-screen">
+      <PageHeader
+        title={t("myBookings")}
+        showLanguage
+        showHome
+        showSearch={false}
+        showShare={false}
+      />
+
+      {/* Tabs */}
+      <div className="sticky top-14 z-40 bg-white border-b border-gray-100">
+        <div className="flex">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={clsx(
+                "flex-1 py-3 text-sm font-medium text-center transition-colors relative",
+                activeTab === tab.key
+                  ? "text-gray-900"
+                  : "text-gray-400"
+              )}
+            >
+              {tab.label}
+              {activeTab === tab.key && (
+                <span className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-gray-900 rounded-full" />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Booking List */}
+      <div className="p-4 pb-24 space-y-3">
+        {filteredBookings.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <Calendar className="w-12 h-12 text-gray-200 mb-3" />
+            <p className="text-sm text-gray-400">{t("noBookings")}</p>
+          </div>
+        ) : (
+          filteredBookings.map((booking) => (
+            <Link
+              key={booking.id}
+              href={`/bookings/${booking.id}` as "/bookings"}
+              className="block rounded-xl border border-gray-100 p-4 transition-colors hover:bg-gray-50 active:bg-gray-50"
+            >
+              {/* Top: Salon name + Status */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+                  <span className="text-sm font-semibold text-gray-900 truncate">
+                    {booking.salons?.name}
+                  </span>
+                </div>
+                <span
+                  className={clsx(
+                    "shrink-0 ml-2 px-2 py-0.5 rounded-full text-xs font-medium",
+                    getStatusColor(booking.status)
+                  )}
+                >
+                  {getStatusText(booking.status)}
+                </span>
+              </div>
+
+              {/* Details */}
+              <div className="space-y-1.5 text-sm text-gray-500">
+                {/* Date & Time */}
+                <div className="flex items-center gap-2">
+                  <Clock className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {formatDate(booking.booking_date)} · {booking.start_time.slice(0, 5)}
+                  </span>
+                </div>
+
+                {/* Category (Cut, Perm 등 큰 카테고리) */}
+                {(() => {
+                  const meta = booking.booking_meta as Record<string, unknown> | null;
+                  const categoryName = meta?.category_name as string | undefined;
+                  if (!categoryName) return null;
+                  return (
+                    <div className="flex items-center gap-2">
+                      <Scissors className="w-3.5 h-3.5 shrink-0" />
+                      <span>{categoryName}</span>
+                    </div>
+                  );
+                })()}
+
+                {/* Designer */}
+                {booking.designer?.name && (
+                  <div className="flex items-center gap-2">
+                    <User className="w-3.5 h-3.5 shrink-0" />
+                    <span>{booking.designer.name}</span>
+                  </div>
+                )}
+              </div>
+            </Link>
+          ))
+        )}
+      </div>
     </div>
   );
 }

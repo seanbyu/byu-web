@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { Home, BookOpen, Heart, User } from "lucide-react";
+import { Home, BookOpen, CalendarDays, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { clsx } from "clsx";
@@ -12,14 +12,14 @@ interface NavItem {
   id: string;
   labelKey: string;
   icon: React.ComponentType<{ className?: string }>;
-  href: "/" | "/search" | "/mypick" | "/my";
+  href: "/" | "/search" | "/bookings" | "/my";
   requireAuth?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
   { id: "home", labelKey: "home", icon: Home, href: "/" },
   { id: "stylingBook", labelKey: "stylingBook", icon: BookOpen, href: "/search" },
-  { id: "mypick", labelKey: "mypick", icon: Heart, href: "/mypick", requireAuth: true },
+  { id: "bookings", labelKey: "bookings", icon: CalendarDays, href: "/bookings", requireAuth: true },
   { id: "my", labelKey: "my", icon: User, href: "/my", requireAuth: true },
 ];
 
@@ -54,7 +54,7 @@ export function AuthBottomNav() {
   const handleLoginSuccess = useCallback(() => {
     // Navigate to pending destination after successful login
     if (pendingNavigation) {
-      router.push(pendingNavigation as "/" | "/search" | "/mypick" | "/my");
+      router.push(pendingNavigation as "/" | "/search" | "/bookings" | "/my");
     }
     setPendingNavigation(null);
     setShowLoginModal(false);

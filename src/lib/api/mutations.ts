@@ -60,6 +60,13 @@ export interface CancelBookingParams {
   cancellation_reason?: string;
 }
 
+export interface RescheduleBookingParams {
+  artist_id: string;
+  booking_date: string;
+  start_time: string;
+  end_time: string;
+}
+
 /**
  * Booking Mutations
  */
@@ -88,6 +95,20 @@ export const bookingMutations = {
     );
     if (!response.data) {
       throw new Error(response.message || "예약 취소에 실패했습니다");
+    }
+    return response.data;
+  },
+
+  /**
+   * 예약 일정 변경
+   */
+  reschedule: async (bookingId: string, params: RescheduleBookingParams): Promise<Booking> => {
+    const response = await apiClient.post<Booking>(
+      endpoints.bookings.reschedule.path(bookingId),
+      params
+    );
+    if (!response.data) {
+      throw new Error(response.message || "일정 변경에 실패했습니다");
     }
     return response.data;
   },
