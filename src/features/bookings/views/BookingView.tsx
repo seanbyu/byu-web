@@ -4,7 +4,7 @@ import { memo, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import { useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { ArrowLeft, Home, Check } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useAuthContext, LoginModal } from "@/features/auth";
@@ -25,6 +25,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
   const queryClient = useQueryClient();
   const t = useTranslations("booking");
   const tCommon = useTranslations("common");
+  const locale = useLocale();
   const { isAuthenticated, user } = useAuthContext();
 
   // Zustand store
@@ -234,6 +235,9 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
         service_price: selectedService.base_price || 0,
         total_price: selectedService.base_price || 0,
         customer_notes: customerNotes || null,
+        booking_meta: {
+          locale,
+        },
       });
 
       // 캐시 무효화

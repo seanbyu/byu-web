@@ -30,6 +30,8 @@ export function useSalonBooking(
   const [showPhoneConfirmModal, setShowPhoneConfirmModal] = useState(false);
   const [phoneInput, setPhoneInput] = useState("");
   const [phoneValidationError, setPhoneValidationError] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successBookingId, setSuccessBookingId] = useState<string | null>(null);
 
   // Zustand store
   const {
@@ -245,7 +247,7 @@ export function useSalonBooking(
         : "";
 
       // 4. Create booking with customer ID + service + category meta
-      await bookingsApi.createBooking({
+      const createdBooking = await bookingsApi.createBooking({
         salon_id: salon.id,
         customer_id: customer.id,
         artist_id: bookingModal.designer.id,
@@ -262,6 +264,7 @@ export function useSalonBooking(
           category_id: selectedCategory || null,
           category_name: categoryName || null,
           customer_phone: phoneDigits,
+          locale,
         },
       });
 
@@ -273,7 +276,8 @@ export function useSalonBooking(
       setShowPhoneConfirmModal(false);
       setPhoneValidationError("");
       closeBookingModal();
-      alert(tBooking("bookingConfirmed"));
+      setSuccessBookingId(createdBooking?.id || null);
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Booking error:", error);
       alert(tBooking("bookingFailed"));
@@ -330,6 +334,13 @@ export function useSalonBooking(
     closeBookingModal();
   }, [closeBookingModal]);
 
+  const lineChannel = salon.settings?.contact_channels?.line || null;
+
+  const closeSuccessModal = useCallback(() => {
+    setShowSuccessModal(false);
+    setSuccessBookingId(null);
+  }, []);
+
   return {
     showLoginModal,
     setShowLoginModal,
@@ -355,5 +366,9 @@ export function useSalonBooking(
     phoneValidationError,
     handleConfirmPhoneAndSubmit,
     handleCancelPhoneConfirm,
+    showSuccessModal,
+    successBookingId,
+    closeSuccessModal,
+    lineChannel,
   };
 }
