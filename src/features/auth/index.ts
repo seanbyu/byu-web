@@ -14,6 +14,8 @@ export { liffService, LiffService } from "./services/liff-service";
 export { useAuth } from "./hooks/useAuth";
 export { useLiff } from "./hooks/useLiff";
 export { useRequireAuth } from "./hooks/useRequireAuth";
+export { useProfile } from "./hooks/useProfile";
+export type { UserProfile } from "./hooks/useProfile";
 
 // Provider
 export { AuthProvider, useAuthContext } from "./providers/AuthProvider";

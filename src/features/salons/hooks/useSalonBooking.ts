@@ -92,7 +92,8 @@ export function useSalonBooking(
 
   const getSalonHours = useCallback((date: Date) => {
     const dayName = getDayName(date);
-    const hours = salon.business_hours?.[dayName];
+    const bh = salon.business_hours as Record<string, { enabled?: boolean; open?: string; close?: string }> | null;
+    const hours = bh?.[dayName];
     if (!hours?.enabled || !hours.open || !hours.close) return null;
     return { open: hours.open, close: hours.close };
   }, [salon.business_hours]);
@@ -137,7 +138,8 @@ export function useSalonBooking(
     }
 
     const slots: string[] = [];
-    const slotDuration = salon.settings?.slot_duration_minutes || 60;
+    const settings = salon.settings as Record<string, unknown> | null;
+    const slotDuration = (settings?.slot_duration_minutes as number) || 60;
 
     const [startH, startM] = effectiveStart.split(":").map(Number);
     const [endH, endM] = effectiveEnd.split(":").map(Number);
@@ -150,7 +152,7 @@ export function useSalonBooking(
     }
 
     return slots;
-  }, [selectedDate, isSalonHoliday, isDesignerHoliday, getSalonHours, salon.settings?.slot_duration_minutes]);
+  }, [selectedDate, isSalonHoliday, isDesignerHoliday, getSalonHours, salon.settings]);
 
   const isSlotAvailable = useCallback((designerId: string, time: string): boolean => {
     const now = new Date();
@@ -164,7 +166,8 @@ export function useSalonBooking(
       if (slotMinutes <= currentMinutes) return false;
     }
 
-    const slotDuration = salon.settings?.slot_duration_minutes || 60;
+    const settings = salon.settings as Record<string, unknown> | null;
+    const slotDuration = (settings?.slot_duration_minutes as number) || 60;
     const slotEnd = slotMinutes + slotDuration;
 
     for (const booking of existingBookings) {
@@ -180,7 +183,7 @@ export function useSalonBooking(
     }
 
     return true;
-  }, [selectedDate, existingBookings, salon.settings?.slot_duration_minutes]);
+  }, [selectedDate, existingBookings, salon.settings]);
 
   const handleTimeSlotClick = useCallback((designer: StaffWithProfile, time: string) => {
     if (!isAuthenticated) {
@@ -218,7 +221,8 @@ export function useSalonBooking(
     if (!bookingModal || !user || !selectedCategory) return;
     setIsSubmitting(true);
     try {
-      const slotDuration = salon.settings?.slot_duration_minutes || 60;
+      const settings = salon.settings as Record<string, unknown> | null;
+      const slotDuration = (settings?.slot_duration_minutes as number) || 60;
 
       const [startHour, startMin] = bookingModal.time.split(":").map(Number);
       const startMinutes = startHour * 60 + startMin;
@@ -284,7 +288,7 @@ export function useSalonBooking(
     } finally {
       setIsSubmitting(false);
     }
-  }, [bookingModal, user, salon.id, salon.settings?.slot_duration_minutes, selectedDate, customerNotes, selectedCategory, services, categories, getCategoryName, queryClient, closeBookingModal, setIsSubmitting, tBooking]);
+  }, [bookingModal, user, salon.id, salon.settings, selectedDate, customerNotes, selectedCategory, services, categories, getCategoryName, queryClient, closeBookingModal, setIsSubmitting, tBooking]);
 
   const handleConfirmPhoneAndSubmit = useCallback(async () => {
     const phoneDigits = normalizePhoneDigits(phoneInput);
@@ -334,7 +338,9 @@ export function useSalonBooking(
     closeBookingModal();
   }, [closeBookingModal]);
 
-  const lineChannel = salon.settings?.contact_channels?.line || null;
+  const salonSettings = salon.settings as Record<string, unknown> | null;
+  const contactChannels = salonSettings?.contact_channels as Record<string, unknown> | null;
+  const lineChannel = (contactChannels?.line as { enabled: boolean; id: string }) || null;
 
   const closeSuccessModal = useCallback(() => {
     setShowSuccessModal(false);

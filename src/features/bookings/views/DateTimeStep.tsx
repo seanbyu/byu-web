@@ -1,7 +1,10 @@
 import { memo, useState, useMemo } from "react";
 import { Calendar, Clock, ChevronRight } from "lucide-react";
 import { getDayName, isDateInHolidays, getDesignerWorkHours } from "../utils";
+import type { HolidayEntry } from "@/lib/supabase/types";
 import type { DateTimeStepProps } from "../types";
+
+type BusinessHoursMap = Record<string, { enabled?: boolean; open?: string; close?: string }> | null;
 
 export const DateTimeStep = memo(function DateTimeStep({
   availableDates,
@@ -39,10 +42,11 @@ export const DateTimeStep = memo(function DateTimeStep({
   }, [currentMonth]);
 
   const isDateAvailable = (date: Date) => {
-    if (isDateInHolidays(date, salon.holidays)) return false;
+    if (isDateInHolidays(date, salon.holidays as HolidayEntry[] | null)) return false;
 
     const dayName = getDayName(date);
-    const hours = salon.business_hours?.[dayName];
+    const bh = salon.business_hours as BusinessHoursMap;
+    const hours = bh?.[dayName];
     if (!hours?.enabled) return false;
 
     const today = new Date();
@@ -50,7 +54,7 @@ export const DateTimeStep = memo(function DateTimeStep({
     if (date < today) return false;
 
     const maxDate = new Date(today);
-    maxDate.setDate(today.getDate() + (salon.settings?.booking_advance_days || 30));
+    maxDate.setDate(today.getDate() + ((salon.settings as Record<string, unknown> | null)?.booking_advance_days as number || 30));
     if (date > maxDate) return false;
 
     // Check designer's work schedule and holidays

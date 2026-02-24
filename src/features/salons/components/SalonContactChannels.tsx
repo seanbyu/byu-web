@@ -18,7 +18,10 @@ type SalonContactChannelsProps = {
 export function SalonContactChannels({ salon }: SalonContactChannelsProps) {
   const t = useTranslations("salon");
 
-  const contactChannels = salon.settings?.contact_channels;
+  const contactChannels = (salon.settings as Record<string, unknown> | null)?.contact_channels as {
+    instagram?: { enabled: boolean; id: string };
+    line?: { enabled: boolean; id: string };
+  } | undefined;
 
   // 활성화된 채널이 없으면 렌더링하지 않음
   const hasEnabledChannels =

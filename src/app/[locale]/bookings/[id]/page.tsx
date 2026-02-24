@@ -16,6 +16,9 @@ import {
   X,
   RefreshCw,
   Loader2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { Link } from "@/i18n/routing";
@@ -23,6 +26,7 @@ import { useAuthContext } from "@/features/auth";
 import { bookingQueries, salonQueries } from "@/lib/api/queries";
 import { bookingMutations } from "@/lib/api/mutations";
 import { bookingsApi } from "@/features/bookings/api";
+import { getLocaleCode } from "@/features/salons/utils";
 import {
   getDayName,
   formatTime,
@@ -55,114 +59,244 @@ type BookingWithDetails = Booking & {
   lineVerified: boolean;
 };
 
-// ─── Reschedule Panel ────────────────────────────────────────
+type RescheduleSlot = {
+  artist_id: string;
+  start_time: string;
+  end_time: string;
+  duration_minutes: number;
+};
 
-function ReschedulePanel({
-  booking,
-  onClose,
-  onSuccess,
-}: {
-  booking: BookingWithDetails;
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
+// ─── Main Page ────────────────────────────────────────────────
+
+export default function BookingDetailPage() {
+  const router = useRouter();
+  const params = useParams();
+  const bookingId = params.id as string;
   const t = useTranslations("booking");
   const tCommon = useTranslations("common");
   const locale = useLocale();
+  const { isAuthenticated, isLoading: authLoading } = useAuthContext();
 
-  const [salon, setSalon] = useState<Salon | null>(null);
-  const [staff, setStaff] = useState<StaffWithProfile[]>([]);
-  const [existingBookings, setExistingBookings] = useState<
-    { artist_id: string; start_time: string; end_time: string; duration_minutes: number }[]
-  >([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isLoadingData, setIsLoadingData] = useState(true);
-  const [isLoadingBookings, setIsLoadingBookings] = useState(false);
+  const [booking, setBooking] = useState<BookingWithDetails | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Confirm modal
+  // Cancel modal state
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  // Reschedule accordion state
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [reschedSalon, setReschedSalon] = useState<Salon | null>(null);
+  const [reschedStaff, setReschedStaff] = useState<StaffWithProfile[]>([]);
+  const [reschedBookings, setReschedBookings] = useState<RescheduleSlot[]>([]);
+  const [reschedDate, setReschedDate] = useState(new Date());
+  const [reschedLoadingData, setReschedLoadingData] = useState(false);
+  const [reschedLoadingSlots, setReschedLoadingSlots] = useState(false);
+  const [showReschedCalendar, setShowReschedCalendar] = useState(false);
+  const [reschedCalendarMonth, setReschedCalendarMonth] = useState(
+    () => new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+  );
   const [confirmData, setConfirmData] = useState<{
     designer: StaffWithProfile;
     time: string;
   } | null>(null);
   const [isRescheduling, setIsRescheduling] = useState(false);
 
-  const dateScrollRef = useRef<HTMLDivElement>(null);
+  const reschedCalendarRef = useRef<HTMLDivElement>(null);
+  const reschedSlotRequestIdRef = useRef(0);
+  const reschedSlotsCacheRef = useRef<Record<string, RescheduleSlot[]>>({});
+  const reschedSlotsInFlightRef = useRef<Record<string, Promise<RescheduleSlot[]>>>({});
+  const localeCode = getLocaleCode(locale);
 
-  // 초기 데이터 로드 (살롱 + 스태프)
+  // ─── Fetch Booking ─────────────────────────────────────────
+
   useEffect(() => {
+    if (authLoading) return;
+
+    if (!isAuthenticated) {
+      router.replace("/login");
+      return;
+    }
+
+    fetchBooking();
+  }, [authLoading, isAuthenticated, bookingId]);
+
+  const fetchBooking = async () => {
+    try {
+      const data = await bookingQueries.getById(bookingId);
+      setBooking(data as BookingWithDetails);
+    } catch {
+      setError(t("bookingLoadError"));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    reschedSlotsCacheRef.current = {};
+    reschedSlotsInFlightRef.current = {};
+  }, [bookingId]);
+
+  // ─── Reschedule: load salon + staff when accordion opens ───
+
+  useEffect(() => {
+    if (!showReschedule || !booking || reschedSalon) return;
     const loadData = async () => {
+      setReschedLoadingData(true);
       try {
         const [salonData, staffData] = await Promise.all([
           salonQueries.getById(booking.salon_id),
           salonQueries.getStaff(booking.salon_id),
         ]);
-        setSalon(salonData);
-        setStaff(staffData);
+        setReschedSalon(salonData);
+        setReschedStaff(staffData);
       } catch {
         // silently fail
       } finally {
-        setIsLoadingData(false);
+        setReschedLoadingData(false);
       }
     };
     loadData();
-  }, [booking.salon_id]);
+  }, [showReschedule, booking, reschedSalon]);
 
-  // 날짜 변경 시 예약 데이터 로드
+  // ─── Reschedule: load bookings when date changes ───────────
+
   useEffect(() => {
-    if (!salon) return;
+    if (!showReschedule || !reschedSalon || !booking) return;
     const loadBookings = async () => {
-      setIsLoadingBookings(true);
+      const requestId = ++reschedSlotRequestIdRef.current;
+      const dateKey = formatDateForDB(reschedDate);
+      const cached = reschedSlotsCacheRef.current[dateKey];
+      if (cached) {
+        setReschedBookings(cached);
+        setReschedLoadingSlots(false);
+        return;
+      }
+
+      setReschedLoadingSlots(true);
       try {
-        const data = await bookingsApi.getBookingsBySalon(
-          booking.salon_id,
-          formatDateForDB(selectedDate)
-        );
-        setExistingBookings(data);
+        const inFlight = reschedSlotsInFlightRef.current[dateKey];
+        const request =
+          inFlight ??
+          bookingsApi
+            .getBookingsBySalon(booking.salon_id, dateKey)
+            .then((data) => {
+              reschedSlotsCacheRef.current[dateKey] = data;
+              return data;
+            })
+            .finally(() => {
+              delete reschedSlotsInFlightRef.current[dateKey];
+            });
+
+        if (!inFlight) {
+          reschedSlotsInFlightRef.current[dateKey] = request;
+        }
+
+        const data = await request;
+        if (requestId !== reschedSlotRequestIdRef.current) return;
+        setReschedBookings(data);
       } catch {
-        setExistingBookings([]);
+        if (requestId !== reschedSlotRequestIdRef.current) return;
+        setReschedBookings([]);
       } finally {
-        setIsLoadingBookings(false);
+        if (requestId !== reschedSlotRequestIdRef.current) return;
+        setReschedLoadingSlots(false);
       }
     };
     loadBookings();
-  }, [selectedDate, salon, booking.salon_id]);
+  }, [reschedDate, reschedSalon, showReschedule, booking]);
 
-  // 예약 가능 날짜 목록
-  const availableDates = useMemo(() => {
-    if (!salon) return [];
+  useEffect(() => {
+    if (!showReschedule) {
+      setShowReschedCalendar(false);
+    }
+  }, [showReschedule]);
+
+  useEffect(() => {
+    if (!showReschedCalendar) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (reschedCalendarRef.current && !reschedCalendarRef.current.contains(e.target as Node)) {
+        setShowReschedCalendar(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showReschedCalendar]);
+
+  // ─── Reschedule: computed values ───────────────────────────
+
+  const reschedAvailDates = useMemo(() => {
+    if (!reschedSalon) return [];
     const dates: Date[] = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const advanceDays = (salon.settings as Record<string, unknown> | null)?.booking_advance_days as number || 30;
+    const advanceDays = (reschedSalon.settings as Record<string, unknown> | null)?.booking_advance_days as number || 30;
     for (let i = 0; i < advanceDays; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       dates.push(date);
     }
     return dates;
-  }, [salon]);
+  }, [reschedSalon]);
 
-  const isDateEnabled = useCallback(
+  const isReschedDateEnabled = useCallback(
     (date: Date): boolean => {
-      if (!salon) return false;
-      if (isDateInHolidays(date, salon.holidays as HolidayEntry[] | null)) return false;
+      if (!reschedSalon) return false;
+      if (isDateInHolidays(date, reschedSalon.holidays as HolidayEntry[] | null)) return false;
       const dayName = getDayName(date);
-      const bh = salon.business_hours as BusinessHoursMap;
+      const bh = reschedSalon.business_hours as BusinessHoursMap;
       const hours = bh?.[dayName];
       return !!(hours?.enabled && hours.open && hours.close);
     },
-    [salon]
+    [reschedSalon]
   );
 
-  const isSalonHoliday = useCallback(
+  const reschedCalendarDays = useMemo(() => {
+    const year = reschedCalendarMonth.getFullYear();
+    const month = reschedCalendarMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const days: (Date | null)[] = [];
+
+    for (let i = 0; i < firstDay.getDay(); i++) {
+      days.push(null);
+    }
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      days.push(new Date(year, month, i));
+    }
+
+    return days;
+  }, [reschedCalendarMonth]);
+
+  const isReschedCalendarDateAvailable = useCallback(
     (date: Date): boolean => {
-      if (!salon) return false;
-      return isDateInHolidays(date, salon.holidays as HolidayEntry[] | null);
+      if (!reschedSalon) return false;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (date < today) return false;
+
+      const maxDate = reschedAvailDates[reschedAvailDates.length - 1];
+      if (maxDate && date > maxDate) return false;
+
+      return isReschedDateEnabled(date);
     },
-    [salon]
+    [reschedSalon, reschedAvailDates, isReschedDateEnabled]
   );
 
-  const isDesignerHoliday = useCallback(
+  const isReschedSalonHoliday = useCallback(
+    (date: Date): boolean => {
+      if (!reschedSalon) return false;
+      return isDateInHolidays(date, reschedSalon.holidays as HolidayEntry[] | null);
+    },
+    [reschedSalon]
+  );
+
+  const isReschedDesignerHoliday = useCallback(
     (designer: StaffWithProfile, date: Date): boolean => {
       if (isDateInHolidays(date, designer.staff_profiles?.holidays || null)) return true;
       const dayName = getDayName(date);
@@ -172,16 +306,16 @@ function ReschedulePanel({
     []
   );
 
-  const getDesignerTimeSlots = useCallback(
+  const getReschedDesignerSlots = useCallback(
     (designer: StaffWithProfile): string[] => {
-      if (!salon || isSalonHoliday(selectedDate)) return [];
+      if (!reschedSalon || isReschedSalonHoliday(reschedDate)) return [];
 
-      const dayName = getDayName(selectedDate);
-      const bh = salon.business_hours as BusinessHoursMap;
+      const dayName = getDayName(reschedDate);
+      const bh = reschedSalon.business_hours as BusinessHoursMap;
       const salonHours = bh?.[dayName];
       if (!salonHours?.enabled || !salonHours.open || !salonHours.close) return [];
 
-      if (isDesignerHoliday(designer, selectedDate)) return [];
+      if (isReschedDesignerHoliday(designer, reschedDate)) return [];
 
       const designerHours = getDesignerWorkHours(designer, dayName);
       let effectiveStart: string;
@@ -207,7 +341,7 @@ function ReschedulePanel({
       }
 
       const slotDuration =
-        ((salon.settings as Record<string, unknown> | null)?.slot_duration_minutes as number) || 60;
+        ((reschedSalon.settings as Record<string, unknown> | null)?.slot_duration_minutes as number) || 60;
       const [sH, sM] = effectiveStart.split(":").map(Number);
       const [eH, eM] = effectiveEnd.split(":").map(Number);
       const startMinutes = sH * 60 + sM;
@@ -219,14 +353,14 @@ function ReschedulePanel({
       }
       return slots;
     },
-    [salon, selectedDate, isSalonHoliday, isDesignerHoliday]
+    [reschedSalon, reschedDate, isReschedSalonHoliday, isReschedDesignerHoliday]
   );
 
-  const isSlotAvailable = useCallback(
+  const isReschedSlotAvailable = useCallback(
     (designerId: string, time: string): boolean => {
-      if (!salon) return false;
+      if (!reschedSalon) return false;
       const now = new Date();
-      const isToday = selectedDate.toDateString() === now.toDateString();
+      const isToday = reschedDate.toDateString() === now.toDateString();
 
       const [slotHour, slotMin] = time.split(":").map(Number);
       const slotMinutes = slotHour * 60 + slotMin;
@@ -237,12 +371,11 @@ function ReschedulePanel({
       }
 
       const slotDuration =
-        ((salon.settings as Record<string, unknown> | null)?.slot_duration_minutes as number) || 60;
+        ((reschedSalon.settings as Record<string, unknown> | null)?.slot_duration_minutes as number) || 60;
       const slotEnd = slotMinutes + slotDuration;
 
-      for (const b of existingBookings) {
+      for (const b of reschedBookings) {
         if (b.artist_id !== designerId) continue;
-        // 자기 자신의 예약은 제외 (현재 변경 대상)
         const [bH, bM] = b.start_time.split(":").map(Number);
         const bStart = bH * 60 + bM;
         const bEnd = bStart + b.duration_minutes;
@@ -254,8 +387,22 @@ function ReschedulePanel({
 
       return true;
     },
-    [salon, selectedDate, existingBookings]
+    [reschedSalon, reschedDate, reschedBookings]
   );
+
+  // ─── Reschedule: actions ───────────────────────────────────
+
+  const handleToggleReschedule = useCallback(() => {
+    setShowReschedule((prev) => {
+      const next = !prev;
+      if (next) {
+        setReschedCalendarMonth(new Date(reschedDate.getFullYear(), reschedDate.getMonth(), 1));
+      } else {
+        setShowReschedCalendar(false);
+      }
+      return next;
+    });
+  }, [reschedDate]);
 
   const handleSlotClick = useCallback(
     (designer: StaffWithProfile, time: string) => {
@@ -265,29 +412,37 @@ function ReschedulePanel({
   );
 
   const handleConfirmReschedule = useCallback(async () => {
-    if (!confirmData || !salon) return;
+    if (!confirmData || !reschedSalon) return;
     setIsRescheduling(true);
 
     const slotDuration =
-      ((salon.settings as Record<string, unknown> | null)?.slot_duration_minutes as number) || 60;
+      ((reschedSalon.settings as Record<string, unknown> | null)?.slot_duration_minutes as number) || 60;
     const [sH, sM] = confirmData.time.split(":").map(Number);
     const endTime = formatTime(sH * 60 + sM + slotDuration);
 
     try {
-      await bookingMutations.reschedule(booking.id, {
+      await bookingMutations.reschedule(booking!.id, {
         artist_id: confirmData.designer.id,
-        booking_date: formatDateForDB(selectedDate),
+        booking_date: formatDateForDB(reschedDate),
         start_time: confirmData.time,
         end_time: endTime,
       });
       setConfirmData(null);
-      onSuccess();
+      setShowReschedule(false);
+      reschedSlotsCacheRef.current = {};
+      reschedSlotsInFlightRef.current = {};
+      setIsLoading(true);
+      try {
+        const updated = await bookingQueries.getById(bookingId);
+        setBooking(updated as BookingWithDetails);
+      } catch { /* ignore */ }
+      setIsLoading(false);
     } catch {
       alert(t("rescheduleFailed"));
     } finally {
       setIsRescheduling(false);
     }
-  }, [confirmData, salon, booking.id, selectedDate, t, onSuccess]);
+  }, [confirmData, reschedSalon, booking, reschedDate, bookingId, t]);
 
   const formatConfirmDate = useCallback(
     (date: Date) => {
@@ -303,264 +458,7 @@ function ReschedulePanel({
     [locale]
   );
 
-  if (isLoadingData) {
-    return (
-      <div className="fixed inset-0 z-50 bg-white flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-      </div>
-    );
-  }
-
-  if (!salon) {
-    return (
-      <div className="fixed inset-0 z-50 bg-white">
-        <header className="sticky top-0 bg-white border-b border-gray-100">
-          <div className="flex items-center justify-between px-4 h-14">
-            <button onClick={onClose} className="touch-target -ml-2 rounded-full p-2">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <span className="font-semibold">{t("rescheduleTitle")}</span>
-            <div className="w-9" />
-          </div>
-        </header>
-        <div className="p-4 text-center text-gray-500 mt-12">{t("bookingLoadError")}</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-white border-b border-gray-100">
-        <div className="flex items-center justify-between px-4 h-14">
-          <button
-            onClick={onClose}
-            className="touch-target -ml-2 rounded-full p-2 transition-colors hover:bg-gray-100"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <span className="font-semibold">{t("rescheduleTitle")}</span>
-          <div className="w-9" />
-        </div>
-      </header>
-
-      {/* Description */}
-      <p className="px-4 pt-3 pb-2 text-sm text-gray-500">{t("rescheduleSelectDateTime")}</p>
-
-      {/* Horizontal Date Selector */}
-      <div className="relative px-4 pb-3">
-        <div
-          ref={dateScrollRef}
-          className="flex gap-2 overflow-x-auto scrollbar-hide py-1"
-        >
-          {availableDates.map((date) => {
-            const enabled = isDateEnabled(date);
-            const isSelected = date.toDateString() === selectedDate.toDateString();
-            const isToday = date.toDateString() === new Date().toDateString();
-            return (
-              <button
-                key={date.toISOString()}
-                onClick={() => enabled && setSelectedDate(date)}
-                disabled={!enabled}
-                className={clsx(
-                  "flex-shrink-0 flex flex-col items-center justify-center rounded-xl px-3 py-2 min-w-[64px] text-xs transition-colors",
-                  isSelected
-                    ? "bg-primary-500 text-white"
-                    : enabled
-                    ? "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                    : "bg-gray-50 text-gray-300 cursor-not-allowed"
-                )}
-              >
-                <span className="font-medium">
-                  {date.getDate()}
-                </span>
-                <span className={clsx("mt-0.5", isSelected ? "text-white/80" : "text-gray-400")}>
-                  {isToday
-                    ? tCommon("today")
-                    : (() => {
-                        const dayName = getDayName(date);
-                        return tCommon(`days.${dayName}`);
-                      })()}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="h-px bg-gray-100" />
-
-      {/* Designer Time Slots */}
-      <div className="px-4 py-4 pb-24">
-        {isLoadingBookings ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-          </div>
-        ) : staff.length > 0 ? (
-          <div className="space-y-3">
-            {staff.map((designer) => {
-              const slots = getDesignerTimeSlots(designer);
-              const holiday = isDesignerHoliday(designer, selectedDate);
-              const salonClosed = isSalonHoliday(selectedDate) || !isDateEnabled(selectedDate);
-
-              return (
-                <div key={designer.id} className="rounded-xl bg-gray-50 p-3">
-                  {/* Designer Info */}
-                  <div className="mb-3 flex items-center gap-3">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200">
-                      {designer.profile_image ? (
-                        <img
-                          src={designer.profile_image}
-                          alt={designer.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-sm font-bold text-gray-400">
-                          {designer.name.charAt(0)}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm font-medium text-gray-900">{designer.name}</p>
-                  </div>
-
-                  {/* Time Slots */}
-                  <div className="flex flex-wrap gap-2">
-                    {salonClosed || holiday ? (
-                      <p className="text-sm text-gray-400">{tCommon("closedToday")}</p>
-                    ) : slots.length > 0 ? (
-                      slots.map((time) => {
-                        const available = isSlotAvailable(designer.id, time);
-                        return (
-                          <button
-                            key={time}
-                            onClick={() => available && handleSlotClick(designer, time)}
-                            disabled={!available}
-                            className={clsx(
-                              "touch-target rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-                              available
-                                ? "bg-white border border-primary-200 text-primary-600 hover:bg-primary-50 hover:border-primary-400"
-                                : "bg-gray-100 text-gray-400 cursor-not-allowed line-through"
-                            )}
-                          >
-                            {time}
-                          </button>
-                        );
-                      })
-                    ) : (
-                      <p className="text-sm text-gray-400">{tCommon("closedToday")}</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-gray-400">
-            <p>{t("noDesigners")}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Reschedule Confirm Modal */}
-      {confirmData && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
-          <div
-            className="absolute inset-0 bg-black/50 animate-backdrop"
-            onClick={() => !isRescheduling && setConfirmData(null)}
-          />
-          <div className="relative w-full max-w-[360px] rounded-2xl bg-white p-6 shadow-xl animate-slide-up">
-            <button
-              onClick={() => !isRescheduling && setConfirmData(null)}
-              className="touch-target absolute right-3 top-3 rounded-full p-1.5 hover:bg-gray-100"
-              disabled={isRescheduling}
-            >
-              <X className="w-4 h-4 text-gray-400" />
-            </button>
-
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              {t("rescheduleConfirmTitle")}
-            </h3>
-
-            <div className="rounded-xl bg-gray-50 p-4 mb-4 space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="w-4 h-4 text-gray-400" />
-                <span className="font-medium">{formatConfirmDate(selectedDate)}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <RefreshCw className="w-4 h-4 text-gray-400" />
-                <span className="font-medium">{confirmData.time}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <User className="w-4 h-4 text-gray-400" />
-                <span className="font-medium">{confirmData.designer.name}</span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <button
-                onClick={handleConfirmReschedule}
-                disabled={isRescheduling}
-                className="w-full min-h-[44px] rounded-xl bg-primary-500 text-white text-sm font-semibold transition-colors hover:bg-primary-600 disabled:opacity-50"
-              >
-                {isRescheduling ? t("rescheduling") : t("rescheduleConfirm")}
-              </button>
-              <button
-                onClick={() => setConfirmData(null)}
-                disabled={isRescheduling}
-                className="w-full min-h-[44px] rounded-xl text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 disabled:opacity-50"
-              >
-                {t("close")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Main Page ────────────────────────────────────────────────
-
-export default function BookingDetailPage() {
-  const router = useRouter();
-  const params = useParams();
-  const bookingId = params.id as string;
-  const t = useTranslations("booking");
-  const { isAuthenticated, isLoading: authLoading } = useAuthContext();
-
-  const [booking, setBooking] = useState<BookingWithDetails | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Cancel modal state
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [cancelReason, setCancelReason] = useState("");
-  const [isCancelling, setIsCancelling] = useState(false);
-
-  // Reschedule panel state
-  const [showReschedulePanel, setShowReschedulePanel] = useState(false);
-
-  useEffect(() => {
-    if (authLoading) return;
-
-    if (!isAuthenticated) {
-      router.replace("/login");
-      return;
-    }
-
-    fetchBooking();
-  }, [authLoading, isAuthenticated, bookingId]);
-
-  const fetchBooking = async () => {
-    try {
-      const data = await bookingQueries.getById(bookingId);
-      setBooking(data as BookingWithDetails);
-    } catch {
-      setError(t("bookingLoadError"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // ─── Cancel ────────────────────────────────────────────────
 
   const handleCancelBooking = useCallback(async () => {
     if (!booking) return;
@@ -581,18 +479,7 @@ export default function BookingDetailPage() {
     }
   }, [booking, bookingId, cancelReason, t]);
 
-  const handleRescheduleSuccess = useCallback(async () => {
-    setShowReschedulePanel(false);
-    setIsLoading(true);
-    try {
-      const updated = await bookingQueries.getById(bookingId);
-      setBooking(updated as BookingWithDetails);
-    } catch {
-      // ignore
-    } finally {
-      setIsLoading(false);
-    }
-  }, [bookingId]);
+  // ─── Helpers ───────────────────────────────────────────────
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -665,6 +552,8 @@ export default function BookingDetailPage() {
 
   const canModify = cancellationStatus.canCancel;
 
+  // ─── Loading / Error states ────────────────────────────────
+
   if (authLoading || isLoading) {
     return (
       <div className="app-page-bleed bg-white">
@@ -695,6 +584,8 @@ export default function BookingDetailPage() {
       </div>
     );
   }
+
+  // ─── Render ────────────────────────────────────────────────
 
   return (
     <div className="app-page-bleed bg-white">
@@ -859,20 +750,262 @@ export default function BookingDetailPage() {
           {/* Reschedule & Cancel Buttons */}
           {canModify && (
             <div className="space-y-2">
+              {/* Reschedule Accordion Toggle */}
               <button
-                onClick={() => setShowReschedulePanel(true)}
-                className="touch-target flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 py-3 transition-colors hover:bg-gray-50"
+                onClick={handleToggleReschedule}
+                className={clsx(
+                  "touch-target flex w-full items-center justify-center gap-2 rounded-xl border py-3 transition-colors",
+                  showReschedule
+                    ? "border-primary-300 bg-primary-50 text-primary-700"
+                    : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                )}
               >
-                <RefreshCw className="w-4 h-4 text-gray-600" />
-                <span className="font-medium text-gray-700">{t("reschedule")}</span>
+                <RefreshCw className="w-4 h-4" />
+                <span className="font-medium">{t("reschedule")}</span>
+                <ChevronDown className={clsx("w-4 h-4 transition-transform", showReschedule && "rotate-180")} />
               </button>
 
+              {/* Cancel */}
               <button
                 onClick={() => setShowCancelModal(true)}
                 className="touch-target w-full rounded-xl py-3 font-medium text-red-500 transition-colors hover:bg-red-50"
               >
                 {t("cancelBooking")}
               </button>
+            </div>
+          )}
+
+          {/* ─── Reschedule Accordion Content ─── */}
+          {showReschedule && canModify && (
+            <div className="rounded-xl border border-primary-200 bg-white">
+              {/* Accordion Header */}
+              <div className="bg-primary-50 px-4 py-3 border-b border-primary-100">
+                <p className="text-sm font-medium text-primary-700">{t("rescheduleSelectDateTime")}</p>
+              </div>
+
+              {reschedLoadingData ? (
+                <div className="flex justify-center py-10">
+                  <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                </div>
+              ) : !reschedSalon ? (
+                <div className="p-4 text-center text-sm text-gray-400">{t("bookingLoadError")}</div>
+              ) : (
+                <div className="p-4 space-y-4">
+                  {/* Weekly Quick Selector */}
+                  <div className="rounded-xl bg-gray-50 p-2.5">
+                    <div className="grid grid-cols-7 gap-1">
+                      {reschedAvailDates.slice(0, 7).map((date) => {
+                        const isSelected = date.toDateString() === reschedDate.toDateString();
+                        const enabled = isReschedDateEnabled(date);
+                        const isToday = date.toDateString() === new Date().toDateString();
+
+                        return (
+                          <button
+                            key={date.toISOString()}
+                            onClick={() => {
+                              if (!enabled) return;
+                              setReschedDate(date);
+                              setReschedCalendarMonth(new Date(date.getFullYear(), date.getMonth(), 1));
+                            }}
+                            disabled={!enabled}
+                            className={`rounded-xl py-1.5 text-center transition-colors ${
+                              isSelected
+                                ? "bg-primary-100 border-2 border-primary-400"
+                                : enabled
+                                ? "hover:bg-gray-100"
+                                : "opacity-50 cursor-not-allowed"
+                            }`}
+                          >
+                            <div className={`text-[11px] font-medium ${
+                              isSelected ? "text-primary-700" : isToday ? "text-primary-600" : "text-gray-600"
+                            }`}>
+                              {tCommon(`days.${getDayName(date)}`)}
+                            </div>
+                            <div className={`mt-0.5 text-sm font-bold ${
+                              isSelected ? "text-primary-700" : enabled ? "text-gray-900" : "text-gray-400"
+                            }`}>
+                              {date.getDate()}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Calendar Dropdown Selector */}
+                  <div ref={reschedCalendarRef} className="relative">
+                    <button
+                      onClick={() => setShowReschedCalendar(!showReschedCalendar)}
+                      className="flex w-full items-center justify-between rounded-xl bg-gray-50 px-3 py-2.5 transition-colors hover:bg-gray-100"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Calendar className="h-4 w-4 text-primary-500" />
+                        <span className="text-xs font-medium text-gray-900">
+                          {reschedDate.toLocaleDateString(localeCode, {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            weekday: "long",
+                          })}
+                        </span>
+                      </div>
+                      <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${showReschedCalendar ? "rotate-180" : ""}`} />
+                    </button>
+
+                    {showReschedCalendar && (
+                      <div className="absolute left-0 right-0 z-30 mt-2 rounded-xl border border-gray-200 bg-white p-3 shadow-lg">
+                        <div className="mb-3 flex items-center justify-between">
+                          <button
+                            onClick={() => setReschedCalendarMonth(new Date(reschedCalendarMonth.getFullYear(), reschedCalendarMonth.getMonth() - 1, 1))}
+                            className="touch-target rounded-lg p-1.5 transition-colors hover:bg-gray-100"
+                          >
+                            <ChevronLeft className="h-4 w-4 text-gray-600" />
+                          </button>
+                          <span className="text-sm font-semibold text-gray-900">
+                            {reschedCalendarMonth.toLocaleDateString(localeCode, { year: "numeric", month: "long" })}
+                          </span>
+                          <button
+                            onClick={() => setReschedCalendarMonth(new Date(reschedCalendarMonth.getFullYear(), reschedCalendarMonth.getMonth() + 1, 1))}
+                            className="touch-target rounded-lg p-1.5 transition-colors hover:bg-gray-100"
+                          >
+                            <ChevronRight className="h-4 w-4 text-gray-600" />
+                          </button>
+                        </div>
+
+                        <div className="mb-1 grid grid-cols-7 gap-1">
+                          {[
+                            tCommon("days.sunday"),
+                            tCommon("days.monday"),
+                            tCommon("days.tuesday"),
+                            tCommon("days.wednesday"),
+                            tCommon("days.thursday"),
+                            tCommon("days.friday"),
+                            tCommon("days.saturday"),
+                          ].map((day, i) => (
+                            <div
+                              key={day}
+                              className={`py-1 text-center text-xs font-medium ${
+                                i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-gray-400"
+                              }`}
+                            >
+                              {day.slice(0, 1)}
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="grid grid-cols-7 gap-1">
+                          {reschedCalendarDays.map((date, index) => {
+                            if (!date) {
+                              return <div key={`empty-${index}`} className="h-11" />;
+                            }
+
+                            const available = isReschedCalendarDateAvailable(date);
+                            const isSelected = reschedDate.toDateString() === date.toDateString();
+                            const isToday = date.toDateString() === new Date().toDateString();
+
+                            return (
+                              <button
+                                key={date.toISOString()}
+                                onClick={() => {
+                                  if (available) {
+                                    setReschedDate(date);
+                                    setShowReschedCalendar(false);
+                                  }
+                                }}
+                                disabled={!available}
+                                className={`h-11 rounded-lg text-sm font-medium transition-colors ${
+                                  isSelected
+                                    ? "bg-primary-600 text-white"
+                                    : available
+                                    ? isToday
+                                      ? "bg-primary-50 text-primary-600 hover:bg-primary-100"
+                                      : "hover:bg-gray-100 text-gray-700"
+                                    : "text-gray-300 cursor-not-allowed"
+                                }`}
+                              >
+                                {date.getDate()}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="h-px bg-gray-100" />
+
+                  {/* Designer Time Slots */}
+                  {reschedStaff.length > 0 ? (
+                    <div className={clsx("space-y-3", reschedLoadingSlots && "pointer-events-none opacity-70")}>
+                      {reschedLoadingSlots && (
+                        <div className="mb-1 flex items-center gap-2 text-xs text-gray-400">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <span>{t("loadingSlots")}</span>
+                        </div>
+                      )}
+                      {reschedStaff.map((designer) => {
+                        const slots = getReschedDesignerSlots(designer);
+                        const holiday = isReschedDesignerHoliday(designer, reschedDate);
+                        const salonClosed = isReschedSalonHoliday(reschedDate) || !isReschedDateEnabled(reschedDate);
+
+                        return (
+                          <div key={designer.id} className="rounded-xl bg-gray-50 p-3">
+                            {/* Designer Info */}
+                            <div className="mb-3 flex items-center gap-3">
+                              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200">
+                                {designer.profile_image ? (
+                                  <img
+                                    src={designer.profile_image}
+                                    alt={designer.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <span className="text-sm font-bold text-gray-400">
+                                    {designer.name.charAt(0)}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm font-medium text-gray-900">{designer.name}</p>
+                            </div>
+
+                            {/* Time Slots */}
+                            <div className="flex flex-wrap gap-2">
+                              {salonClosed || holiday ? (
+                                <p className="text-sm text-gray-400">{tCommon("closedToday")}</p>
+                              ) : slots.length > 0 ? (
+                                slots.map((time) => {
+                                  const available = isReschedSlotAvailable(designer.id, time);
+                                  return (
+                                    <button
+                                      key={time}
+                                      onClick={() => available && handleSlotClick(designer, time)}
+                                      disabled={!available}
+                                      className={clsx(
+                                        "touch-target rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+                                        available
+                                          ? "bg-white border border-primary-200 text-primary-600 hover:bg-primary-50 hover:border-primary-400"
+                                          : "bg-gray-100 text-gray-400 cursor-not-allowed line-through"
+                                      )}
+                                    >
+                                      {time}
+                                    </button>
+                                  );
+                                })
+                              ) : (
+                                <p className="text-sm text-gray-400">{tCommon("closedToday")}</p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-gray-400">
+                      <p className="text-sm">{t("noDesigners")}</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -939,13 +1072,59 @@ export default function BookingDetailPage() {
         </div>
       )}
 
-      {/* Reschedule Panel (Full Screen) */}
-      {showReschedulePanel && booking && (
-        <ReschedulePanel
-          booking={booking}
-          onClose={() => setShowReschedulePanel(false)}
-          onSuccess={handleRescheduleSuccess}
-        />
+      {/* Reschedule Confirm Modal */}
+      {confirmData && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/50 animate-backdrop"
+            onClick={() => !isRescheduling && setConfirmData(null)}
+          />
+          <div className="relative w-full max-w-[360px] rounded-2xl bg-white p-6 shadow-xl animate-slide-up">
+            <button
+              onClick={() => !isRescheduling && setConfirmData(null)}
+              className="touch-target absolute right-3 top-3 rounded-full p-1.5 hover:bg-gray-100"
+              disabled={isRescheduling}
+            >
+              <X className="w-4 h-4 text-gray-400" />
+            </button>
+
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              {t("rescheduleConfirmTitle")}
+            </h3>
+
+            <div className="rounded-xl bg-gray-50 p-4 mb-4 space-y-2">
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                <span className="font-medium">{formatConfirmDate(reschedDate)}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <RefreshCw className="w-4 h-4 text-gray-400" />
+                <span className="font-medium">{confirmData.time}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <User className="w-4 h-4 text-gray-400" />
+                <span className="font-medium">{confirmData.designer.name}</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <button
+                onClick={handleConfirmReschedule}
+                disabled={isRescheduling}
+                className="w-full min-h-[44px] rounded-xl bg-primary-500 text-white text-sm font-semibold transition-colors hover:bg-primary-600 disabled:opacity-50"
+              >
+                {isRescheduling ? t("rescheduling") : t("rescheduleConfirm")}
+              </button>
+              <button
+                onClick={() => setConfirmData(null)}
+                disabled={isRescheduling}
+                className="w-full min-h-[44px] rounded-xl text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 disabled:opacity-50"
+              >
+                {t("close")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

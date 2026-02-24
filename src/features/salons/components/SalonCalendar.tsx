@@ -14,13 +14,14 @@ const BusinessHoursCard = memo(function BusinessHoursCard({
   const tCommon = useTranslations("common");
 
   const dayName = getDayName(selectedDate);
-  const hours = salon.business_hours?.[dayName];
+  const bh = salon.business_hours as Record<string, { enabled?: boolean; open?: string; close?: string }> | null;
+  const hours = bh?.[dayName];
   const isHoliday = isSalonHoliday(selectedDate) || !hours?.enabled;
-  const slotDuration = salon.settings?.slot_duration_minutes || 60;
+  const slotDuration = (salon.settings as Record<string, unknown> | null)?.slot_duration_minutes as number || 60;
 
   const dayKeys = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
   const regularHolidays = dayKeys
-    .filter((d) => salon.business_hours?.[d] && !salon.business_hours[d].enabled)
+    .filter((d) => bh?.[d] && !bh[d].enabled)
     .map((d) => tCommon(`days.${d}`));
 
   if (isHoliday) {

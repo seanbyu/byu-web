@@ -1,14 +1,17 @@
 import type { Salon } from "@/lib/supabase/types";
 import { getDayName } from "@/features/bookings/utils";
 
+type BusinessHoursMap = Record<string, { enabled?: boolean; open?: string; close?: string }> | null;
+
 export type SalonStatus = "open" | "preparing" | "closed" | "holiday";
 
 // Get salon status: "open" | "preparing" | "closed" | "holiday"
 export function getSalonStatus(businessHours: Salon["business_hours"]): SalonStatus {
   if (!businessHours) return "holiday";
 
+  const bh = businessHours as NonNullable<BusinessHoursMap>;
   const today = getDayName(new Date());
-  const todayHours = businessHours[today];
+  const todayHours = bh[today];
 
   if (!todayHours?.enabled || !todayHours.open || !todayHours.close) {
     return "holiday";
@@ -37,8 +40,9 @@ export function getSalonStatus(businessHours: Salon["business_hours"]): SalonSta
 export function getTodayHours(businessHours: Salon["business_hours"]): string | null {
   if (!businessHours) return null;
 
+  const bh = businessHours as NonNullable<BusinessHoursMap>;
   const today = getDayName(new Date());
-  const todayHours = businessHours[today];
+  const todayHours = bh[today];
 
   if (!todayHours?.enabled || !todayHours.open || !todayHours.close) {
     return null;

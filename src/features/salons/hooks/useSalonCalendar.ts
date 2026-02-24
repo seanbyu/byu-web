@@ -1,8 +1,10 @@
 import { useMemo, useEffect, useRef, useCallback } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslations } from "next-intl";
-import type { Salon, StaffWithProfile } from "@/lib/supabase/types";
+import type { Salon, StaffWithProfile, HolidayEntry } from "@/lib/supabase/types";
 import { getDayName, isDateInHolidays, getDesignerWorkHours } from "@/features/bookings/utils";
+
+type BusinessHoursMap = Record<string, { enabled?: boolean; open?: string; close?: string }> | null;
 import { useSalonDetailStore } from "../stores/useSalonDetailStore";
 
 export function useSalonCalendar(salon: Salon) {
@@ -47,14 +49,15 @@ export function useSalonCalendar(salon: Salon) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const advanceDays = salon.settings?.booking_advance_days || 30;
+    const settings = salon.settings as Record<string, unknown> | null;
+    const advanceDays = (settings?.booking_advance_days as number) || 30;
     for (let i = 0; i < advanceDays; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       dates.push(date);
     }
     return dates;
-  }, [salon.settings?.booking_advance_days]);
+  }, [salon.settings]);
 
   // Calendar grid days for the current month view
   const calendarDays = useMemo(() => {
@@ -74,7 +77,7 @@ export function useSalonCalendar(salon: Salon) {
   }, [calendarMonth]);
 
   const isSalonHoliday = useCallback((date: Date): boolean => {
-    return isDateInHolidays(date, salon.holidays);
+    return isDateInHolidays(date, salon.holidays as HolidayEntry[] | null);
   }, [salon.holidays]);
 
   const isDesignerHoliday = useCallback((designer: StaffWithProfile, date: Date): boolean => {
@@ -85,9 +88,10 @@ export function useSalonCalendar(salon: Salon) {
   }, []);
 
   const isDateEnabled = useCallback((date: Date): boolean => {
-    if (isDateInHolidays(date, salon.holidays)) return false;
+    if (isDateInHolidays(date, salon.holidays as HolidayEntry[] | null)) return false;
     const dayName = getDayName(date);
-    const hours = salon.business_hours?.[dayName];
+    const bh = salon.business_hours as BusinessHoursMap;
+    const hours = bh?.[dayName];
     return !!(hours?.enabled && hours.open && hours.close);
   }, [salon.holidays, salon.business_hours]);
 
@@ -96,15 +100,17 @@ export function useSalonCalendar(salon: Salon) {
     today.setHours(0, 0, 0, 0);
     if (date < today) return false;
 
+    const settings = salon.settings as Record<string, unknown> | null;
     const maxDate = new Date(today);
-    maxDate.setDate(today.getDate() + (salon.settings?.booking_advance_days || 30));
+    maxDate.setDate(today.getDate() + ((settings?.booking_advance_days as number) || 30));
     if (date > maxDate) return false;
 
-    if (isDateInHolidays(date, salon.holidays)) return false;
+    if (isDateInHolidays(date, salon.holidays as HolidayEntry[] | null)) return false;
     const dayName = getDayName(date);
-    const hours = salon.business_hours?.[dayName];
+    const bh = salon.business_hours as BusinessHoursMap;
+    const hours = bh?.[dayName];
     return !!(hours?.enabled && hours.open && hours.close);
-  }, [salon.settings?.booking_advance_days, salon.holidays, salon.business_hours]);
+  }, [salon.settings, salon.holidays, salon.business_hours]);
 
   const getDayLabel = useCallback((date: Date) => {
     const dayName = getDayName(date);
@@ -112,9 +118,10 @@ export function useSalonCalendar(salon: Salon) {
   }, [tCommon]);
 
   const getOpeningTime = useCallback((date: Date) => {
-    if (isDateInHolidays(date, salon.holidays)) return null;
+    if (isDateInHolidays(date, salon.holidays as HolidayEntry[] | null)) return null;
     const dayName = getDayName(date);
-    const hours = salon.business_hours?.[dayName];
+    const bh = salon.business_hours as BusinessHoursMap;
+    const hours = bh?.[dayName];
     return hours?.enabled && hours.open ? hours.open : null;
   }, [salon.holidays, salon.business_hours]);
 

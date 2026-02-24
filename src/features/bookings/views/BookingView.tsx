@@ -8,7 +8,9 @@ import { useTranslations, useLocale } from "next-intl";
 import { ArrowLeft, Home, Check } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useAuthContext, LoginModal } from "@/features/auth";
-import type { StaffWithProfile } from "@/lib/supabase/types";
+import type { StaffWithProfile, HolidayEntry } from "@/lib/supabase/types";
+
+type BusinessHoursMap = Record<string, { enabled?: boolean; open?: string; close?: string }> | null;
 import { bookingsApi } from "../api";
 import { customerMutations } from "@/lib/api";
 import { getDayName, formatTime, formatDateForDB, isDateInHolidays, getDesignerWorkHours } from "../utils";
@@ -98,7 +100,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
 
   // Generate available dates
   const availableDates = useMemo(() => {
-    const days = salon.settings?.booking_advance_days || 30;
+    const days = (salon.settings as Record<string, unknown> | null)?.booking_advance_days as number || 30;
     const dates: Date[] = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -109,11 +111,11 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       dates.push(date);
     }
     return dates;
-  }, [salon.settings?.booking_advance_days]);
+  }, [salon.settings]);
 
   // Check if a date is a salon holiday
   const isSalonHoliday = useCallback((date: Date): boolean => {
-    return isDateInHolidays(date, salon.holidays);
+    return isDateInHolidays(date, salon.holidays as HolidayEntry[] | null);
   }, [salon.holidays]);
 
   // Check if a designer is on holiday
@@ -155,7 +157,8 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     if (isSalonHoliday(selectedDate)) return [];
 
     const dayName = getDayName(selectedDate);
-    const hours = salon.business_hours?.[dayName];
+    const bh = salon.business_hours as BusinessHoursMap;
+    const hours = bh?.[dayName];
 
     if (!hours?.enabled || !hours.open || !hours.close) {
       return [];
@@ -184,7 +187,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     }
 
     const slots: TimeSlot[] = [];
-    const slotDuration = salon.settings?.slot_duration_minutes || 30;
+    const slotDuration = (salon.settings as Record<string, unknown> | null)?.slot_duration_minutes as number || 30;
     const serviceDuration = selectedService.duration_minutes;
 
     for (let time = effectiveOpen; time + serviceDuration <= effectiveClose; time += slotDuration) {
@@ -194,7 +197,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     }
 
     return slots;
-  }, [selectedDate, selectedService, selectedDesigner, salon.business_hours, salon.settings, isSalonHoliday, isDesignerOnHoliday, checkSlotAvailable]);
+  }, [selectedDate, selectedService, selectedDesigner, salon.business_hours, salon.settings, isSalonHoliday, isDesignerOnHoliday, checkSlotAvailable]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle booking submission
   const handleSubmitBooking = useCallback(async () => {

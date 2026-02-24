@@ -183,6 +183,15 @@ html,
 body {
   min-width: 320px;
   overflow-x: hidden;
+  overflow-x: clip;
+}
+
+html {
+  scrollbar-gutter: stable both-edges;
+}
+
+body {
+  overscroll-behavior-x: none;
 }
 
 /* Mobile baseline (320px+): readable text + touch-friendly target size */

@@ -97,18 +97,22 @@ const SalonCard = memo(function SalonCard({
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <h3 className="truncate text-sm font-bold text-gray-900 sm:text-base">{salon.name}</h3>
             {/* 통역 가능 매장 */}
-            {salon.settings?.interpreter_enabled && salon.settings.supported_languages && (
-              <div className="flex items-center gap-1.5 flex-shrink-0 text-gray-500">
-                <span className="text-gray-300">|</span>
-                <span className="text-lg leading-none">
-                  {salon.settings.supported_languages.map((lang) => (
-                    <span key={lang}>{languageToFlag[lang] || lang}</span>
-                  ))}
-                </span>
-                <span className="hidden text-xs sm:inline">({t("interpreterAvailable")})</span>
-
-              </div>
-            )}
+            {(() => {
+              const s = salon.settings as Record<string, unknown> | null;
+              const langs = s?.interpreter_enabled ? (s.supported_languages as string[] | undefined) : undefined;
+              if (!langs || langs.length === 0) return null;
+              return (
+                <div className="flex items-center gap-1.5 flex-shrink-0 text-gray-500">
+                  <span className="text-gray-300">|</span>
+                  <span className="text-lg leading-none">
+                    {langs.map((lang) => (
+                      <span key={lang}>{languageToFlag[lang] || lang}</span>
+                    ))}
+                  </span>
+                  <span className="hidden text-xs sm:inline">({t("interpreterAvailable")})</span>
+                </div>
+              );
+            })()}
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             {/* Favorite Button */}
