@@ -15,6 +15,7 @@ import { Link } from "@/i18n/routing";
 import { useAuthContext } from "@/features/auth";
 import { bookingQueries } from "@/lib/api/queries";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { BookingCardSkeleton } from "@/components/ui/Skeleton";
 import type { Booking, Salon, Service } from "@/lib/supabase/types";
 
 type BookingWithDetails = Booking & {
@@ -152,7 +153,7 @@ export function BookingHistoryView() {
         <PageHeader title={t("myBookings")} showLanguage showHome showSearch={false} showShare={false} />
         <div className="p-4 space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-28 bg-gray-100 rounded-xl animate-pulse" />
+            <BookingCardSkeleton key={i} />
           ))}
         </div>
       </div>

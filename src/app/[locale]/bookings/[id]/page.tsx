@@ -15,7 +15,6 @@ import {
   Phone,
   X,
   RefreshCw,
-  Loader2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -34,6 +33,7 @@ import {
   isDateInHolidays,
   getDesignerWorkHours,
 } from "@/features/bookings/utils";
+import { BookingDetailSkeleton, RescheduleDataSkeleton, DesignerSlotsSkeleton } from "@/components/ui/Skeleton";
 import type { Booking, Salon, Service, StaffWithProfile, HolidayEntry } from "@/lib/supabase/types";
 
 type BusinessHoursMap = Record<string, { enabled?: boolean; open?: string; close?: string }> | null;
@@ -555,15 +555,7 @@ export default function BookingDetailPage() {
   // ─── Loading / Error states ────────────────────────────────
 
   if (authLoading || isLoading) {
-    return (
-      <div className="app-page-bleed bg-white">
-        <div className="h-14 bg-gray-100 animate-pulse" />
-        <div className="p-4 space-y-4">
-          <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
-          <div className="h-48 bg-gray-100 rounded-xl animate-pulse" />
-        </div>
-      </div>
-    );
+    return <BookingDetailSkeleton />;
   }
 
   if (error || !booking) {
@@ -784,9 +776,7 @@ export default function BookingDetailPage() {
               </div>
 
               {reschedLoadingData ? (
-                <div className="flex justify-center py-10">
-                  <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                </div>
+                <RescheduleDataSkeleton />
               ) : !reschedSalon ? (
                 <div className="p-4 text-center text-sm text-gray-400">{t("bookingLoadError")}</div>
               ) : (
@@ -936,13 +926,14 @@ export default function BookingDetailPage() {
 
                   {/* Designer Time Slots */}
                   {reschedStaff.length > 0 ? (
-                    <div className={clsx("space-y-3", reschedLoadingSlots && "pointer-events-none opacity-70")}>
-                      {reschedLoadingSlots && (
-                        <div className="mb-1 flex items-center gap-2 text-xs text-gray-400">
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          <span>{t("loadingSlots")}</span>
-                        </div>
-                      )}
+                    reschedLoadingSlots ? (
+                      <div className="space-y-3">
+                        {reschedStaff.map((d) => (
+                          <DesignerSlotsSkeleton key={d.id} />
+                        ))}
+                      </div>
+                    ) : (
+                    <div className="space-y-3">
                       {reschedStaff.map((designer) => {
                         const slots = getReschedDesignerSlots(designer);
                         const holiday = isReschedDesignerHoliday(designer, reschedDate);
@@ -999,6 +990,7 @@ export default function BookingDetailPage() {
                         );
                       })}
                     </div>
+                    )
                   ) : (
                     <div className="text-center py-6 text-gray-400">
                       <p className="text-sm">{t("noDesigners")}</p>

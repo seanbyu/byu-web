@@ -1,5 +1,6 @@
 import { memo, useState, useMemo } from "react";
 import { Calendar, Clock, ChevronRight } from "lucide-react";
+import { TimeSlotsSkeleton } from "@/components/ui/Skeleton";
 import { getDayName, isDateInHolidays, getDesignerWorkHours } from "../utils";
 import type { HolidayEntry } from "@/lib/supabase/types";
 import type { DateTimeStepProps } from "../types";
@@ -151,11 +152,7 @@ export const DateTimeStep = memo(function DateTimeStep({
           </h3>
 
           {loadingSlots ? (
-            <div className="grid grid-cols-4 gap-2">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <div key={i} className="h-11 bg-gray-100 rounded-lg animate-pulse" />
-              ))}
-            </div>
+            <TimeSlotsSkeleton />
           ) : timeSlots.length > 0 ? (
             <div className="grid grid-cols-4 gap-2">
               {timeSlots.map(({ time, available }) => (
