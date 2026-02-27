@@ -154,6 +154,16 @@
   --page-padding-x: 0.75rem; /* 12px */
   --page-padding-y: 0.75rem; /* 12px */
   --page-section-gap: 0.875rem; /* 14px */
+
+  /* Responsive UI scale */
+  --control-height-sm: 2.25rem;   /* 36px */
+  --control-height-md: 2.75rem;   /* 44px */
+  --control-height-lg: 3rem;      /* 48px */
+  --chip-height: 2.5rem;          /* 40px */
+  --font-fluid-title: clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem);
+  --font-fluid-subtitle: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  --font-fluid-body: clamp(0.875rem, 0.84rem + 0.2vw, 1rem);
+  --font-fluid-caption: clamp(0.75rem, 0.72rem + 0.1vw, 0.8125rem);
 }
 
 /* Dark Mode (optional - 필요시 활성화) */
@@ -188,6 +198,7 @@ body {
 
 html {
   scrollbar-gutter: stable both-edges;
+  overflow-y: scroll;
 }
 
 body {
@@ -234,6 +245,17 @@ body {
     --page-padding-x: 1rem;      /* 16px */
     --page-padding-y: 1rem;      /* 16px */
     --page-section-gap: 1rem;    /* 16px */
+    --control-height-md: 2.5rem; /* 40px */
+    --control-height-lg: 2.75rem; /* 44px */
+    --chip-height: 2.25rem;      /* 36px */
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --control-height-md: 2.375rem; /* 38px */
+    --control-height-lg: 2.625rem; /* 42px */
+    --chip-height: 2.125rem;       /* 34px */
   }
 }
 
@@ -351,16 +373,59 @@ body {
     @apply text-lg font-bold tracking-tight text-gray-900 sm:text-xl;
   }
 
+  .ds-title-1 {
+    font-size: var(--font-fluid-title);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.01em;
+  }
+
+  .ds-title-2 {
+    font-size: var(--font-fluid-subtitle);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .ds-text-body {
+    font-size: var(--font-fluid-body);
+    line-height: var(--line-height-normal);
+  }
+
+  .ds-text-caption {
+    font-size: var(--font-fluid-caption);
+    line-height: var(--line-height-normal);
+  }
+
+  .ds-control {
+    min-height: var(--control-height-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .ds-chip {
+    min-height: var(--chip-height);
+    font-size: var(--font-size-sm);
+    border-radius: var(--radius-lg);
+  }
+
+  .ds-badge {
+    min-height: 1.5rem;
+    border-radius: var(--radius-full);
+    font-size: var(--font-fluid-caption);
+    line-height: 1;
+  }
+
   .ds-label {
     @apply mb-2 block text-sm font-semibold text-gray-800;
   }
 
   .ds-input {
-    @apply w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-500 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500;
+    @apply w-full rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 placeholder:text-gray-500 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500;
+    min-height: var(--control-height-md);
   }
 
   .ds-select {
-    @apply w-full appearance-none rounded-xl border border-gray-300 bg-white px-4 py-3 pr-10 text-sm font-medium text-gray-900 placeholder:text-gray-500 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500;
+    @apply w-full appearance-none rounded-xl border border-gray-300 bg-white px-4 pr-10 text-sm font-medium text-gray-900 placeholder:text-gray-500 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500;
+    min-height: var(--control-height-md);
   }
 
   .ds-textarea {
@@ -368,11 +433,16 @@ body {
   }
 
   .ds-field-shell {
-    @apply w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 transition-colors focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500;
+    @apply w-full rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 transition-colors focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500;
+    min-height: var(--control-height-md);
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
   }
 
   .ds-btn-primary {
-    @apply w-full rounded-xl bg-primary-600 py-4 font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-gray-300;
+    @apply w-full rounded-xl bg-primary-600 px-4 font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-gray-300;
+    min-height: var(--control-height-lg);
+    font-size: var(--font-size-sm);
   }
 
   .ds-btn-line {

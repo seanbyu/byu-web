@@ -42,7 +42,6 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     customerPhone,
     showLoginModal,
     isSubmitting,
-    setCurrentStep,
     goToNextStep,
     goToPrevStep,
     setSelectedService,
@@ -69,7 +68,6 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       customerPhone: state.customerPhone,
       showLoginModal: state.showLoginModal,
       isSubmitting: state.isSubmitting,
-      setCurrentStep: state.setCurrentStep,
       goToNextStep: state.goToNextStep,
       goToPrevStep: state.goToPrevStep,
       setSelectedService: state.setSelectedService,
@@ -239,6 +237,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
         total_price: selectedService.base_price || 0,
         customer_notes: customerNotes || null,
         booking_meta: {
+          channel: 'web',
           locale,
         },
       });
@@ -253,7 +252,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     } finally {
       setIsSubmitting(false);
     }
-  }, [isAuthenticated, selectedService, selectedDesigner, selectedDate, selectedTime, user, salon.id, customerName, customerPhone, customerNotes, queryClient, router, t, setShowLoginModal, setIsSubmitting]);
+  }, [isAuthenticated, selectedService, selectedDesigner, selectedDate, selectedTime, user, salon.id, customerName, customerPhone, customerNotes, queryClient, router, t, locale, setShowLoginModal, setIsSubmitting]);
 
   const handleNext = useCallback(() => {
     if (currentStep === "confirm") {

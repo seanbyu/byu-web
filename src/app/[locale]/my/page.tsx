@@ -36,11 +36,11 @@ const CopyButton = memo(function CopyButton({
     return (
         <button
             onClick={() => onCopy(value, fieldKey)}
-            className="inline-flex min-h-[40px] items-center justify-center gap-1 rounded-lg border border-gray-200 px-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 sm:min-h-[36px]"
+            className="ds-control inline-flex items-center justify-center gap-1 rounded-lg border border-gray-200 px-2.5 text-gray-600 transition-colors hover:bg-gray-100"
             aria-label={`Copy ${fieldKey}`}
         >
             {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            <span className="text-xs">{isCopied ? "복사됨" : "복사"}</span>
+            <span className="ds-text-caption">{isCopied ? "복사됨" : "복사"}</span>
         </button>
     );
 });
@@ -102,7 +102,7 @@ const AccountTab = memo(function AccountTab({
 
     return (
         <div className="space-y-6">
-            <h1 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+            <h1 className="ds-title-1 text-gray-900">
                 {t("myPage.account.title")}
             </h1>
 
@@ -120,16 +120,16 @@ const AccountTab = memo(function AccountTab({
                             )}
                         </div>
                         <div className="min-w-0">
-                            <p className="truncate text-lg font-semibold text-gray-900 sm:text-xl">{displayName}</p>
-                            <p className="truncate text-sm text-gray-600">{email || "-"}</p>
+                            <p className="truncate ds-title-2 text-gray-900">{displayName}</p>
+                            <p className="truncate ds-text-body text-gray-600">{email || "-"}</p>
                             <div className="mt-2 flex flex-wrap items-center gap-2">
                                 {isLineUser ? (
-                                    <span className="inline-flex min-h-[28px] items-center rounded-full border border-line-200 bg-line-100 px-2.5 py-1 text-xs font-medium text-line-700 sm:min-h-[30px] sm:px-3 sm:text-sm">
+                                    <span className="ds-chip inline-flex items-center rounded-full border border-line-200 bg-line-100 px-2.5 font-medium text-line-700 sm:px-3">
                                         {t("myPage.lineConnected")}
                                     </span>
                                 ) : null}
                                 {profile?.user_identities?.some((identity) => identity.is_primary) ? (
-                                    <span className="inline-flex min-h-[28px] items-center rounded-full border border-primary-200 bg-primary-100 px-2.5 py-1 text-xs font-medium text-primary-700 sm:min-h-[30px] sm:px-3 sm:text-sm">
+                                    <span className="ds-chip inline-flex items-center rounded-full border border-primary-200 bg-primary-100 px-2.5 font-medium text-primary-700 sm:px-3">
                                         대표 계정
                                     </span>
                                 ) : null}
@@ -141,17 +141,17 @@ const AccountTab = memo(function AccountTab({
 
             {/* Basic Info */}
             <section className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 md:p-6">
-                <h2 className="mb-4 text-sm font-semibold text-gray-900 sm:text-base">
+                <h2 className="mb-4 ds-title-2 text-gray-900">
                     {t("myPage.account.basicInfo")}
                 </h2>
                 <div className="space-y-4">
                     <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-[120px_1fr_auto] sm:items-center sm:gap-3">
-                        <p className="text-xs text-gray-500 sm:text-sm">{t("myPage.account.name")}</p>
-                        <p className="break-all text-base text-gray-900">{displayName}</p>
+                        <p className="ds-text-caption text-gray-500">{t("myPage.account.name")}</p>
+                        <p className="break-all ds-text-body text-gray-900">{displayName}</p>
                         <div />
                     </div>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-[120px_1fr_auto] sm:items-center sm:gap-3">
-                        <label htmlFor="user-phone" className="text-xs text-gray-500 sm:text-sm">
+                        <label htmlFor="user-phone" className="ds-text-caption text-gray-500">
                             {t("myPage.account.phone")}
                         </label>
                         <input
@@ -165,24 +165,24 @@ const AccountTab = memo(function AccountTab({
                         <button
                             onClick={onSavePhone}
                             disabled={isSavingPhone || !isPhoneChanged}
-                            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-lg bg-primary-600 px-3 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-gray-300 sm:min-h-[40px] sm:w-auto"
+                            className="ds-control inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-3 font-medium text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-gray-300 sm:w-auto"
                         >
                             {isSavingPhone ? t("myPage.account.saving") : t("myPage.account.save")}
                         </button>
                     </div>
                     {phoneSaveStatus === "success" ? (
-                        <p className="text-sm text-line-700">{t("myPage.account.phoneSaved")}</p>
+                        <p className="ds-text-body text-line-700">{t("myPage.account.phoneSaved")}</p>
                     ) : phoneSaveStatus === "error" ? (
-                        <p className="text-sm text-red-600">{t("myPage.account.phoneSaveFailed")}</p>
+                        <p className="ds-text-body text-red-600">{t("myPage.account.phoneSaveFailed")}</p>
                     ) : null}
                     <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-[120px_1fr_auto] sm:items-center sm:gap-3">
-                        <p className="text-xs text-gray-500 sm:text-sm">{t("myPage.account.email")}</p>
-                        <p className="break-all text-base text-gray-900">{email || "-"}</p>
+                        <p className="ds-text-caption text-gray-500">{t("myPage.account.email")}</p>
+                        <p className="break-all ds-text-body text-gray-900">{email || "-"}</p>
                         <CopyButton value={email} fieldKey="email" copiedField={copiedField} onCopy={onCopy} />
                     </div>
                     <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-[120px_1fr_auto] sm:items-center sm:gap-3">
-                        <p className="text-xs text-gray-500 sm:text-sm">{t("myPage.userId")}</p>
-                        <p className="break-all font-mono text-xs text-gray-900 sm:text-sm">{user.id}</p>
+                        <p className="ds-text-caption text-gray-500">{t("myPage.userId")}</p>
+                        <p className="break-all font-mono ds-text-caption text-gray-900">{user.id}</p>
                         <CopyButton value={user.id} fieldKey="uid" copiedField={copiedField} onCopy={onCopy} />
                     </div>
                 </div>
@@ -191,25 +191,25 @@ const AccountTab = memo(function AccountTab({
             {/* LINE Info Card */}
             {isLineUser ? (
                 <section className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 md:p-6">
-                    <h2 className="mb-4 text-sm font-semibold text-gray-900 sm:text-base">
+                    <h2 className="mb-4 ds-title-2 text-gray-900">
                         {t("myPage.account.lineInfo")}
                     </h2>
                     <div className="space-y-4">
                         {lineDisplayName ? (
                             <div>
-                                <p className="mb-1 text-xs text-gray-500 sm:text-sm">
+                                <p className="mb-1 ds-text-caption text-gray-500">
                                     {t("myPage.account.lineDisplayName")}
                                 </p>
-                                <p className="text-base text-gray-900">{lineDisplayName}</p>
+                                <p className="ds-text-body text-gray-900">{lineDisplayName}</p>
                             </div>
                         ) : null}
                         {lineUserId ? (
                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto] sm:items-center">
                                 <div>
-                                    <p className="mb-1 text-xs text-gray-500 sm:text-sm">
+                                    <p className="mb-1 ds-text-caption text-gray-500">
                                         {t("myPage.account.lineUserId")}
                                     </p>
-                                    <p className="break-all font-mono text-xs text-gray-900 sm:text-sm">
+                                    <p className="break-all font-mono ds-text-caption text-gray-900">
                                         {lineUserId}
                                     </p>
                                 </div>
@@ -228,21 +228,21 @@ const AccountTab = memo(function AccountTab({
             {/* Connected Accounts */}
             {profile?.user_identities && profile.user_identities.length > 0 ? (
                 <section className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 md:p-6">
-                    <h2 className="mb-4 text-sm font-semibold text-gray-900 sm:text-base">
+                    <h2 className="mb-4 ds-title-2 text-gray-900">
                         {t("myPage.connectedAccounts")}
                     </h2>
                     <div className="flex flex-wrap gap-2.5">
                         {profile.user_identities.map((identity) => (
                             <span
                                 key={identity.id}
-                                className={`inline-flex min-h-[36px] items-center rounded-lg border px-3 py-2 text-sm font-medium ${
+                                className={`ds-chip inline-flex items-center border px-3 font-medium ${
                                     identity.is_primary
                                         ? "border-line-200 bg-line-100 text-line-700"
                                         : "border-gray-200 bg-gray-100 text-gray-700"
                                 }`}
                             >
                                 {identity.provider}
-                                {identity.is_primary ? <span className="ml-1 text-sm">(Primary)</span> : null}
+                                {identity.is_primary ? <span className="ml-1 ds-text-body">(Primary)</span> : null}
                             </span>
                         ))}
                     </div>
@@ -253,7 +253,7 @@ const AccountTab = memo(function AccountTab({
             <div className="pt-1 md:pt-2">
                 <button
                     onClick={onLogout}
-                    className="min-h-[44px] w-full rounded-xl border border-red-200 bg-white px-5 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                    className="ds-control w-full rounded-xl border border-red-200 bg-white px-5 font-medium text-red-600 transition-colors hover:bg-red-50"
                 >
                     {t("logout")}
                 </button>
@@ -268,10 +268,10 @@ const NotificationsTab = memo(function NotificationsTab() {
     const t = useTranslations("auth");
     return (
         <div className="space-y-3 md:space-y-4">
-            <h1 className="text-base font-bold text-gray-900 sm:text-lg">{t("myPage.menu.notifications")}</h1>
+            <h1 className="ds-title-2 text-gray-900">{t("myPage.menu.notifications")}</h1>
             <div className="rounded-xl border border-gray-200 bg-white p-6 text-center md:p-8">
                 <Bell className="mx-auto mb-4 h-12 w-12 text-gray-300" />
-                <p className="text-sm text-gray-500 md:text-base">알림 기능은 준비 중입니다.</p>
+                <p className="ds-text-body text-gray-500">알림 기능은 준비 중입니다.</p>
             </div>
         </div>
     );
@@ -281,10 +281,10 @@ const BookingsTab = memo(function BookingsTab() {
     const t = useTranslations("auth");
     return (
         <div className="space-y-3 md:space-y-4">
-            <h1 className="text-base font-bold text-gray-900 sm:text-lg">{t("myPage.menu.bookings")}</h1>
+            <h1 className="ds-title-2 text-gray-900">{t("myPage.menu.bookings")}</h1>
             <div className="rounded-xl border border-gray-200 bg-white p-6 text-center md:p-8">
                 <Calendar className="mx-auto mb-4 h-12 w-12 text-gray-300" />
-                <p className="text-sm text-gray-500 md:text-base">예약 현황 기능은 준비 중입니다.</p>
+                <p className="ds-text-body text-gray-500">예약 현황 기능은 준비 중입니다.</p>
             </div>
         </div>
     );
@@ -404,7 +404,7 @@ export default function MyPage() {
                                 <button
                                     key={item.id}
                                     onClick={() => setActiveTab(item.id)}
-                                    className={`flex min-h-[42px] items-center justify-center gap-1 rounded-lg px-1.5 py-2 text-[11px] font-medium transition-colors sm:min-h-[44px] sm:gap-2 sm:px-2 sm:text-sm ${
+                                    className={`ds-control flex items-center justify-center gap-1 rounded-lg px-1.5 py-2 text-xs font-medium transition-colors sm:gap-2 sm:px-2 ${
                                         isActive
                                             ? "bg-primary-600 text-white shadow-sm"
                                             : "text-gray-700 hover:bg-gray-100"

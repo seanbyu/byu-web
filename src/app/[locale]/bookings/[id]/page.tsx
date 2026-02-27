@@ -33,7 +33,7 @@ import {
   isDateInHolidays,
   getDesignerWorkHours,
 } from "@/features/bookings/utils";
-import { BookingDetailSkeleton, RescheduleDataSkeleton, DesignerSlotsSkeleton } from "@/components/ui/Skeleton";
+import { BookingDetailSkeleton, RescheduleDataSkeleton } from "@/components/ui/Skeleton";
 import type { Booking, Salon, Service, StaffWithProfile, HolidayEntry } from "@/lib/supabase/types";
 
 type BusinessHoursMap = Record<string, { enabled?: boolean; open?: string; close?: string }> | null;
@@ -108,6 +108,7 @@ export default function BookingDetailPage() {
   const reschedSlotRequestIdRef = useRef(0);
   const reschedSlotsCacheRef = useRef<Record<string, RescheduleSlot[]>>({});
   const reschedSlotsInFlightRef = useRef<Record<string, Promise<RescheduleSlot[]>>>({});
+  const reschedWeekPrefetchDoneRef = useRef(false);
   const localeCode = getLocaleCode(locale);
 
   // ─── Fetch Booking ─────────────────────────────────────────
@@ -137,7 +138,34 @@ export default function BookingDetailPage() {
   useEffect(() => {
     reschedSlotsCacheRef.current = {};
     reschedSlotsInFlightRef.current = {};
+    reschedWeekPrefetchDoneRef.current = false;
   }, [bookingId]);
+
+  const getOrFetchReschedSlots = useCallback(
+    async (dateKey: string): Promise<RescheduleSlot[]> => {
+      const cached = reschedSlotsCacheRef.current[dateKey];
+      if (cached) return cached;
+
+      const inFlight = reschedSlotsInFlightRef.current[dateKey];
+      if (inFlight) return inFlight;
+
+      if (!booking) return [];
+
+      const request = bookingsApi
+        .getBookingsBySalon(booking.salon_id, dateKey)
+        .then((data) => {
+          reschedSlotsCacheRef.current[dateKey] = data;
+          return data;
+        })
+        .finally(() => {
+          delete reschedSlotsInFlightRef.current[dateKey];
+        });
+
+      reschedSlotsInFlightRef.current[dateKey] = request;
+      return request;
+    },
+    [booking]
+  );
 
   // ─── Reschedule: load salon + staff when accordion opens ───
 
@@ -168,33 +196,16 @@ export default function BookingDetailPage() {
     const loadBookings = async () => {
       const requestId = ++reschedSlotRequestIdRef.current;
       const dateKey = formatDateForDB(reschedDate);
-      const cached = reschedSlotsCacheRef.current[dateKey];
-      if (cached) {
-        setReschedBookings(cached);
+      const hasCached = !!reschedSlotsCacheRef.current[dateKey];
+      if (hasCached) {
+        setReschedBookings(reschedSlotsCacheRef.current[dateKey]);
         setReschedLoadingSlots(false);
         return;
       }
 
       setReschedLoadingSlots(true);
       try {
-        const inFlight = reschedSlotsInFlightRef.current[dateKey];
-        const request =
-          inFlight ??
-          bookingsApi
-            .getBookingsBySalon(booking.salon_id, dateKey)
-            .then((data) => {
-              reschedSlotsCacheRef.current[dateKey] = data;
-              return data;
-            })
-            .finally(() => {
-              delete reschedSlotsInFlightRef.current[dateKey];
-            });
-
-        if (!inFlight) {
-          reschedSlotsInFlightRef.current[dateKey] = request;
-        }
-
-        const data = await request;
+        const data = await getOrFetchReschedSlots(dateKey);
         if (requestId !== reschedSlotRequestIdRef.current) return;
         setReschedBookings(data);
       } catch {
@@ -206,7 +217,7 @@ export default function BookingDetailPage() {
       }
     };
     loadBookings();
-  }, [reschedDate, reschedSalon, showReschedule, booking]);
+  }, [reschedDate, reschedSalon, showReschedule, booking, getOrFetchReschedSlots]);
 
   useEffect(() => {
     if (!showReschedule) {
@@ -254,6 +265,23 @@ export default function BookingDetailPage() {
     },
     [reschedSalon]
   );
+
+  useEffect(() => {
+    if (!showReschedule || !reschedSalon || !booking || reschedWeekPrefetchDoneRef.current) return;
+    const prefetchDateKeys = reschedAvailDates
+      .slice(0, 7)
+      .filter((date) => isReschedDateEnabled(date))
+      .map((date) => formatDateForDB(date));
+
+    if (prefetchDateKeys.length === 0) return;
+
+    reschedWeekPrefetchDoneRef.current = true;
+    void Promise.all(
+      prefetchDateKeys.map((dateKey) =>
+        getOrFetchReschedSlots(dateKey).catch(() => [])
+      )
+    );
+  }, [showReschedule, reschedSalon, booking, reschedAvailDates, isReschedDateEnabled, getOrFetchReschedSlots]);
 
   const reschedCalendarDays = useMemo(() => {
     const year = reschedCalendarMonth.getFullYear();
@@ -732,7 +760,7 @@ export default function BookingDetailPage() {
           {booking.salons.phone && (
             <a
               href={`tel:${booking.salons.phone}`}
-              className="touch-target flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 py-3 transition-colors hover:bg-gray-50"
+              className="touch-target ds-control flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 px-3 transition-colors hover:bg-gray-50"
             >
               <Phone className="w-5 h-5 text-gray-600" />
               <span className="font-medium text-gray-700">{t("callSalon")}</span>
@@ -746,7 +774,7 @@ export default function BookingDetailPage() {
               <button
                 onClick={handleToggleReschedule}
                 className={clsx(
-                  "touch-target flex w-full items-center justify-center gap-2 rounded-xl border py-3 transition-colors",
+                  "touch-target ds-control flex w-full items-center justify-center gap-2 rounded-xl border px-3 transition-colors",
                   showReschedule
                     ? "border-primary-300 bg-primary-50 text-primary-700"
                     : "border-gray-200 text-gray-700 hover:bg-gray-50"
@@ -760,7 +788,7 @@ export default function BookingDetailPage() {
               {/* Cancel */}
               <button
                 onClick={() => setShowCancelModal(true)}
-                className="touch-target w-full rounded-xl py-3 font-medium text-red-500 transition-colors hover:bg-red-50"
+                className="touch-target ds-control w-full rounded-xl px-3 font-medium text-red-500 transition-colors hover:bg-red-50"
               >
                 {t("cancelBooking")}
               </button>
@@ -794,13 +822,15 @@ export default function BookingDetailPage() {
                             key={date.toISOString()}
                             onClick={() => {
                               if (!enabled) return;
-                              setReschedDate(date);
+                              setReschedDate((prev) =>
+                                prev.toDateString() === date.toDateString() ? prev : date
+                              );
                               setReschedCalendarMonth(new Date(date.getFullYear(), date.getMonth(), 1));
                             }}
                             disabled={!enabled}
-                            className={`rounded-xl py-1.5 text-center transition-colors ${
+                            className={`rounded-xl border-2 border-transparent py-1.5 text-center transition-colors ${
                               isSelected
-                                ? "bg-primary-100 border-2 border-primary-400"
+                                ? "border-primary-400 bg-primary-100"
                                 : enabled
                                 ? "hover:bg-gray-100"
                                 : "opacity-50 cursor-not-allowed"
@@ -830,7 +860,7 @@ export default function BookingDetailPage() {
                     >
                       <div className="flex items-center gap-2.5">
                         <Calendar className="h-4 w-4 text-primary-500" />
-                        <span className="text-xs font-medium text-gray-900">
+                        <span className="ds-text-body font-medium text-gray-900">
                           {reschedDate.toLocaleDateString(localeCode, {
                             year: "numeric",
                             month: "long",
@@ -898,7 +928,9 @@ export default function BookingDetailPage() {
                                 key={date.toISOString()}
                                 onClick={() => {
                                   if (available) {
-                                    setReschedDate(date);
+                                    setReschedDate((prev) =>
+                                      prev.toDateString() === date.toDateString() ? prev : date
+                                    );
                                     setShowReschedCalendar(false);
                                   }
                                 }}
@@ -926,21 +958,19 @@ export default function BookingDetailPage() {
 
                   {/* Designer Time Slots */}
                   {reschedStaff.length > 0 ? (
-                    reschedLoadingSlots ? (
-                      <div className="space-y-3">
-                        {reschedStaff.map((d) => (
-                          <DesignerSlotsSkeleton key={d.id} />
-                        ))}
-                      </div>
-                    ) : (
                     <div className="space-y-3">
+                      {reschedLoadingSlots && (
+                        <div className="rounded-xl border border-primary-100 bg-primary-50 px-3 py-2 text-xs font-medium text-primary-700">
+                          {tCommon("loading")}
+                        </div>
+                      )}
                       {reschedStaff.map((designer) => {
                         const slots = getReschedDesignerSlots(designer);
                         const holiday = isReschedDesignerHoliday(designer, reschedDate);
                         const salonClosed = isReschedSalonHoliday(reschedDate) || !isReschedDateEnabled(reschedDate);
 
                         return (
-                          <div key={designer.id} className="rounded-xl bg-gray-50 p-3">
+                          <div key={designer.id} className={clsx("rounded-xl bg-gray-50 p-3", reschedLoadingSlots && "opacity-75")}>
                             {/* Designer Info */}
                             <div className="mb-3 flex items-center gap-3">
                               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200">
@@ -966,14 +996,15 @@ export default function BookingDetailPage() {
                               ) : slots.length > 0 ? (
                                 slots.map((time) => {
                                   const available = isReschedSlotAvailable(designer.id, time);
+                                  const canSelect = available && !reschedLoadingSlots;
                                   return (
                                     <button
                                       key={time}
-                                      onClick={() => available && handleSlotClick(designer, time)}
-                                      disabled={!available}
+                                      onClick={() => canSelect && handleSlotClick(designer, time)}
+                                      disabled={!canSelect}
                                       className={clsx(
                                         "touch-target rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-                                        available
+                                        canSelect
                                           ? "bg-white border border-primary-200 text-primary-600 hover:bg-primary-50 hover:border-primary-400"
                                           : "bg-gray-100 text-gray-400 cursor-not-allowed line-through"
                                       )}
@@ -990,7 +1021,6 @@ export default function BookingDetailPage() {
                         );
                       })}
                     </div>
-                    )
                   ) : (
                     <div className="text-center py-6 text-gray-400">
                       <p className="text-sm">{t("noDesigners")}</p>
@@ -1048,14 +1078,14 @@ export default function BookingDetailPage() {
               <button
                 onClick={handleCancelBooking}
                 disabled={isCancelling}
-                className="w-full min-h-[44px] rounded-xl bg-red-500 text-white text-sm font-semibold transition-colors hover:bg-red-600 disabled:opacity-50"
+                className="ds-control w-full rounded-xl bg-red-500 text-white font-semibold transition-colors hover:bg-red-600 disabled:opacity-50"
               >
                 {isCancelling ? t("cancelling") : t("cancelConfirm")}
               </button>
               <button
                 onClick={() => setShowCancelModal(false)}
                 disabled={isCancelling}
-                className="w-full min-h-[44px] rounded-xl text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                className="ds-control w-full rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 disabled:opacity-50"
               >
                 {t("close")}
               </button>
@@ -1103,14 +1133,14 @@ export default function BookingDetailPage() {
               <button
                 onClick={handleConfirmReschedule}
                 disabled={isRescheduling}
-                className="w-full min-h-[44px] rounded-xl bg-primary-500 text-white text-sm font-semibold transition-colors hover:bg-primary-600 disabled:opacity-50"
+                className="ds-control w-full rounded-xl bg-primary-500 text-white font-semibold transition-colors hover:bg-primary-600 disabled:opacity-50"
               >
                 {isRescheduling ? t("rescheduling") : t("rescheduleConfirm")}
               </button>
               <button
                 onClick={() => setConfirmData(null)}
                 disabled={isRescheduling}
-                className="w-full min-h-[44px] rounded-xl text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                className="ds-control w-full rounded-xl font-medium text-gray-500 transition-colors hover:bg-gray-50 disabled:opacity-50"
               >
                 {t("close")}
               </button>

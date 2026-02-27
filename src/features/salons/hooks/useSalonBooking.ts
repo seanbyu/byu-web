@@ -265,6 +265,7 @@ export function useSalonBooking(
         total_price: matchedService.base_price || 0,
         customer_notes: customerNotes || null,
         booking_meta: {
+          channel: 'web',
           category_id: selectedCategory || null,
           category_name: categoryName || null,
           customer_phone: phoneDigits,
@@ -288,7 +289,7 @@ export function useSalonBooking(
     } finally {
       setIsSubmitting(false);
     }
-  }, [bookingModal, user, salon.id, salon.settings, selectedDate, customerNotes, selectedCategory, services, categories, getCategoryName, queryClient, closeBookingModal, setIsSubmitting, tBooking]);
+  }, [bookingModal, user, salon.id, salon.settings, selectedDate, customerNotes, selectedCategory, services, categories, getCategoryName, queryClient, closeBookingModal, setIsSubmitting, tBooking, locale]);
 
   const handleConfirmPhoneAndSubmit = useCallback(async () => {
     const phoneDigits = normalizePhoneDigits(phoneInput);

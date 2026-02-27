@@ -178,7 +178,7 @@ export function BookingHistoryView() {
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={clsx(
-                "flex-1 py-3 text-sm font-medium text-center transition-colors relative",
+                "ds-control relative flex-1 px-2 text-center font-medium transition-colors",
                 activeTab === tab.key
                   ? "text-gray-900"
                   : "text-gray-400"
@@ -198,7 +198,7 @@ export function BookingHistoryView() {
         {filteredBookings.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <Calendar className="w-12 h-12 text-gray-200 mb-3" />
-            <p className="text-sm text-gray-400">{t("noBookings")}</p>
+            <p className="ds-text-body text-gray-400">{t("noBookings")}</p>
           </div>
         ) : (
           filteredBookings.map((booking) => (
@@ -211,13 +211,13 @@ export function BookingHistoryView() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2 min-w-0">
                   <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
-                  <span className="text-sm font-semibold text-gray-900 truncate">
+                  <span className="ds-text-body truncate font-semibold text-gray-900">
                     {booking.salons?.name}
                   </span>
                 </div>
                 <span
                   className={clsx(
-                    "shrink-0 ml-2 px-2 py-0.5 rounded-full text-xs font-medium",
+                    "ds-badge ml-2 shrink-0 px-2 font-medium",
                     getStatusColor(booking.status)
                   )}
                 >
@@ -226,7 +226,7 @@ export function BookingHistoryView() {
               </div>
 
               {/* Details */}
-              <div className="space-y-1.5 text-sm text-gray-500">
+              <div className="space-y-1.5 ds-text-body text-gray-500">
                 {/* Date & Time */}
                 <div className="flex items-center gap-2">
                   <Clock className="w-3.5 h-3.5 shrink-0" />
