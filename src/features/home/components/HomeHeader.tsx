@@ -36,8 +36,8 @@ export const HomeHeader = memo(function HomeHeader() {
         <LanguageSwitcher variant="icon" />
 
         {/* Cart Button */}
-        <button className="touch-target relative rounded-full p-2">
-          <ShoppingCart className="w-6 h-6 text-gray-700" />
+        <button className="touch-target relative rounded-full p-1.5">
+          <ShoppingCart className="w-5 h-5 text-gray-700" />
           {/* Optional: Cart Badge */}
         </button>
       </div>

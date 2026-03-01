@@ -14,16 +14,16 @@ const CATEGORIES = [
 
 export const CategoryGrid = memo(function CategoryGrid() {
   return (
-    <section className="px-3 py-4 sm:px-4 sm:py-6">
-      <div className="grid grid-cols-4 gap-2.5 sm:gap-4">
+    <section className="px-3 py-3 sm:px-4 sm:py-5">
+      <div className="grid grid-cols-4 gap-2 sm:gap-4">
         {CATEGORIES.map((cat) => (
           <Link
             key={cat.id}
             href={cat.href}
-            className="touch-target flex flex-col items-center justify-center gap-1.5 rounded-xl sm:gap-2"
+            className="flex flex-col items-center justify-center gap-1.5 rounded-xl"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-gray-100 bg-gray-50 sm:h-14 sm:w-14">
-              <cat.icon className="h-5 w-5 text-gray-700 sm:h-6 sm:w-6" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-gray-50 sm:h-12 sm:w-12">
+              <cat.icon className="h-4 w-4 text-gray-700 sm:h-5 sm:w-5" />
             </div>
             <span className="text-[11px] font-medium text-gray-600 sm:text-xs">
               {cat.name}

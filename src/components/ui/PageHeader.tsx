@@ -60,16 +60,17 @@ export function PageHeader({
     { code: "en", name: "English", flag: "🇺🇸" },
     { code: "th", name: "ไทย", flag: "🇹🇭" },
   ];
+  const actionBtnClass = "flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-gray-100";
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
-      <div className="flex items-center justify-between px-4 h-14">
+      <div className="flex h-14 items-center justify-between px-4">
         {/* Left Side */}
-        <div className="flex items-center">
+        <div className="flex min-w-11 items-center">
           {showBack && (
             <button
               onClick={() => router.back()}
-              className="touch-target -ml-2 rounded-full p-2 transition-colors hover:bg-gray-100"
+              className={actionBtnClass}
               aria-label="Go back"
             >
               <ArrowLeft className="w-5 h-5 text-gray-700" />
@@ -85,15 +86,15 @@ export function PageHeader({
         )}
 
         {/* Right Side */}
-        <div className="flex items-center gap-1 relative">
+        <div className="relative flex min-w-11 items-center justify-end gap-1">
           {showLanguage && (
             <div className="relative">
               <button
                 onClick={() => setShowLangMenu(!showLangMenu)}
-                className="touch-target rounded-full p-2 transition-colors hover:bg-gray-100"
+                className={actionBtnClass}
                 aria-label="Language"
               >
-                <Globe className="w-5 h-5 text-gray-700" />
+                <Globe className="-translate-y-px w-5 h-5 text-gray-700" />
               </button>
 
               {/* Language Dropdown */}
@@ -124,7 +125,7 @@ export function PageHeader({
           {showHome && (
             <Link
               href="/"
-              className="touch-target rounded-full p-2 transition-colors hover:bg-gray-100"
+              className={actionBtnClass}
               aria-label="Home"
             >
               <Home className="w-5 h-5 text-gray-700" />
@@ -132,7 +133,7 @@ export function PageHeader({
           )}
           {showSearch && (
             <button
-              className="touch-target rounded-full p-2 transition-colors hover:bg-gray-100"
+              className={actionBtnClass}
               aria-label="Search"
             >
               <Search className="w-5 h-5 text-gray-700" />
@@ -141,7 +142,7 @@ export function PageHeader({
           {showShare && (
             <button
               onClick={handleShare}
-              className="touch-target rounded-full p-2 transition-colors hover:bg-gray-100"
+              className={actionBtnClass}
               aria-label="Share"
             >
               <Share2 className="w-5 h-5 text-gray-700" />

@@ -154,13 +154,13 @@ export const DateTimeStep = memo(function DateTimeStep({
           {loadingSlots ? (
             <TimeSlotsSkeleton />
           ) : timeSlots.length > 0 ? (
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-1">
               {timeSlots.map(({ time, available }) => (
                 <button
                   key={time}
                   onClick={() => available && onSelectTime(time)}
                   disabled={!available}
-                  className={`touch-target rounded-lg py-2.5 text-sm font-medium transition-colors ${
+                  className={`min-h-8 rounded-md px-0.5 py-1 text-[11px] font-medium leading-none transition-colors sm:min-h-9 sm:rounded-lg sm:px-1 sm:py-1.5 sm:text-xs ${
                     selectedTime === time
                       ? "bg-primary-600 text-white"
                       : available

@@ -47,7 +47,7 @@ const fontClassMap: Record<Locale, string> = {
 };
 
 export const metadata: Metadata = {
-  title: "Salon Store",
+  title: "beauty by you",
   description: "Beauty salon booking platform",
 };
 

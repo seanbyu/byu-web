@@ -30,14 +30,14 @@ export const HeroBanner = memo(function HeroBanner({ banners }: HeroBannerProps)
   // Fallback if no banners
   if (!banners || banners.length === 0) {
     return (
-      <div className="relative w-full aspect-[4/3] bg-gray-200 animate-pulse flex items-center justify-center">
+      <div className="relative w-full aspect-[2/1] bg-gray-200 animate-pulse flex items-center justify-center sm:aspect-[16/9]">
         <span className="text-gray-400 text-sm">Banner Area</span>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full aspect-[4/3] overflow-hidden group">
+    <div className="relative w-full aspect-[2/1] overflow-hidden group sm:aspect-[16/9]">
       {/* Banner Image */}
       <img
         src={banners[currentBannerIndex].imageUrl}

@@ -149,7 +149,7 @@
   /* ============================================
      LAYOUT
      ============================================ */
-  --app-max-width: 448px;
+  --app-max-width: 430px;
   --bottom-nav-height: 4rem; /* 64px */
   --page-padding-x: 0.75rem; /* 12px */
   --page-padding-y: 0.75rem; /* 12px */
@@ -199,6 +199,8 @@ body {
 html {
   scrollbar-gutter: stable both-edges;
   overflow-y: scroll;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -209,6 +211,9 @@ body {
 @media (max-width: 640px) and (pointer: coarse) {
   :root {
     --font-size-xs: 0.8125rem;  /* 13px (모바일 최소 가독성 기준) */
+    --font-size-sm: 0.8125rem;  /* 13px */
+    --font-size-base: 0.9375rem; /* 15px */
+    --font-size-lg: 1.0625rem;   /* 17px */
   }
 
   button,
@@ -234,9 +239,9 @@ body {
 
 @media (max-width: 380px) and (pointer: coarse) {
   :root {
-    --font-size-sm: 0.8125rem;   /* 13px */
-    --font-size-base: 0.9375rem; /* 15px */
-    --font-size-lg: 1.0625rem;   /* 17px */
+    --font-size-sm: 0.75rem;    /* 12px */
+    --font-size-base: 0.875rem; /* 14px */
+    --font-size-lg: 1rem;       /* 16px */
   }
 }
 

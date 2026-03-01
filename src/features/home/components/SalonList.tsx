@@ -66,14 +66,14 @@ const SalonCard = memo(function SalonCard({
       className="block bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-primary-100 transition-all duration-200 active:scale-[0.99]"
     >
       {/* Cover Image */}
-      <div className="relative h-36 bg-gradient-to-br from-primary-100 to-secondary-100 sm:h-40">
+      <div className="relative h-28 bg-gradient-to-br from-primary-100 to-secondary-100 sm:h-32">
         <StorageImage
           urls={getSalonCoverUrls(salon.id)}
           alt={salon.name}
           className="w-full h-full object-cover"
           fallback={
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-5xl font-bold text-primary-200">
+              <span className="text-3xl font-bold text-primary-200">
                 {salon.name.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -92,7 +92,7 @@ const SalonCard = memo(function SalonCard({
       </div>
 
       {/* Content */}
-      <div className="p-3 sm:p-4">
+      <div className="p-2.5 sm:p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <h3 className="truncate text-sm font-bold text-gray-900 sm:text-base">{salon.name}</h3>
@@ -104,7 +104,7 @@ const SalonCard = memo(function SalonCard({
               return (
                 <div className="flex items-center gap-1.5 flex-shrink-0 text-gray-500">
                   <span className="text-gray-300">|</span>
-                  <span className="text-lg leading-none">
+                  <span className="text-sm leading-none">
                     {langs.map((lang) => (
                       <span key={lang}>{languageToFlag[lang] || lang}</span>
                     ))}
@@ -138,7 +138,7 @@ const SalonCard = memo(function SalonCard({
           </p>
         )}
 
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-1.5">
           {salon.address && (
             <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full">
               <MapPin className="w-3 h-3" />
@@ -154,7 +154,7 @@ const SalonCard = memo(function SalonCard({
         </div>
 
         {salon.phone && (
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
+          <div className="mt-1.5 flex items-center gap-1.5 text-xs text-gray-500">
             <Phone className="w-3 h-3" />
             <span>{salon.phone}</span>
           </div>
@@ -201,11 +201,11 @@ export const SalonList = memo(function SalonList({ salons }: SalonListProps) {
   return (
     <>
       <div className="p-3 sm:p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold text-gray-900 sm:text-lg">{t("title")}</h2>
-          <span className="text-xs text-gray-500 sm:text-sm">{salons.length}개</span>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-bold text-gray-900 sm:text-base">{t("title")}</h2>
+          <span className="text-xs text-gray-500">{salons.length}개</span>
         </div>
-        <div className="space-y-3 sm:space-y-4">
+        <div className="space-y-2.5 sm:space-y-3">
           {salons.map((salon) => (
             <SalonCard
               key={salon.id}
