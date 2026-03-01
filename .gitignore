@@ -43,3 +43,6 @@ next-env.d.ts
 # Local Supabase
 /supabase/
 generate-types.sh
+
+# Claude Code local settings
+.claude/settings.local.json
