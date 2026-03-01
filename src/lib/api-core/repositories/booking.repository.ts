@@ -4,7 +4,7 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database, Booking, InsertTables } from "@/lib/supabase/types";
+import type { Database, Booking, InsertTables, Json } from "@/lib/supabase/types";
 import { BaseRepository } from "./base.repository";
 
 /** RPC get_salon_availability 반환 타입 */
@@ -193,6 +193,7 @@ export class BookingRepository extends BaseRepository<"bookings"> {
       booking_date: string;
       start_time: string;
       end_time: string;
+      booking_meta?: Json;
     }
   ): Promise<Booking> {
     const { data, error } = await this.supabase

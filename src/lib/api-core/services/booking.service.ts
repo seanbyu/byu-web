@@ -361,6 +361,10 @@ export class BookingService {
       booking_date: params.bookingDate,
       start_time: params.startTime,
       end_time: params.endTime,
+      booking_meta: {
+        ...((booking as any).booking_meta as Record<string, unknown> || {}),
+        reschedule_pending: true,
+      },
     });
   }
 
