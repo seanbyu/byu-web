@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
+import { toast } from "sonner";
 import { authService } from "../services/auth-service";
 import { liffService, LiffService } from "../services/liff-service";
 import type { AuthState, AuthEnvironment, LineProfile, LiffContext } from "../types";
@@ -64,6 +65,33 @@ export function AuthProvider({ children, liffId }: AuthProviderProps) {
         const session = await authService.getSession();
         const user = await authService.getUser();
 
+        // If LIFF environment, auto-init and authenticate BEFORE setting isLoading: false
+        if (env === "liff" && liffId && !session) {
+          await initLiffInternal();
+
+          const idToken = liffService.getIDToken();
+          if (idToken) {
+            const result = await authService.signInWithLiffToken(idToken);
+            if (result.success) {
+              setAuthState({
+                user: result.user || null,
+                session: result.session || null,
+                isLoading: false,
+                isAuthenticated: true,
+                error: null,
+              });
+              return;
+            } else {
+              toast.error(`LIFF 로그인 실패: ${result.error}`);
+            }
+          } else {
+            toast.error("LIFF 토큰 없음 - LINE Developers에서 openid scope 확인 필요");
+          }
+        } else if (env === "liff" && liffId && session) {
+          // Already have a session in LIFF env, still init LIFF state
+          await initLiffInternal();
+        }
+
         setAuthState({
           user,
           session,
@@ -71,27 +99,6 @@ export function AuthProvider({ children, liffId }: AuthProviderProps) {
           isAuthenticated: !!session,
           error: null,
         });
-
-        // If LIFF environment and liffId provided, auto-init LIFF and authenticate
-        if (env === "liff" && liffId) {
-          await initLiffInternal();
-
-          // Auto-authenticate if LIFF user is logged in but no Supabase session
-          if (!session) {
-            const idToken = liffService.getIDToken();
-            if (idToken) {
-              const result = await authService.signInWithLiffToken(idToken);
-              if (result.success) {
-                setAuthState((prev) => ({
-                  ...prev,
-                  user: result.user || null,
-                  session: result.session || null,
-                  isAuthenticated: true,
-                }));
-              }
-            }
-          }
-        }
       } catch (error) {
         setAuthState((prev) => ({
           ...prev,
