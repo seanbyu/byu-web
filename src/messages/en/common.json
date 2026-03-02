@@ -33,5 +33,13 @@
     "added": "Added to favorites",
     "removed": "Removed from favorites",
     "loginRequired": "Login required"
+  },
+  "comingSoon": "Service Coming Soon",
+  "comingSoonDesc": "This service will be available soon",
+  "categories": {
+    "hair": "Hair",
+    "nail": "Nail",
+    "makeup": "Makeup",
+    "skin": "Skincare"
   }
 }

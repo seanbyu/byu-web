@@ -33,5 +33,13 @@
     "added": "즐겨찾기에 추가되었습니다",
     "removed": "즐겨찾기에서 삭제되었습니다",
     "loginRequired": "로그인이 필요합니다"
+  },
+  "comingSoon": "서비스 준비 중입니다",
+  "comingSoonDesc": "곧 서비스가 시작될 예정입니다",
+  "categories": {
+    "hair": "헤어",
+    "nail": "네일",
+    "makeup": "메이크업",
+    "skin": "스킨케어"
   }
 }
