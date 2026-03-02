@@ -27,7 +27,7 @@ export function StylingBookView() {
     <div className="app-page-bleed bg-white">
       <PageHeader
         title={t("title")}
-        showBack={false}
+        showBack={true}
         showHome={false}
         showSearch={false}
         showShare={false}
