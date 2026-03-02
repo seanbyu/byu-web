@@ -116,7 +116,7 @@ export function LanguageSwitcher({
           ${className}
           ${
             variant === "icon"
-              ? "touch-target h-10 w-10 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              ? "touch-target h-9 w-9 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900"
               : "px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium"
           }
         `}
@@ -125,7 +125,7 @@ export function LanguageSwitcher({
         aria-haspopup="dialog"
       >
         {variant === "icon" ? (
-          <Globe className="w-5 h-5" />
+          <Globe className="h-4 w-4" />
         ) : (
           <>
             <span>{currentLanguage.flag}</span>
@@ -147,37 +147,37 @@ export function LanguageSwitcher({
 
             {/* Modal Content */}
             <div
-              className="relative w-full max-h-[min(72dvh,34rem)] overflow-y-auto rounded-t-2xl bg-white shadow-xl animate-slide-up pb-[calc(var(--bottom-nav-height)+env(safe-area-inset-bottom)+0.5rem)]"
+              className="relative w-full max-h-[min(45dvh,20rem)] overflow-y-auto rounded-t-2xl bg-white shadow-xl animate-slide-up pb-safe"
               role="dialog"
               aria-label={tSettings("languageSelect")}
             >
               {/* Drag Handle */}
-              <div className="flex justify-center pt-3 pb-2">
+              <div className="flex justify-center pt-3 pb-1">
                 <div className="w-10 h-1 bg-gray-300 rounded-full" />
               </div>
 
               {/* Close Button */}
               <button
                 onClick={() => setIsOpen(false)}
-                className="touch-target absolute right-4 top-4 rounded-full p-2 transition-colors hover:bg-gray-100"
+                className="touch-target absolute right-3 top-3 rounded-full p-1.5 transition-colors hover:bg-gray-100"
                 aria-label={tCommon("close")}
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-4 h-4 text-gray-500" />
               </button>
 
               {/* Header */}
-              <div className="px-6 pb-4">
-                <h3 className="text-lg font-bold text-gray-900">{tSettings("languageSelect")}</h3>
+              <div className="px-5 pb-2">
+                <h3 className="text-sm font-bold text-gray-900">{tSettings("languageSelect")}</h3>
               </div>
 
               {/* Language List */}
-              <div className="px-6 pb-2" role="listbox" aria-label={tSettings("languageList")}>
+              <div className="px-4 pb-2" role="listbox" aria-label={tSettings("languageList")}>
                 {LANGUAGES.map((language) => (
                   <button
                     key={language.code}
                     onClick={() => handleLanguageChange(language.code)}
                     className={`
-                      flex items-center gap-4 w-full px-4 py-4
+                      flex items-center gap-3 w-full px-3 py-3
                       text-left rounded-xl
                       transition-colors
                       ${
@@ -189,8 +189,8 @@ export function LanguageSwitcher({
                     role="option"
                     aria-selected={language.code === locale}
                   >
-                    <span className="text-2xl">{language.flag}</span>
-                    <span className={`flex-1 text-base ${
+                    <span className="text-lg">{language.flag}</span>
+                    <span className={`flex-1 text-sm ${
                       language.code === locale
                         ? "text-primary-600 font-semibold"
                         : "text-gray-900"
@@ -198,7 +198,7 @@ export function LanguageSwitcher({
                       {getLanguageLabel(language.code)}
                     </span>
                     {language.code === locale && (
-                      <Check className="w-5 h-5 text-primary-600" />
+                      <Check className="w-4 h-4 text-primary-600" />
                     )}
                   </button>
                 ))}
