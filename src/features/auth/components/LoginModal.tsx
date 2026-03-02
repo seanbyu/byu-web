@@ -131,10 +131,10 @@ export function LoginModal({
         <div className="px-6 pt-5 pb-6 sm:p-8">
           {/* Icon */}
           <div className="flex justify-center mb-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-line-50 text-line-500">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-line-50 text-line-500">
               <svg
-                width="32"
-                height="32"
+                width="24"
+                height="24"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -149,7 +149,7 @@ export function LoginModal({
           {/* Title & Description */}
           <h2
             id="login-modal-title"
-            className="text-xl font-bold text-center text-gray-900 mb-2"
+            className="text-lg font-bold text-center text-gray-900 mb-2"
           >
             {t(titleKey)}
           </h2>
@@ -164,7 +164,7 @@ export function LoginModal({
               <button
                 onClick={handleLiffLogin}
                 disabled={isLoading}
-                className="ds-btn-line shadow-lg shadow-line-500/20"
+                className="ds-btn-line-compact shadow-lg shadow-line-500/20"
               >
                 {isLoading ? (
                   <LoadingSpinner />
@@ -178,7 +178,7 @@ export function LoginModal({
             ) : (
               <a
                 href={lineAuthUrl}
-                className="ds-btn-line shadow-lg shadow-line-500/20"
+                className="ds-btn-line-compact shadow-lg shadow-line-500/20"
               >
                 <LineIcon />
                 <span>{t("loginWithLine")}</span>
@@ -187,14 +187,14 @@ export function LoginModal({
 
             {/* Mobile hint */}
             {deviceInfo.isMobile && (
-              <p className="text-sm text-center text-gray-400">
+              <p className="text-xs text-center text-gray-400">
                 {t("lineAppWillOpen")}
               </p>
             )}
           </div>
 
           {/* Terms */}
-          <p className="mt-4 text-sm text-center text-gray-400 leading-relaxed">
+          <p className="mt-4 text-xs text-center text-gray-400 leading-relaxed">
             {t.rich("termsNotice", {
               terms: (chunks) => (
                 <a href="/terms" className="underline hover:text-gray-600">
