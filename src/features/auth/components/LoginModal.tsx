@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { useAuthContext } from "../providers/AuthProvider";
 import { useLineAuthUrl } from "../hooks/useLineAuthUrl";
 import { getDeviceInfo } from "../utils/device";
+import { buildLiffOpenUrl } from "../utils/line-oauth";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -42,6 +44,8 @@ export function LoginModal({
 
   const lineAuthUrl = useLineAuthUrl();
   const deviceInfo = getDeviceInfo();
+  const [liffOpenUrl, setLiffOpenUrl] = useState<string | null>(null);
+  const liffId = process.env.NEXT_PUBLIC_LIFF_ID;
 
   // Handle successful authentication
   useEffect(() => {
@@ -82,6 +86,17 @@ export function LoginModal({
   }, [environment, liff, authenticateWithLiff, onSuccess]);
 
   const isLiffEnv = environment === "liff";
+  const canOpenInLineApp = !isLiffEnv && deviceInfo.isMobile && !!liffOpenUrl;
+
+  useEffect(() => {
+    if (!isOpen || !liffId || typeof window === "undefined") {
+      setLiffOpenUrl(null);
+      return;
+    }
+
+    const returnPath = `${window.location.pathname}${window.location.search}`;
+    setLiffOpenUrl(buildLiffOpenUrl(liffId, returnPath));
+  }, [isOpen, liffId]);
 
   if (!isOpen) return null;
 
@@ -162,7 +177,18 @@ export function LoginModal({
 
           {/* Login Buttons */}
           <div className="space-y-3">
-            {/* LINE Login - LIFF: button, Web: <a> tag for iOS Universal Link */}
+            {/* Open inside LINE app via LIFF URL (mobile web only) */}
+            {canOpenInLineApp && liffOpenUrl && (
+              <a
+                href={liffOpenUrl}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-line-500 bg-white px-4 py-3 font-medium text-line-600 transition-colors hover:bg-line-50"
+              >
+                <LineIcon />
+                <span className="ds-auth-modal-body">{t("openInLineApp")}</span>
+              </a>
+            )}
+
+            {/* LINE Login - LIFF: token auth button, Web: OAuth authorize URL */}
             {isLiffEnv ? (
               <button
                 onClick={handleLiffLogin}
@@ -200,14 +226,14 @@ export function LoginModal({
           <p className="ds-auth-modal-body mt-4 text-center text-gray-400 leading-relaxed">
             {t.rich("termsNotice", {
               terms: (chunks) => (
-                <a href="/terms" className="underline hover:text-gray-600">
+                <Link href="/terms" className="underline hover:text-gray-600">
                   {chunks}
-                </a>
+                </Link>
               ),
               privacy: (chunks) => (
-                <a href="/privacy" className="underline hover:text-gray-600">
+                <Link href="/privacy" className="underline hover:text-gray-600">
                   {chunks}
-                </a>
+                </Link>
               ),
             })}
           </p>

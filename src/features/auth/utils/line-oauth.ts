@@ -24,3 +24,12 @@ export function toLineUiLocales(locale?: string | null): string {
   if (!locale) return FALLBACK_LINE_UI_LOCALE;
   return LINE_UI_LOCALE_MAP[locale as AppLocale] || FALLBACK_LINE_UI_LOCALE;
 }
+
+export function buildLiffOpenUrl(liffId: string, returnPath: string): string {
+  const baseUrl = `https://liff.line.me/${liffId}`;
+  if (!returnPath || returnPath === "/") {
+    return baseUrl;
+  }
+
+  return `${baseUrl}?liff.state=${encodeURIComponent(returnPath)}`;
+}
