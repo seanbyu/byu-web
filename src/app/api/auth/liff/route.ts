@@ -218,67 +218,45 @@ async function findOrCreateUser(
     provider: "line",
   };
 
-  // Try to create user first
-  const { data: newUser, error: createError } =
-    await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: userMetadata,
-    });
+  const supabaseClient = getSupabaseClient();
 
-  let user = newUser?.user;
+  // Step 1: Try signInWithPassword first (returning user)
+  const { data: signInData } = await supabaseClient.auth.signInWithPassword({ email, password });
 
-  // If user already exists (email taken), update their password and metadata
-  if (createError && createError.message?.includes("already")) {
-    // Find existing user by listing and filtering
-    const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
-    const existingUser = usersData?.users?.find((u) => u.email === email);
+  if (signInData?.session && signInData?.user) {
+    // Returning user - update metadata and sync
+    await supabaseAdmin.auth.admin.updateUserById(signInData.user.id, { user_metadata: userMetadata });
+    await syncToUsersTable(supabaseAdmin, signInData.user, tokenData);
+    return { user: signInData.user, session: signInData.session };
+  }
 
-    if (existingUser) {
-      // Update existing user with new password and metadata
-      const { data: updatedUser, error: updateError } =
-        await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
-          password, // Ensure password is always current
-          user_metadata: {
-            ...existingUser.user_metadata,
-            ...userMetadata,
-          },
-        });
+  // Step 2: New user - create account
+  const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: userMetadata,
+  });
 
-      if (updateError) {
-        console.error("Failed to update user:", updateError);
-      }
-      user = updatedUser?.user ?? existingUser;
-    } else {
-      throw createError;
-    }
-  } else if (createError) {
-    console.error("Failed to create user:", createError);
+  if (createError) {
     throw createError;
   }
 
-  if (!user) {
-    throw new Error("Failed to find or create user");
+  if (!newUser?.user) {
+    throw new Error("Failed to create user");
   }
 
   // Sync to users table
-  await syncToUsersTable(supabaseAdmin, user, tokenData);
+  await syncToUsersTable(supabaseAdmin, newUser.user, tokenData);
 
-  // Create real session using signInWithPassword
-  const supabaseClient = getSupabaseClient();
-  const { data: sessionData, error: sessionError } =
-    await supabaseClient.auth.signInWithPassword({
-      email,
-      password,
-    });
+  // Step 3: Sign in with new account
+  const { data: sessionData, error: sessionError } = await supabaseClient.auth.signInWithPassword({ email, password });
 
   if (sessionError || !sessionData.session) {
-    console.error("Failed to create session:", sessionError);
     throw sessionError || new Error("Failed to create session");
   }
 
-  return { user, session: sessionData.session };
+  return { user: newUser.user, session: sessionData.session };
 }
 
 /**
