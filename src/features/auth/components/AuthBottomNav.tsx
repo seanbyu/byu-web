@@ -77,7 +77,7 @@ export function AuthBottomNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-1/2 z-50 flex w-full max-w-[var(--app-max-width)] -translate-x-1/2 items-center justify-between border-t border-gray-100 bg-white px-4 py-2 pb-safe shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
+      <nav className="fixed bottom-0 left-1/2 z-50 flex w-full max-w-[var(--app-max-width)] -translate-x-1/2 items-center justify-between border-t border-gray-100 bg-white px-2 pt-2 pb-safe">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
 
@@ -86,18 +86,18 @@ export function AuthBottomNav() {
               key={item.id}
               href={item.href}
               onClick={(e) => handleNavClick(e, item)}
-              className="touch-target flex min-w-[3.25rem] flex-col items-center justify-center gap-1 rounded-lg px-2"
+              className="flex flex-1 flex-col items-center justify-center gap-1 py-1"
             >
               <item.icon
                 className={clsx(
-                  "w-6 h-6 transition-colors",
-                  isActive ? "text-gray-900" : "text-gray-300"
+                  "h-[22px] w-[22px] transition-colors",
+                  isActive ? "text-primary-500" : "text-gray-400"
                 )}
               />
               <span
                 className={clsx(
-                  "text-xs font-medium transition-colors",
-                  isActive ? "text-gray-900" : "text-gray-300"
+                  "text-[10px] font-medium leading-none transition-colors",
+                  isActive ? "text-primary-500" : "text-gray-400"
                 )}
               >
                 {t(item.labelKey)}
