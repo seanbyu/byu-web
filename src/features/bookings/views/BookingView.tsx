@@ -245,7 +245,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       // 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ["designer-bookings"] });
 
-      router.push(`/bookings/${booking.id}`);
+      router.push(`/bookings/${booking.id}?new=1`);
     } catch (error) {
       console.error("Booking error:", error);
       alert(t("bookingFailed"));

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useParams } from "next/navigation";
 import {
@@ -71,6 +71,8 @@ type RescheduleSlot = {
 export default function BookingDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
+  const isNewBooking = searchParams.get("new") === "1";
   const bookingId = params.id as string;
   const t = useTranslations("booking");
   const tCommon = useTranslations("common");
@@ -126,8 +128,17 @@ export default function BookingDetailPage() {
 
   const fetchBooking = async () => {
     try {
-      const data = await bookingQueries.getById(bookingId);
-      setBooking(data as BookingWithDetails);
+      let data = await bookingQueries.getById(bookingId);
+      // 새 예약 직후 Supabase 반영 전일 수 있으므로 1회 재시도
+      if (!data && isNewBooking) {
+        await new Promise((r) => setTimeout(r, 800));
+        data = await bookingQueries.getById(bookingId);
+      }
+      if (data) {
+        setBooking(data as BookingWithDetails);
+      } else {
+        setError(t("bookingNotFound"));
+      }
     } catch {
       setError(t("bookingLoadError"));
     } finally {
@@ -157,6 +168,11 @@ export default function BookingDetailPage() {
           reschedSlotsCacheRef.current[dateKey] = data;
           return data;
         })
+        .catch((err) => {
+          // 실패 시 캐시에 저장하지 않아 다음 호출 시 재시도 가능하도록 함
+          delete reschedSlotsCacheRef.current[dateKey];
+          throw err;
+        })
         .finally(() => {
           delete reschedSlotsInFlightRef.current[dateKey];
         });
@@ -181,7 +197,7 @@ export default function BookingDetailPage() {
         setReschedSalon(salonData);
         setReschedStaff(staffData);
       } catch {
-        // silently fail
+        setError(t("bookingLoadError"));
       } finally {
         setReschedLoadingData(false);
       }
@@ -449,7 +465,7 @@ export default function BookingDetailPage() {
     const endTime = formatTime(sH * 60 + sM + slotDuration);
 
     try {
-      await bookingMutations.reschedule(booking!.id, {
+      const rescheduled = await bookingMutations.reschedule(booking!.id, {
         artist_id: confirmData.designer.id,
         booking_date: formatDateForDB(reschedDate),
         start_time: confirmData.time,
@@ -459,18 +475,15 @@ export default function BookingDetailPage() {
       setShowReschedule(false);
       reschedSlotsCacheRef.current = {};
       reschedSlotsInFlightRef.current = {};
-      setIsLoading(true);
-      try {
-        const updated = await bookingQueries.getById(bookingId);
-        setBooking(updated as BookingWithDetails);
-      } catch { /* ignore */ }
-      setIsLoading(false);
-    } catch {
-      alert(t("rescheduleFailed"));
+      // 뮤테이션 응답으로 상태 업데이트 (joined 데이터 유지, API 재호출 불필요)
+      setBooking((prev) => prev ? { ...prev, ...rescheduled } as BookingWithDetails : prev);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t("rescheduleFailed");
+      alert(message);
     } finally {
       setIsRescheduling(false);
     }
-  }, [confirmData, reschedSalon, booking, reschedDate, bookingId, t]);
+  }, [confirmData, reschedSalon, booking, reschedDate, t]);
 
   const formatConfirmDate = useCallback(
     (date: Date) => {
@@ -496,16 +509,17 @@ export default function BookingDetailPage() {
         cancelled_by: "customer",
         cancellation_reason: cancelReason || undefined,
       });
+      // 취소 성공: joined 데이터는 유지하고 status만 업데이트
+      setBooking((prev) => prev ? { ...prev, status: "CANCELLED" as const } : prev);
       setShowCancelModal(false);
       setCancelReason("");
-      const updated = await bookingQueries.getById(bookingId);
-      setBooking(updated as BookingWithDetails);
-    } catch {
-      alert(t("cancelFailed"));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t("cancelFailed");
+      alert(message);
     } finally {
       setIsCancelling(false);
     }
-  }, [booking, bookingId, cancelReason, t]);
+  }, [booking, cancelReason, t]);
 
   // ─── Helpers ───────────────────────────────────────────────
 
