@@ -61,6 +61,7 @@ export function PageHeader({
     { code: "th", name: "ไทย", flag: "🇹🇭" },
   ];
   const actionBtnClass = "flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-gray-100";
+  const showLangHomeGroup = showLanguage || showHome;
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
@@ -87,49 +88,53 @@ export function PageHeader({
 
         {/* Right Side */}
         <div className="relative flex min-w-11 items-center justify-end gap-1">
-          {showLanguage && (
-            <div className="relative">
-              <button
-                onClick={() => setShowLangMenu(!showLangMenu)}
-                className={actionBtnClass}
-                aria-label="Language"
-              >
-                <Globe className="-translate-y-px w-5 h-5 text-gray-700" />
-              </button>
+          {showLangHomeGroup && (
+            <div className="flex items-center gap-0.5 rounded-full">
+              {showLanguage && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowLangMenu(!showLangMenu)}
+                    className={actionBtnClass}
+                    aria-label="Language"
+                  >
+                    <Globe className="-translate-y-px w-5 h-5 text-gray-700" />
+                  </button>
 
-              {/* Language Dropdown */}
-              {showLangMenu && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowLangMenu(false)}
-                  />
-                  <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[140px] z-50">
-                    {languages.map((lang) => (
-                      <button
-                        key={lang.code}
-                        onClick={() => switchLocale(lang.code)}
-                        className={`touch-target flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-50 ${
-                          locale === lang.code ? "bg-primary-50 text-primary-600 font-medium" : "text-gray-700"
-                        }`}
-                      >
-                        <span className="text-lg">{lang.flag}</span>
-                        <span>{lang.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </>
+                  {/* Language Dropdown */}
+                  {showLangMenu && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setShowLangMenu(false)}
+                      />
+                      <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[140px] z-50">
+                        {languages.map((lang) => (
+                          <button
+                            key={lang.code}
+                            onClick={() => switchLocale(lang.code)}
+                            className={`touch-target flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-50 ${
+                              locale === lang.code ? "bg-primary-50 text-primary-600 font-medium" : "text-gray-700"
+                            }`}
+                          >
+                            <span className="text-lg">{lang.flag}</span>
+                            <span>{lang.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+              {showHome && (
+                <Link
+                  href="/"
+                  className={actionBtnClass}
+                  aria-label="Home"
+                >
+                  <Home className="w-5 h-5 text-gray-700" />
+                </Link>
               )}
             </div>
-          )}
-          {showHome && (
-            <Link
-              href="/"
-              className={actionBtnClass}
-              aria-label="Home"
-            >
-              <Home className="w-5 h-5 text-gray-700" />
-            </Link>
           )}
           {showSearch && (
             <button
