@@ -77,7 +77,7 @@ export function AuthBottomNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-1/2 z-50 flex w-full max-w-[var(--app-max-width)] -translate-x-1/2 items-center justify-between border-t border-gray-100 bg-white px-2 pt-2 pb-safe">
+      <nav className="fixed bottom-0 left-1/2 z-50 flex w-full max-w-[var(--app-max-width)] -translate-x-1/2 items-center justify-between border-t border-gray-100 bg-white pb-safe">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
 
@@ -86,7 +86,7 @@ export function AuthBottomNav() {
               key={item.id}
               href={item.href}
               onClick={(e) => handleNavClick(e, item)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 py-1"
+              className="flex h-[62px] flex-1 flex-col items-center justify-center gap-1"
             >
               <item.icon
                 className={clsx(

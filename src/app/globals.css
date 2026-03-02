@@ -150,7 +150,7 @@
      LAYOUT
      ============================================ */
   --app-max-width: 430px;
-  --bottom-nav-height: 4rem; /* 64px */
+  --bottom-nav-height: 62px;
   --page-padding-x: 0.75rem; /* 12px */
   --page-padding-y: 0.75rem; /* 12px */
   --page-section-gap: 0.875rem; /* 14px */
