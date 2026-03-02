@@ -59,12 +59,15 @@ export function LoginModal({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEsc);
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
 
     return () => {
       document.removeEventListener("keydown", handleEsc);
       document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     };
   }, [isOpen, onClose]);
 
