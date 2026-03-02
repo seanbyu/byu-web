@@ -94,7 +94,7 @@ export function LoginModal({
       <div
         className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl
                    shadow-xl transform transition-all
-                   max-h-[90vh] overflow-hidden
+                   max-h-[75vh] overflow-hidden
                    motion-safe:animate-[slideUp_0.3s_ease-out] sm:motion-safe:animate-[fadeIn_0.2s_ease-out]"
         style={{
           animation: "slideUp 0.3s ease-out",
@@ -128,9 +128,9 @@ export function LoginModal({
         </button>
 
         {/* Content */}
-        <div className="px-6 pt-6 pb-8 sm:p-8">
+        <div className="px-6 pt-5 pb-6 sm:p-8">
           {/* Icon */}
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-line-50 text-line-500">
               <svg
                 width="32"
@@ -153,7 +153,7 @@ export function LoginModal({
           >
             {t(titleKey)}
           </h2>
-          <p className="text-sm text-center text-gray-500 mb-8">
+          <p className="text-sm text-center text-gray-500 mb-5">
             {t(descriptionKey)}
           </p>
 
@@ -194,7 +194,7 @@ export function LoginModal({
           </div>
 
           {/* Terms */}
-          <p className="mt-6 text-sm text-center text-gray-400 leading-relaxed">
+          <p className="mt-4 text-sm text-center text-gray-400 leading-relaxed">
             {t.rich("termsNotice", {
               terms: (chunks) => (
                 <a href="/terms" className="underline hover:text-gray-600">
