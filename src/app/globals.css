@@ -401,6 +401,22 @@ body {
     line-height: var(--line-height-normal);
   }
 
+  .ds-auth-modal {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+  }
+
+  .ds-auth-modal-title {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .ds-auth-modal-body {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+  }
+
   .ds-control {
     min-height: var(--control-height-md);
     font-size: var(--font-size-sm);
@@ -456,6 +472,8 @@ body {
 
   .ds-btn-line-compact {
     @apply flex w-full items-center justify-center gap-2 rounded-lg bg-line-500 px-4 py-3 font-medium text-white transition-colors hover:bg-line-600 disabled:cursor-not-allowed disabled:opacity-50;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-tight);
   }
 }
 

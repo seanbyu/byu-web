@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useLocale } from "next-intl";
+import { toLineUiLocales } from "../utils/line-oauth";
 
 /**
  * LINE OAuth authorize URL을 <a> 태그용으로 빌드하는 hook
@@ -22,13 +24,15 @@ function generateUUID(): string {
 
 export function useLineAuthUrl(): string {
   const [url, setUrl] = useState("#");
+  const locale = useLocale();
 
   useEffect(() => {
     const channelId = process.env.NEXT_PUBLIC_LINE_CHANNEL_ID;
     const returnUrl = window.location.pathname + window.location.search;
+    const uiLocales = toLineUiLocales(locale);
 
     if (!channelId) {
-      const fallback = `/api/auth/line?returnUrl=${encodeURIComponent(returnUrl)}`;
+      const fallback = `/api/auth/line?returnUrl=${encodeURIComponent(returnUrl)}&locale=${encodeURIComponent(locale)}`;
       setUrl(fallback);
       return;
     }
@@ -47,10 +51,12 @@ export function useLineAuthUrl(): string {
       state,
       scope: "profile openid email",
       nonce,
+      ui_locales: uiLocales,
+      bot_prompt: "normal",
     });
 
     setUrl(`https://access.line.me/oauth2/v2.1/authorize?${params.toString()}`);
-  }, []);
+  }, [locale]);
 
   return url;
 }

@@ -131,7 +131,7 @@ export function LoginModal({
         </button>
 
         {/* Content */}
-        <div className="px-6 pt-5 pb-6 sm:p-8">
+        <div className="ds-auth-modal px-6 pt-5 pb-6 sm:p-8">
           {/* Icon */}
           <div className="flex justify-center mb-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-line-50 text-line-500">
@@ -152,11 +152,11 @@ export function LoginModal({
           {/* Title & Description */}
           <h2
             id="login-modal-title"
-            className="text-lg font-bold text-center text-gray-900 mb-2"
+            className="ds-auth-modal-title text-center text-gray-900 mb-2"
           >
             {t(titleKey)}
           </h2>
-          <p className="text-sm text-center text-gray-500 mb-5">
+          <p className="ds-auth-modal-body text-center text-gray-500 mb-5">
             {t(descriptionKey)}
           </p>
 
@@ -174,7 +174,7 @@ export function LoginModal({
                 ) : (
                   <>
                     <LineIcon />
-                    <span>{t("loginWithLine")}</span>
+                    <span className="ds-auth-modal-body">{t("loginWithLine")}</span>
                   </>
                 )}
               </button>
@@ -184,20 +184,20 @@ export function LoginModal({
                 className="ds-btn-line-compact shadow-lg shadow-line-500/20"
               >
                 <LineIcon />
-                <span>{t("loginWithLine")}</span>
+                <span className="ds-auth-modal-body">{t("loginWithLine")}</span>
               </a>
             )}
 
             {/* Mobile hint */}
             {deviceInfo.isMobile && (
-              <p className="text-xs text-center text-gray-400">
+              <p className="ds-auth-modal-body text-center text-gray-400">
                 {t("lineAppWillOpen")}
               </p>
             )}
           </div>
 
           {/* Terms */}
-          <p className="mt-4 text-xs text-center text-gray-400 leading-relaxed">
+          <p className="ds-auth-modal-body mt-4 text-center text-gray-400 leading-relaxed">
             {t.rich("termsNotice", {
               terms: (chunks) => (
                 <a href="/terms" className="underline hover:text-gray-600">

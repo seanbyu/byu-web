@@ -180,7 +180,6 @@ class LiffService {
 
     const userAgent = navigator.userAgent.toLowerCase();
     return (
-      userAgent.includes("line") ||
       userAgent.includes("liff") ||
       window.location.href.includes("liff.state") ||
       window.location.search.includes("liff.state")

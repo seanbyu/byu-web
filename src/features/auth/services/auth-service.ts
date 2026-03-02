@@ -10,6 +10,7 @@
 import { createClient } from "@/lib/supabase/client";
 import type { User, Session, AuthError } from "@supabase/supabase-js";
 import type { AuthEnvironment, LineOAuthOptions, LiffLoginResponse } from "../types";
+import { extractLocaleFromPath, toLineUiLocales } from "../utils/line-oauth";
 
 // LINE OAuth URLs
 const LINE_AUTH_URL = "https://access.line.me/oauth2/v2.1/authorize";
@@ -31,12 +32,12 @@ class AuthService {
   detectEnvironment(): AuthEnvironment {
     if (typeof window === "undefined") return "unknown";
 
-    // Check if running inside LIFF browser
+    // Detect true LIFF context only (LINE in-app browser alone is not LIFF)
     const userAgent = navigator.userAgent.toLowerCase();
     const isLiff =
-      userAgent.includes("line") ||
       userAgent.includes("liff") ||
-      window.location.href.includes("liff.state");
+      window.location.href.includes("liff.state") ||
+      window.location.search.includes("liff.state");
 
     if (isLiff) return "liff";
     return "web";
@@ -55,13 +56,16 @@ class AuthService {
       if (!channelId) {
         // Fallback: redirect to our LINE OAuth initiation endpoint
         const currentPath = window.location.pathname + window.location.search;
-        window.location.href = `/api/auth/line?returnUrl=${encodeURIComponent(currentPath)}`;
+        const locale = extractLocaleFromPath(window.location.pathname) || "en";
+        window.location.href = `/api/auth/line?returnUrl=${encodeURIComponent(currentPath)}&locale=${encodeURIComponent(locale)}`;
         return { error: null };
       }
 
       const redirectUri = options?.redirectTo || `${window.location.origin}/api/auth/line/callback`;
       const csrfToken = crypto.randomUUID();
       const nonce = crypto.randomUUID();
+      const locale = extractLocaleFromPath(window.location.pathname);
+      const uiLocales = toLineUiLocales(locale);
 
       // Encode CSRF token + return URL in state parameter
       const statePayload = JSON.stringify({
@@ -80,11 +84,9 @@ class AuthService {
         state,
         scope: options?.scopes?.join(" ") || "profile openid email",
         nonce,
+        ui_locales: uiLocales,
+        bot_prompt: options?.botPrompt || "normal",
       });
-
-      if (options?.botPrompt) {
-        params.append("bot_prompt", options.botPrompt);
-      }
 
       // Redirect to LINE OAuth
       window.location.href = `${LINE_AUTH_URL}?${params.toString()}`;

@@ -6,6 +6,7 @@
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { extractLocaleFromPath, toLineUiLocales } from "@/features/auth/utils/line-oauth";
 
 const LINE_AUTH_URL = "https://access.line.me/oauth2/v2.1/authorize";
 
@@ -22,6 +23,9 @@ export async function GET(request: NextRequest) {
   const origin = request.nextUrl.origin;
   const redirectUri = `${origin}/api/auth/line/callback`;
   const returnUrl = request.nextUrl.searchParams.get("returnUrl") || "/";
+  const localeFromQuery = request.nextUrl.searchParams.get("locale");
+  const localeFromReturnUrl = extractLocaleFromPath(returnUrl);
+  const uiLocales = toLineUiLocales(localeFromQuery || localeFromReturnUrl);
   const statePayload = JSON.stringify({
     csrf: crypto.randomUUID(),
     returnUrl,
@@ -36,6 +40,8 @@ export async function GET(request: NextRequest) {
     state,
     scope: "profile openid email",
     nonce,
+    ui_locales: uiLocales,
+    bot_prompt: "normal",
   });
 
   return NextResponse.redirect(`${LINE_AUTH_URL}?${params.toString()}`);
