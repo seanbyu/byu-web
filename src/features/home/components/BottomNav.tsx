@@ -17,24 +17,24 @@ export function BottomNav() {
   const t = useTranslations("nav");
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 mx-auto flex max-w-[448px] items-center justify-between border-t border-gray-100 bg-white px-4 py-2 pb-safe">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 mx-auto flex max-w-[448px] items-center justify-between border-t border-gray-100 bg-white px-3.5 py-1.5 pb-safe">
       {NAV_ITEMS.map((item) => {
         const isActive = pathname === item.href;
         return (
           <Link
             key={item.id}
             href={item.href}
-            className="touch-target flex min-w-[3.25rem] flex-col items-center justify-center gap-1 rounded-lg px-2"
+            className="touch-target flex min-w-[3.25rem] flex-col items-center justify-center gap-0.5 rounded-lg px-2"
           >
             <item.icon
               className={clsx(
-                "w-6 h-6 transition-colors",
+                "h-5 w-5 transition-colors",
                 isActive ? "text-gray-900" : "text-gray-300"
               )}
             />
             <span
               className={clsx(
-                "text-xs font-medium transition-colors",
+                "text-[11px] font-medium leading-none transition-colors",
                 isActive ? "text-gray-900" : "text-gray-300"
               )}
             >
