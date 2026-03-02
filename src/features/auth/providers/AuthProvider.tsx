@@ -72,9 +72,25 @@ export function AuthProvider({ children, liffId }: AuthProviderProps) {
           error: null,
         });
 
-        // If LIFF environment and liffId provided, auto-init LIFF
+        // If LIFF environment and liffId provided, auto-init LIFF and authenticate
         if (env === "liff" && liffId) {
           await initLiffInternal();
+
+          // Auto-authenticate if LIFF user is logged in but no Supabase session
+          if (!session) {
+            const idToken = liffService.getIDToken();
+            if (idToken) {
+              const result = await authService.signInWithLiffToken(idToken);
+              if (result.success) {
+                setAuthState((prev) => ({
+                  ...prev,
+                  user: result.user || null,
+                  session: result.session || null,
+                  isAuthenticated: true,
+                }));
+              }
+            }
+          }
         }
       } catch (error) {
         setAuthState((prev) => ({
