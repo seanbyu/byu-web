@@ -125,8 +125,13 @@ class AuthService {
         };
       }
 
-      // Refresh the Supabase client to pick up the new session
-      await this.supabase.auth.refreshSession();
+      // Set session directly in the Supabase client using returned tokens
+      if (data.session?.access_token && data.session?.refresh_token) {
+        await this.supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+      }
 
       return {
         success: true,
