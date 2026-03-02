@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
 import { useLocale } from "next-intl";
 import { LoginModal } from "@/features/auth";
 import { getSalonStatus } from "../utils";
 import { useSalonCalendar } from "../hooks/useSalonCalendar";
 import { useSalonBooking } from "../hooks/useSalonBooking";
+import { useSalonDetailStore } from "../stores/useSalonDetailStore";
 import { SalonHeader } from "../components/SalonHeader";
 import { SalonCoverImage } from "../components/SalonCoverImage";
 import { SalonCalendar } from "../components/SalonCalendar";
@@ -18,6 +20,11 @@ import type { SalonDetailViewProps } from "../types";
 export function SalonDetailView({ salon, staff }: SalonDetailViewProps) {
   const locale = useLocale();
   const status = getSalonStatus(salon.business_hours);
+
+  // 전역 스토어를 살롱 페이지 진입 시 초기화 (이전 방문의 stale state 방지)
+  useEffect(() => {
+    useSalonDetailStore.getState().reset();
+  }, []);
 
   const calendar = useSalonCalendar(salon);
   const booking = useSalonBooking(salon, calendar.selectedDate, {
