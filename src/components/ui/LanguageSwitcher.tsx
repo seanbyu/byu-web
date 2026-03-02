@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Globe, Check, X } from "lucide-react";
 import { useRouter, usePathname } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
@@ -134,9 +135,9 @@ export function LanguageSwitcher({
         )}
       </button>
 
-      {/* Bottom Sheet Modal */}
-      {isOpen && (
-        <div className="fixed inset-0 z-[120] flex justify-center">
+      {/* Bottom Sheet Modal - portal to body to escape sticky header stacking context */}
+      {isOpen && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[200] flex justify-center">
           {/* Container wrapper - matches project max width */}
           <div className="relative flex h-full w-full max-w-[var(--app-max-width)] items-end">
             {/* Backdrop - only within container */}
@@ -205,7 +206,8 @@ export function LanguageSwitcher({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
