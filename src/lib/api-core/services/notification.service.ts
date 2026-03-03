@@ -71,7 +71,7 @@ export class NotificationService {
     startTime: string;
     serviceName?: string;
   }): Promise<void> {
-    const { bookingId, salonId, salonName, customerId, customerName, artistId, artistName, bookingDate, startTime, serviceName } = params;
+    const { bookingId, salonId, salonName, customerId, customerName, artistId, artistName, bookingDate, startTime } = params;
 
     const formattedDate = new Date(bookingDate).toLocaleDateString("ko-KR", {
       month: "long",
@@ -138,47 +138,8 @@ export class NotificationService {
         }),
       ]);
 
-      // 3. 살롱 관리자/오너에게 알림 (LINE + 인앱)
-      const owners = await this.getSalonOwners(salonId);
-
-      const adminTitle = "새 예약 요청";
-      const adminBody = `${formattedDate} ${startTime}에 ${customerName}님의 새 예약 요청이 있습니다. (담당: ${artistName})`;
-      const adminMetadata = {
-        artist_name: artistName,
-        customer_name: customerName,
-        service_name: serviceName || null,
-        booking_date: bookingDate,
-        start_time: startTime,
-      };
-
-      for (const owner of owners) {
-        await Promise.all([
-          // LINE 알림
-          this.createBookingNotification({
-            bookingId,
-            salonId,
-            channel: "LINE",
-            notificationType: "BOOKING_REQUEST",
-            recipientType: "ADMIN",
-            recipientUserId: owner.user_id,
-            title: adminTitle,
-            body: adminBody,
-            metadata: adminMetadata,
-          }),
-          // 인앱 알림
-          this.createBookingNotification({
-            bookingId,
-            salonId,
-            channel: "IN_APP",
-            notificationType: "BOOKING_REQUEST",
-            recipientType: "ADMIN",
-            recipientUserId: owner.user_id,
-            title: adminTitle,
-            body: adminBody,
-            metadata: adminMetadata,
-          }),
-        ]);
-      }
+      // 3. 어드민 알림은 Postgres 트리거(trg_booking_inserted)가 원자적으로 처리
+      //    여기서 생성하면 중복 발생 → 제거
 
       console.log(`✅ Notifications created for booking ${bookingId}`);
     } catch (error) {
@@ -201,7 +162,7 @@ export class NotificationService {
     newStartTime: string;
     serviceName?: string;
   }): Promise<void> {
-    const { bookingId, salonId, customerName, artistId, artistName, newBookingDate, newStartTime, serviceName } = params;
+    const { bookingId, salonId, customerName, artistId, newBookingDate, newStartTime } = params;
 
     const formattedDate = new Date(newBookingDate).toLocaleDateString("ko-KR", {
       month: "long",
@@ -225,32 +186,8 @@ export class NotificationService {
         body: artistBody,
       });
 
-      // 2. 살롱 관리자/오너에게 알림 (IN_APP)
-      const owners = await this.getSalonOwners(salonId);
-
-      const adminTitle = "예약 일정 변경";
-      const adminBody = `${customerName}님의 예약이 ${formattedDate} ${newStartTime}으로 변경되었습니다. (담당: ${artistName})`;
-      const adminMetadata = {
-        artist_name: artistName,
-        customer_name: customerName,
-        service_name: serviceName || null,
-        booking_date: newBookingDate,
-        start_time: newStartTime,
-      };
-
-      for (const owner of owners) {
-        await this.createBookingNotification({
-          bookingId,
-          salonId,
-          channel: "IN_APP",
-          notificationType: "BOOKING_MODIFIED",
-          recipientType: "ADMIN",
-          recipientUserId: owner.user_id,
-          title: adminTitle,
-          body: adminBody,
-          metadata: adminMetadata,
-        });
-      }
+      // 2. 어드민 알림은 Postgres 트리거(trg_booking_rescheduled)가 원자적으로 처리
+      //    여기서 생성하면 중복 발생 → 제거
 
       console.log(`✅ Reschedule notifications created for booking ${bookingId}`);
     } catch (error) {
@@ -258,23 +195,6 @@ export class NotificationService {
     }
   }
 
-  /**
-   * 살롱의 오너/관리자 목록 조회
-   */
-  private async getSalonOwners(salonId: string) {
-    const { data, error } = await this.supabase
-      .from("staff_profiles")
-      .select("user_id")
-      .eq("salon_id", salonId)
-      .eq("is_owner", true);
-
-    if (error) {
-      console.error("Failed to get salon owners:", error);
-      return [];
-    }
-
-    return data || [];
-  }
 }
 
 /**
