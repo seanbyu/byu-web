@@ -73,14 +73,13 @@ export function useSalonBooking(
   // TanStack Query - 예약 데이터
   const { data: existingBookings = [] } = useBookingsQuery(salon.id, selectedDate);
 
-  // TanStack Query - 카테고리 데이터 (모달이 열렸을 때만)
-  const { data: categories = [] } = useCategoriesQuery(salon.id, !!bookingModal);
+  // TanStack Query - 카테고리 데이터 (페이지 진입 시 미리 fetch)
+  const { data: categories = [] } = useCategoriesQuery(salon.id);
 
-  // TanStack Query - 서비스 데이터 (카테고리→서비스 매핑용)
+  // TanStack Query - 서비스 데이터 (카테고리→서비스 매핑용, 페이지 진입 시 미리 fetch)
   const { data: services = [] } = useQuery({
     queryKey: ["services", salon.id],
     queryFn: () => salonsApi.getServices(salon.id),
-    enabled: !!bookingModal,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -189,6 +188,10 @@ export function useSalonBooking(
     if (!isAuthenticated) {
       handleLoginRequired(designer, time);
       return;
+    }
+    if (designer.profile_image) {
+      const img = new window.Image();
+      img.src = designer.profile_image;
     }
     openBookingModal(designer, time);
   }, [isAuthenticated, handleLoginRequired, openBookingModal]);

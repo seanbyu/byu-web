@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
 
-  const origin = request.nextUrl.origin;
+  const origin = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
   const stateParam = searchParams.get("state");
 
   // Parse returnUrl from state parameter

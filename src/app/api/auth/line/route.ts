@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const origin = request.nextUrl.origin;
+  const origin = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
   const redirectUri = `${origin}/api/auth/line/callback`;
   const returnUrl = request.nextUrl.searchParams.get("returnUrl") || "/";
   const localeFromQuery = request.nextUrl.searchParams.get("locale");

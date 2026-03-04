@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Clock, X, ChevronDown, Tag } from "lucide-react";
 import { getLocaleCode } from "../utils";
@@ -27,12 +28,22 @@ export function BookingConfirmModal({
   const tBooking = useTranslations("booking");
   const localeCode = getLocaleCode(locale);
   const isCategorySelected = Boolean(selectedCategory);
+  const [visible, setVisible] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div
+        className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`}
+        onClick={onClose}
+      />
 
-      <div className="relative w-full max-w-[448px] bg-white rounded-t-2xl shadow-xl animate-slide-up">
+      <div className={`relative w-full max-w-[448px] bg-white rounded-t-2xl shadow-xl ${visible ? "animate-slide-up" : "translate-y-full"}`}>
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
@@ -56,7 +67,8 @@ export function BookingConfirmModal({
                 <img
                   src={designer.profile_image}
                   alt={designer.name}
-                  className="w-full h-full object-cover"
+                  onLoad={() => setImgLoaded(true)}
+                  className={`w-full h-full object-cover transition-opacity duration-200 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
                 />
               ) : (
                 <span className="text-lg font-bold text-gray-400">
