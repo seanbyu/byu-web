@@ -201,7 +201,7 @@ export const HeroBanner = memo(function HeroBanner({ banners }: HeroBannerProps)
 
   if (!banners || banners.length === 0) {
     return (
-      <div className="relative w-full aspect-[9/16] bg-gray-200 animate-pulse flex items-center justify-center sm:aspect-[3/4]">
+      <div className="relative w-full aspect-[16/9] bg-gray-200 animate-pulse flex items-center justify-center sm:aspect-[16/9]">
         <span className="text-gray-400 text-sm">Banner Area</span>
       </div>
     );
@@ -210,7 +210,7 @@ export const HeroBanner = memo(function HeroBanner({ banners }: HeroBannerProps)
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-[9/16] overflow-hidden group sm:aspect-[3/4] cursor-grab active:cursor-grabbing select-none"
+      className="relative w-full aspect-[16/9] overflow-hidden group sm:aspect-[16/9] cursor-grab active:cursor-grabbing select-none"
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
