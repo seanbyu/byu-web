@@ -2,8 +2,13 @@
   "title": "마이픽",
   "tabs": {
     "salons": "살롱",
+    "designer": "디자이너",
     "artists": "아티스트",
     "reviews": "리뷰"
+  },
+  "designer": {
+    "empty": "찜한 디자이너가 없습니다",
+    "emptyDescription": "마음에 드는 디자이너를 찾아 하트를 눌러보세요"
   },
   "salons": {
     "empty": "찜한 살롱이 없습니다",

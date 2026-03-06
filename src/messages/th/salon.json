@@ -26,5 +26,6 @@
   "bookingUnit": "หน่วยการจอง",
   "regularHoliday": "วันหยุดประจำ",
   "everyWeek": "ทุก",
-  "holiday": "วันหยุด"
+  "holiday": "วันหยุด",
+  "viewOnMap": "ดูบนแผนที่"
 }

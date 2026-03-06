@@ -26,5 +26,6 @@
   "bookingUnit": "Booking Unit",
   "regularHoliday": "Regular Holiday",
   "everyWeek": "Every",
-  "holiday": "Holiday"
+  "holiday": "Holiday",
+  "viewOnMap": "View on Map"
 }

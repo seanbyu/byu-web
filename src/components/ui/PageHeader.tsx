@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { ArrowLeft, Home, Search, Share2, Globe } from "lucide-react";
+import { ArrowLeft, Home, Search, Share2, Globe, Bell } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 import { useState } from "react";
@@ -13,6 +13,7 @@ interface PageHeaderProps {
   showSearch?: boolean;
   showShare?: boolean;
   showLanguage?: boolean;
+  showBell?: boolean;
   onShare?: () => void;
 }
 
@@ -23,6 +24,7 @@ export function PageHeader({
   showSearch = true,
   showShare = true,
   showLanguage = false,
+  showBell = false,
   onShare,
 }: PageHeaderProps) {
   const router = useRouter();
@@ -61,7 +63,7 @@ export function PageHeader({
     { code: "th", name: "ไทย", flag: "🇹🇭" },
   ];
   const actionBtnClass = "flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-gray-100";
-  const showLangHomeGroup = showLanguage || showHome;
+  const showLangHomeGroup = showLanguage || showHome || showBell;
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
@@ -124,6 +126,14 @@ export function PageHeader({
                     </>
                   )}
                 </div>
+              )}
+              {showBell && (
+                <button
+                  className={actionBtnClass}
+                  aria-label="Notifications"
+                >
+                  <Bell className="w-5 h-5 text-gray-700" />
+                </button>
               )}
               {showHome && (
                 <Link

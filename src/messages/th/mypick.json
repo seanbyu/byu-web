@@ -2,8 +2,13 @@
   "title": "My Pick",
   "tabs": {
     "salons": "ร้าน",
+    "designer": "ดีไซเนอร์",
     "artists": "ช่าง",
     "reviews": "รีวิว"
+  },
+  "designer": {
+    "empty": "ยังไม่มีดีไซเนอร์โปรด",
+    "emptyDescription": "ค้นหาดีไซเนอร์ที่ชอบแล้วกดหัวใจ"
   },
   "salons": {
     "empty": "ยังไม่มีร้านโปรด",

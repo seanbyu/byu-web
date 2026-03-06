@@ -150,7 +150,7 @@ export function BookingHistoryView() {
   if (authLoading || isLoading) {
     return (
       <div className="app-page-bleed bg-white">
-        <PageHeader title={t("myBookings")} showLanguage showHome showSearch={false} showShare={false} />
+        <PageHeader title={t("myBookings")} showBell showLanguage showHome={false} showSearch={false} showShare={false} />
         <div className="p-4 space-y-3">
           {[1, 2, 3].map((i) => (
             <BookingCardSkeleton key={i} />
@@ -164,8 +164,9 @@ export function BookingHistoryView() {
     <div className="app-page-bleed bg-white min-h-screen">
       <PageHeader
         title={t("myBookings")}
+        showBell
         showLanguage
-        showHome
+        showHome={false}
         showSearch={false}
         showShare={false}
       />

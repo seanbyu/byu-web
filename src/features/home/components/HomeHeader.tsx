@@ -11,9 +11,13 @@ export const HomeHeader = memo(function HomeHeader() {
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between bg-gradient-to-b from-gray-200 to-white px-4 py-3">
       {/* Logo */}
-      <span className="text-lg font-bold italic tracking-widest text-gray-800 select-none">
+      <button
+        type="button"
+        onClick={() => router.push("/")}
+        className="text-lg font-bold italic tracking-widest text-gray-800 select-none"
+      >
         BYU
-      </span>
+      </button>
 
       {/* Right Actions */}
       <div className="flex items-center gap-1">

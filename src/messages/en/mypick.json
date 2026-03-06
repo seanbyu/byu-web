@@ -2,8 +2,13 @@
   "title": "My Pick",
   "tabs": {
     "salons": "Salons",
+    "designer": "Designer",
     "artists": "Artists",
     "reviews": "Reviews"
+  },
+  "designer": {
+    "empty": "No favorite designers yet",
+    "emptyDescription": "Find designers you love and tap the heart"
   },
   "salons": {
     "empty": "No favorite salons yet",

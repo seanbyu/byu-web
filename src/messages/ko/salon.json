@@ -26,5 +26,6 @@
   "bookingUnit": "예약 단위",
   "regularHoliday": "정기 휴무",
   "everyWeek": "매주",
-  "holiday": "휴무일"
+  "holiday": "휴무일",
+  "viewOnMap": "지도에서 보기"
 }

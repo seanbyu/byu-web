@@ -1663,6 +1663,7 @@ export type Database = {
           description: string | null
           email: string | null
           holidays: Json | null
+          google_maps_url: string | null
           id: string
           is_active: boolean
           latitude: number | null
@@ -1690,6 +1691,7 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           email?: string | null
+          google_maps_url?: string | null
           holidays?: Json | null
           id?: string
           is_active?: boolean
@@ -1718,6 +1720,7 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           email?: string | null
+          google_maps_url?: string | null
           holidays?: Json | null
           id?: string
           is_active?: boolean
