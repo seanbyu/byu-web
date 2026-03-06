@@ -1,9 +1,10 @@
 "use client";
 
 import { memo } from "react";
-import { Search, Bell } from "lucide-react";
+import { Search } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 
 export const HomeHeader = memo(function HomeHeader() {
   const router = useRouter();
@@ -30,15 +31,9 @@ export const HomeHeader = memo(function HomeHeader() {
           <Search className="h-5 w-5 text-gray-700" />
         </button>
 
-        <button
-          type="button"
-          className="touch-target flex items-center justify-center rounded-full p-1.5 transition-colors hover:bg-black/10"
-          aria-label="알림"
-        >
-          <Bell className="h-5 w-5 text-gray-700" />
-        </button>
-
         <LanguageSwitcher variant="icon" />
+
+        <NotificationBell />
       </div>
     </header>
   );

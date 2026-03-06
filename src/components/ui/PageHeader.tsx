@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { ArrowLeft, Home, Search, Share2, Globe, Bell } from "lucide-react";
+import { ArrowLeft, Home, Search, Share2, Globe } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 import { useState } from "react";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 
 interface PageHeaderProps {
   title?: string;
@@ -127,14 +128,7 @@ export function PageHeader({
                   )}
                 </div>
               )}
-              {showBell && (
-                <button
-                  className={actionBtnClass}
-                  aria-label="Notifications"
-                >
-                  <Bell className="w-5 h-5 text-gray-700" />
-                </button>
-              )}
+              {showBell && <NotificationBell />}
               {showHome && (
                 <Link
                   href="/"

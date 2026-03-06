@@ -7,6 +7,7 @@ import { routing, type Locale } from "@/i18n/routing";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { ClientAuthProvider } from "@/features/auth/providers/ClientAuthProvider";
 import { AuthBottomNav } from "@/features/auth/components/AuthBottomNav";
+import { NotificationProvider } from "@/features/notifications/context/NotificationContext";
 import { Toaster } from "sonner";
 import "../globals.css";
 
@@ -77,13 +78,15 @@ export default async function LocaleLayout({ children, params }: Props) {
                 <QueryProvider>
                     <NextIntlClientProvider messages={messages}>
                         <ClientAuthProvider liffId={process.env.NEXT_PUBLIC_LIFF_ID}>
-                            <Toaster position="top-center" richColors />
-                            <div className="flex min-h-dvh w-full justify-center bg-gray-100">
-                                <div className="relative flex min-h-dvh w-full max-w-[var(--app-max-width)] flex-col bg-white shadow-xl">
-                                    <main className="min-h-0 flex-1">{children}</main>
-                                    <AuthBottomNav />
+                            <NotificationProvider>
+                                <Toaster position="top-center" richColors />
+                                <div className="flex min-h-dvh w-full justify-center bg-gray-100">
+                                    <div className="relative flex min-h-dvh w-full max-w-[var(--app-max-width)] flex-col bg-white shadow-xl">
+                                        <main className="min-h-0 flex-1">{children}</main>
+                                        <AuthBottomNav />
+                                    </div>
                                 </div>
-                            </div>
+                            </NotificationProvider>
                         </ClientAuthProvider>
                     </NextIntlClientProvider>
                 </QueryProvider>

@@ -11,6 +11,7 @@
   "beforeOpen": "เตรียมเปิด",
   "afterClose": "ปิดแล้ว",
   "interpreterAvailable": "มีล่าม",
+  "interpreterDesc": "ร้านนี้มีล่าม (เกาหลี, ไทย, อังกฤษ)",
   "facilities": "สิ่งอำนวยความสะดวก",
   "parking": "มีที่จอดรถ",
   "wifi": "WiFi ฟรี",

@@ -11,6 +11,7 @@
   "beforeOpen": "Preparing",
   "afterClose": "Closed",
   "interpreterAvailable": "Interpreter Available",
+  "interpreterDesc": "Interpreter available (Korean, Thai, English)",
   "facilities": "Facilities",
   "parking": "Parking Available",
   "wifi": "Free WiFi",
