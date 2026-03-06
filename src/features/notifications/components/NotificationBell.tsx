@@ -77,14 +77,14 @@ function NotificationItem({ notif, onClose }: { notif: AppNotification; onClose:
             <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary-500" />
           )}
         </div>
-        {notif.metadata?.artist_name && notif.metadata?.booking_date && (
+        {!!(notif.metadata?.artist_name && notif.metadata?.booking_date) && (
           <p className="mt-0.5 line-clamp-1 text-[11px] text-gray-500">
-            {String(notif.metadata.artist_name)} · {String(notif.metadata.booking_date)}{" "}
-            {notif.metadata.start_time ? String(notif.metadata.start_time) : ""}
+            {String(notif.metadata!.artist_name)} · {String(notif.metadata!.booking_date)}{" "}
+            {notif.metadata!.start_time ? String(notif.metadata!.start_time) : ""}
           </p>
         )}
-        {notif.metadata?.salon_name && (
-          <p className="line-clamp-1 text-[11px] text-gray-400">{String(notif.metadata.salon_name)}</p>
+        {!!notif.metadata?.salon_name && (
+          <p className="line-clamp-1 text-[11px] text-gray-400">{String(notif.metadata!.salon_name)}</p>
         )}
         <p className="mt-0.5 text-[10px] text-gray-400">{getRelativeTime(notif.created_at)}</p>
       </div>
