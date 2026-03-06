@@ -1060,7 +1060,7 @@ export default function BookingDetailPage() {
 
       {/* Cancel Confirmation Modal */}
       {showCancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-modal flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/50 animate-backdrop" onClick={() => !isCancelling && setShowCancelModal(false)} />
 
           <div className="relative w-full max-w-[360px] rounded-2xl bg-white p-6 shadow-xl animate-slide-up">

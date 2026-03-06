@@ -1,5 +1,5 @@
-import { StylingBookView } from "@/features/styling-book/views/StylingBookView";
+import { SearchView } from "@/features/search/views/SearchView";
 
-export default function StylingBookPage() {
-  return <StylingBookView />;
+export default function SearchPage() {
+  return <SearchView />;
 }

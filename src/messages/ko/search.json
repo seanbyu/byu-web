@@ -1,0 +1,27 @@
+{
+  "placeholder": "검색어를 입력해주세요",
+  "tabs": {
+    "styleTip": "스타일팁",
+    "styleBook": "스타일북",
+    "salon": "살롱"
+  },
+  "styleBook": {
+    "categoryTitle": "스타일 카테고리",
+    "bookTitle": "추천 스타일 북",
+    "comingSoon": "곧 업데이트",
+    "bookCardTitle": "스타일 샘플",
+    "bookCardSubtitle": "디자이너 포트폴리오 연동 예정",
+    "categories": {
+      "haircut": "헤어컷",
+      "color": "컬러",
+      "perm": "펌",
+      "daily": "데일리"
+    }
+  },
+  "styleTip": {
+    "comingSoon": "스타일팁 서비스 준비 중입니다"
+  },
+  "salon": {
+    "comingSoon": "살롱 검색 서비스 준비 중입니다"
+  }
+}

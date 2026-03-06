@@ -1,0 +1,471 @@
+# Beauty By You (byu-web) — Cline Custom Instructions
+
+## 프로젝트 개요
+
+**Beauty By You**는 태국 뷰티 살롱 예약 플랫폼입니다.
+- **대상**: 일반 유저 (고객) 전용 웹앱
+- **인증**: LINE LIFF / LINE OAuth
+- **다국어**: 한국어(ko) · 영어(en) · 태국어(th) — 기본값 `ko`
+- **패키지 매니저**: pnpm
+
+---
+
+## Tech Stack
+
+| 레이어 | 기술 |
+|---|---|
+| 프레임워크 | Next.js 16 (App Router) |
+| UI | React 19, Tailwind CSS, lucide-react |
+| 서버 상태 | TanStack React Query v5 |
+| 클라이언트 상태 | Zustand v5 |
+| 백엔드 | Supabase (PostgreSQL + Auth + Storage) |
+| 인증 | LINE LIFF, LINE OAuth, Supabase Auth |
+| i18n | next-intl v4 (locales: ko, en, th) |
+| 알림 | sonner (Toaster) |
+| 폼 유틸 | libphonenumber-js, react-phone-number-input |
+
+---
+
+## 디렉터리 구조
+
+```
+src/
+├── app/
+│   ├── [locale]/          # 유저용 페이지 (App Router)
+│   │   ├── layout.tsx     # 로케일별 레이아웃 (폰트, Provider)
+│   │   ├── page.tsx       # 홈
+│   │   ├── login/
+│   │   ├── salon/[id]/
+│   │   ├── salon/[id]/booking/
+│   │   ├── bookings/
+│   │   ├── bookings/[id]/
+│   │   ├── mypick/
+│   │   ├── menus/
+│   │   ├── search/
+│   │   └── my/
+│   └── api/               # Next.js Route Handlers (BFF)
+│       ├── auth/          # LINE OAuth, LIFF, callback
+│       ├── bookings/      # 예약 CRUD
+│       ├── salons/        # 살롱 조회
+│       ├── users/
+│       └── customers/
+│
+├── features/              # 도메인 피처 (핵심)
+│   ├── auth/
+│   ├── home/
+│   ├── salons/
+│   ├── bookings/
+│   ├── mypick/
+│   ├── favorites/
+│   ├── salon-menus/
+│   └── styling-book/
+│
+├── lib/
+│   ├── supabase/          # server.ts, client.ts, storage.ts, types.ts
+│   ├── api/               # fetch 유틸 (index.ts, queries.ts, mutations.ts, endpoints.ts)
+│   ├── api-core/          # Repository / Service 패턴
+│   │   ├── repositories/
+│   │   └── services/
+│   └── providers/         # QueryProvider
+│
+├── components/
+│   └── ui/                # 공용 UI 컴포넌트
+│
+├── i18n/
+│   ├── routing.ts         # locales 정의
+│   └── request.ts
+│
+└── types/
+    └── index.ts           # 공용 타입 (ApiResponse, QueryParams 등)
+```
+
+---
+
+## 피처 도메인 구조 (features/[domain]/)
+
+각 피처 디렉터리는 아래 구조를 따릅니다:
+
+```
+features/[domain]/
+├── api.ts          # fetch 함수 (직접 API 호출)
+├── types/          # 도메인 타입 정의
+├── hooks/
+│   ├── use[Name]Query.ts   # React Query useQuery 훅
+│   └── use[Name].ts        # 비즈니스 로직 훅
+├── stores/
+│   └── use[Name]Store.ts   # Zustand UI 상태 스토어
+├── components/     # 도메인 전용 재사용 컴포넌트
+└── views/
+    └── [Name]View.tsx      # 페이지 단위 뷰 컴포넌트
+```
+
+**규칙:**
+- `app/[locale]/*/page.tsx`는 **얇게** 유지 — 실제 로직은 `features/*/views/*.tsx`에 위치
+- 서버 데이터는 React Query, UI 상태(모달 open/close, 탭, 필터)는 Zustand
+
+---
+
+## 도메인별 역할
+
+### `auth`
+- LINE LIFF 초기화, LINE OAuth 로그인, Supabase 세션
+- `ClientAuthProvider` — 앱 전체 인증 컨텍스트
+- `useAuth()` — 유저 정보 + 로그인 상태
+- `useLiff()` — LIFF 환경 감지 및 초기화
+- `useRequireAuth()` — 인증 필요 페이지 가드
+
+### `home`
+- 살롱 목록, 카테고리 그리드, 히어로 배너, 트렌딩 섹션
+- `useSalonsQuery()` — 살롱 목록 React Query
+
+### `salons`
+- 살롱 상세, 디자이너 슬롯, 캘린더, 예약 확인 모달
+- `useSalonCalendar()`, `useSalonBooking()`, `useCategoriesQuery()`
+
+### `bookings`
+- 예약 플로우 (step-by-step): Service → Designer → DateTime → Confirm
+- `useBookingFlowStore` — 예약 단계 상태 (Zustand)
+- `BookingView`, `ServiceStep`, `DesignerStep`, `DateTimeStep`, `ConfirmStep`
+- 예약 내역 조회: `BookingHistoryView`
+
+### `mypick`
+- 찜한 살롱 / 아티스트 / 리뷰 탭
+- `useFavoritesQuery()`, `favoritesStore`
+
+### `salon-menus`
+- 살롱 메뉴/시술 카테고리 목록
+
+### `styling-book`
+- 스타일링 북 뷰
+
+---
+
+## 코딩 컨벤션
+
+### 컴포넌트
+- 함수형 컴포넌트, `export default` 사용
+- Props 타입은 컴포넌트 파일 내 `type Props = {...}` 정의
+- 클라이언트 컴포넌트는 파일 상단에 `"use client"` 명시
+
+### React Query (서버 상태)
+- 훅 파일: `src/features/[domain]/hooks/use[Name]Query.ts`
+- `queryKey`는 배열 형식, 도메인 prefix 포함: `['salons', salonId]`
+- `api.ts`의 fetch 함수를 `queryFn`으로 사용
+- mutation은 `useMutation` + `onSuccess`에서 `queryClient.invalidateQueries`
+
+### Zustand (UI 상태)
+- 스토어 파일: `src/features/[domain]/stores/use[Name]Store.ts`
+- **서버 데이터는 절대 Zustand에 저장하지 않음**
+- UI 상태만: 모달 open/close, 선택된 탭, 로컬 필터, 멀티 스텝 상태
+
+### Supabase
+- 서버 컴포넌트/Route Handler: `src/lib/supabase/server.ts`의 `createClient()`
+- 클라이언트 컴포넌트: `src/lib/supabase/client.ts`의 `createBrowserClient()`
+- RLS 우회가 필요한 경우에만 admin 클라이언트 사용 (예: 예약 취소)
+
+### API Route Handlers (BFF)
+- `src/app/api/[resource]/route.ts`
+- 응답 형식: `ApiResponse<T>` (`src/types/index.ts`)
+- 인증이 필요한 엔드포인트는 Supabase session 검증 후 처리
+
+---
+
+## i18n 규칙
+
+- **모든 UI 텍스트**는 번역 키를 사용 — 하드코딩 금지
+- `useTranslations('namespace')` 훅 사용 (클라이언트)
+- `getTranslations('namespace')` 사용 (서버 컴포넌트)
+- 로케일 파일 위치: `messages/ko.json`, `messages/en.json`, `messages/th.json`
+- 새 텍스트 추가 시 **3개 로케일 모두 동시 업데이트** 필수
+- 링크/라우팅은 반드시 `@/i18n/routing`의 `Link`, `useRouter`, `redirect` 사용
+
+---
+
+## 인증 패턴
+
+- **LINE LIFF 환경** (카카오톡 인앱 등): `useLiff()` → LIFF 로그인
+- **일반 브라우저**: LINE OAuth 리다이렉트 플로우
+- 인증 상태: `useAuth()` 훅에서 `user`, `customer`, `isLoading`, `isAuthenticated` 반환
+- 보호된 페이지: `useRequireAuth()` 훅으로 리다이렉트 처리
+
+---
+
+## 디자인 시스템 & CSS
+
+### 핵심 원칙
+
+모든 스타일은 `src/app/globals.css`에 정의된 CSS 변수를 기반으로 하며,
+Tailwind 클래스는 해당 변수를 참조하는 토큰만 사용한다.
+**임의 값(`text-[13px]`, `min-h-[44px]` 등) 사용 금지.**
+
+---
+
+### 컬러 토큰 사용법
+
+| 용도 | Tailwind 클래스 | CSS 변수 |
+|---|---|---|
+| 브랜드 메인 | `bg-primary-600`, `text-primary-600` | `--color-primary-*` |
+| 브랜드 보조 | `bg-secondary-500`, `text-secondary-500` | `--color-secondary-*` |
+| LINE 브랜드 | `bg-line-500`, `text-line-500` | `--color-line-*` |
+| 중립 | `bg-gray-100`, `text-gray-700` | `--color-gray-*` |
+| 성공 | `bg-success`, `text-success` | `--color-success` |
+| 경고 | `bg-warning`, `text-warning` | `--color-warning` |
+| 오류 | `bg-error`, `text-error` | `--color-error` |
+| 정보 | `bg-info`, `text-info` | `--color-info` |
+| 배경 | `bg-background`, `bg-background-secondary` | `--background` |
+
+**금지:** `bg-purple-600`, `bg-pink-500` 등 Tailwind 기본 팔레트 직접 사용.
+반드시 `primary-*`, `secondary-*` 토큰 사용.
+
+---
+
+### 타이포그래피
+
+Tailwind `fontSize` 토큰도 CSS 변수를 참조하므로 반드시 아래 클래스 사용:
+
+```
+text-xs   → var(--font-size-xs)   12px (모바일 13px)
+text-sm   → var(--font-size-sm)   14px (모바일 13px)
+text-base → var(--font-size-base) 16px (모바일 15px)
+text-lg   → var(--font-size-lg)   18px (모바일 17px)
+text-xl   → var(--font-size-xl)   20px
+text-2xl  → var(--font-size-2xl)  24px
+```
+
+**유체(fluid) 타이포그래피** — 제목/본문/캡션에는 ds 클래스 우선:
+
+```
+.ds-title-1     제목 1 (fluid, bold)
+.ds-title-2     제목 2 (fluid, semibold)
+.ds-text-body   본문 (fluid)
+.ds-text-caption 캡션 (fluid)
+```
+
+**금지:** `text-[13px]`, `text-[0.8rem]` 등 임의 폰트 크기.
+
+---
+
+### 간격 (Spacing)
+
+Tailwind spacing 토큰도 CSS 변수 참조. 아래 값만 사용:
+
+```
+p-1 / m-1  → 4px    p-2 / m-2  → 8px
+p-3 / m-3  → 12px   p-4 / m-4  → 16px
+p-5 / m-5  → 20px   p-6 / m-6  → 24px
+p-8 / m-8  → 32px   p-10 / m-10 → 40px
+p-12 / m-12 → 48px  p-16 / m-16 → 64px
+```
+
+페이지 패딩은 직접 지정하지 말고 `.app-page` 클래스 사용:
+- `--page-padding-x: 12px (sm: 16px)`
+- `--page-padding-y: 12px (sm: 16px)`
+
+**금지:** `p-[14px]`, `mt-[20px]` 등 임의 간격.
+
+---
+
+### Border Radius
+
+```
+rounded-sm   → 4px    rounded-md  → 6px
+rounded-lg   → 8px    rounded-xl  → 12px
+rounded-2xl  → 16px   rounded-full → 9999px
+```
+
+**금지:** `rounded-[10px]` 등 임의 radius.
+
+---
+
+### 레이아웃 & 페이지 구조
+
+```
+--app-max-width: 430px      앱 최대 너비
+--bottom-nav-height: 62px   하단 네비게이션 높이
+```
+
+**페이지 wrapper 클래스 선택:**
+
+| 클래스 | 용도 |
+|---|---|
+| `.app-page` | 일반 페이지 (하단 네비 여백 포함, 좌우 패딩 있음) |
+| `.app-page-tight` | 하단 네비 없는 페이지 (좌우 패딩 있음) |
+| `.app-page-bleed` | 풀블리드 페이지 (좌우 패딩 없음, 하단 여백만) |
+| `.app-stack` | 섹션 간 gap (`--page-section-gap`) flex column |
+| `.app-section` | 카드형 섹션 (border, rounded-2xl, bg-white, p-4) |
+
+---
+
+### 컴포넌트 프리미티브 (DS 클래스)
+
+코드에서 직접 Tailwind를 조합하는 대신, `globals.css`에 정의된 DS 클래스 우선 사용:
+
+**입력 폼:**
+
+| 클래스 | 용도 |
+|---|---|
+| `.ds-input` | 기본 텍스트 인풋 (rounded-xl, focus:primary-500) |
+| `.ds-select` | 셀렉트 박스 |
+| `.ds-textarea` | 텍스트에어리어 |
+| `.ds-field-shell` | 커스텀 인풋 래퍼 (focus-within 스타일) |
+| `.ds-label` | 인풋 라벨 (text-sm, font-semibold) |
+
+**버튼:**
+
+| 클래스 | 용도 |
+|---|---|
+| `.ds-btn-primary` | 기본 제출 버튼 (primary-600, rounded-xl, full-width) |
+| `.ds-btn-line` | LINE 로그인 버튼 (large) |
+| `.ds-btn-line-compact` | LINE 버튼 소형 |
+
+**콘텐츠:**
+
+| 클래스 | 용도 |
+|---|---|
+| `.ds-control` | 컨트롤 요소 최소 높이 (`--control-height-md: 44px`) |
+| `.ds-chip` | 칩/태그 (`--chip-height: 40px`) |
+| `.ds-badge` | 뱃지/라벨 (rounded-full, caption 폰트) |
+
+---
+
+### 컨트롤 높이 (터치 타겟)
+
+모바일 터치 타겟 최소 44px 준수:
+
+```
+--control-height-sm: 36px
+--control-height-md: 44px  ← 기본 (모바일)
+--control-height-lg: 48px
+--chip-height: 40px
+```
+
+**금지:** `min-h-[44px]`, `h-[48px]` 등 하드코딩.
+대신 `.ds-control`, `.ds-btn-primary`, `.ds-chip` 클래스 사용.
+
+---
+
+### 그림자 & 트랜지션
+
+```
+shadow-sm / shadow-md / shadow-lg / shadow-xl   CSS 변수 참조
+
+transition-colors duration-[150ms]  → duration-fast (150ms)
+transition-colors duration-[200ms]  → duration-normal (200ms)
+transition-colors duration-[300ms]  → duration-slow (300ms)
+```
+
+---
+
+### Z-Index
+
+임의 z-index 금지. 반드시 Tailwind 토큰 사용:
+
+```
+z-dropdown       → 100
+z-modal-backdrop → 200
+z-modal          → 300
+z-toast          → 400
+```
+
+---
+
+### 애니메이션
+
+`globals.css`에 정의된 유틸리티 클래스 사용:
+
+```
+.animate-fade-in    → opacity 0→1, scale 0.95→1 (200ms)
+.animate-slide-up   → translateY(100%→0) (300ms)
+.animate-backdrop   → opacity 0→1 (250ms)
+.animate-spin       → 1s linear infinite
+.animate-pulse      → 2s opacity pulse
+```
+
+Tailwind keyframe 토큰도 동일하게 사용 가능:
+`animate-slide-up`, `animate-fade-in`, `animate-spin`, `animate-pulse`
+
+---
+
+### 모바일 SafeArea
+
+iOS 노치/홈바 대응:
+
+```css
+/* 유틸리티 클래스 */
+.pb-safe → padding-bottom: env(safe-area-inset-bottom)
+
+/* 하단 네비 여백이 필요한 경우 */
+padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + ...)
+```
+
+---
+
+### 반응형 전략
+
+이 앱은 **모바일 우선** (max-width: 430px). 반응형 분기점:
+
+| breakpoint | 용도 |
+|---|---|
+| 기본 (0~640px) | 모바일, 터치 디바이스 기준 |
+| `sm:` (640px~) | 태블릿 이상, 패딩/높이 소폭 축소 |
+| `lg:` (1024px~) | 데스크탑, 컨트롤 높이 더 축소 |
+
+모바일 터치 디바이스(`max-width: 640px, pointer: coarse`)에서
+`text-xs`~`text-lg`는 CSS 변수가 자동으로 더 크게 조정됨 — 별도 처리 불필요.
+
+---
+
+### Design System Lint
+
+`pnpm run lint:ds` 실행 시 아래를 검사함:
+
+- `globals.css`에 `--control-height-md`, `.ds-title-1` 등 핵심 토큰 존재 여부
+- 특정 파일에서 `min-h-[*px]`, `text-sm` 하드코딩 금지 패턴 위반 여부
+
+코드 수정 후 반드시 `pnpm run lint:ds`로 검증.
+
+---
+
+### 커스텀 CSS 추가 규칙
+
+새 전역 스타일이 필요한 경우:
+1. `globals.css`의 `@layer components {}` 안에 `.ds-` 접두사로 추가
+2. CSS 변수로 값 정의 후 Tailwind config에 토큰 등록
+3. 컴포넌트 인라인 `style={{}}` 사용은 CSS 변수 참조 시에만 허용
+4. `styled-components`, `emotion`, CSS Modules 사용 금지
+
+---
+
+## 일반 규칙
+
+- **항상 한국어로 답변**
+- 코드 수정 전 반드시 현재 파일 구조 파악 후 진행
+- 어드민 권한 로직 항상 고려 (일반 유저가 접근 불가한 데이터/액션 확인)
+- **Supabase RLS 정책 고려해서 코드 작성** — 유저 본인 데이터만 접근 가능한지 항상 검토
+
+---
+
+## 금지 사항
+
+- `any` 타입 사용 금지 — 구체적인 타입 또는 `unknown` 사용
+- `console.log` 프로덕션 코드에 남기지 않기
+- `fetch`를 컴포넌트 내에서 직접 호출 금지 — 반드시 `features/*/api.ts` 경유
+- React Query 없이 `useState` + `useEffect`로 비동기 데이터 관리 금지
+- 하드코딩된 한국어/영어/태국어 문자열 컴포넌트에 직접 사용 금지
+- `next/link` 직접 사용 금지 — `@/i18n/routing`의 `Link` 사용
+- Tailwind 임의 값 금지: `text-[13px]`, `min-h-[44px]`, `p-[14px]`, `rounded-[10px]` 등
+- `bg-purple-*`, `bg-pink-*` 등 Tailwind 기본 팔레트 직접 사용 금지 — 반드시 `primary-*`, `secondary-*` 토큰 사용
+- 임의 z-index 금지 (`z-[999]` 등) — `z-modal`, `z-dropdown` 등 토큰 사용
+- `styled-components`, `emotion`, CSS Modules 사용 금지
+
+---
+
+## 파일 생성 체크리스트
+
+새 피처 도메인 추가 시:
+- [ ] `src/features/[domain]/api.ts` — fetch 함수
+- [ ] `src/features/[domain]/types/index.ts` — 타입
+- [ ] `src/features/[domain]/hooks/use[Name]Query.ts` — React Query
+- [ ] `src/features/[domain]/views/[Name]View.tsx` — 뷰 컴포넌트
+- [ ] `src/app/[locale]/[route]/page.tsx` — 페이지 (View 렌더링만)
+- [ ] `messages/ko.json`, `messages/en.json`, `messages/th.json` — 번역 키 추가

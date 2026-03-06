@@ -1,0 +1,27 @@
+{
+  "placeholder": "ค้นหา...",
+  "tabs": {
+    "styleTip": "เคล็ดลับสไตล์",
+    "styleBook": "สไตล์บุ๊ค",
+    "salon": "ซาลอน"
+  },
+  "styleBook": {
+    "categoryTitle": "หมวดหมู่สไตล์",
+    "bookTitle": "สไตล์แนะนำ",
+    "comingSoon": "เร็วๆ นี้",
+    "bookCardTitle": "ตัวอย่างสไตล์",
+    "bookCardSubtitle": "จะเชื่อมต่อพอร์ตโฟลิโอดีไซเนอร์",
+    "categories": {
+      "haircut": "ตัดผม",
+      "color": "ทำสี",
+      "perm": "ดัด",
+      "daily": "ลุคประจำวัน"
+    }
+  },
+  "styleTip": {
+    "comingSoon": "เคล็ดลับสไตล์กำลังจะมาเร็วๆ นี้"
+  },
+  "salon": {
+    "comingSoon": "ค้นหาซาลอนกำลังจะมาเร็วๆ นี้"
+  }
+}

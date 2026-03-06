@@ -11,9 +11,10 @@ import type { HomeViewProps } from "../types";
 
 // Mock banners - can be replaced with real data later
 const MOCK_BANNERS = [
-  { id: "1", imageUrl: "https://placehold.co/600x300/f8f4ff/9b87f5?text=Welcome+to+Salon+Store", link: "#" },
-  { id: "2", imageUrl: "https://placehold.co/600x300/fff4f8/f587a3?text=Special+Offers", link: "#" },
-  { id: "3", imageUrl: "https://placehold.co/600x300/f4fff8/87f5a3?text=New+Salons", link: "#" },
+  { id: "1", imageUrl: "/banner/1.png", link: "#" },
+  { id: "2", imageUrl: "/banner/2.png", link: "#" },
+  { id: "3", imageUrl: "/banner/3.png", link: "#" },
+  { id: "4", imageUrl: "/banner/4.png", link: "#" },
 ];
 
 export const HomeView = memo(function HomeView({ salons: initialSalons }: HomeViewProps) {

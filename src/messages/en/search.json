@@ -1,0 +1,27 @@
+{
+  "placeholder": "Search...",
+  "tabs": {
+    "styleTip": "Style Tips",
+    "styleBook": "Stylebook",
+    "salon": "Salon"
+  },
+  "styleBook": {
+    "categoryTitle": "Style Categories",
+    "bookTitle": "Featured Stylebooks",
+    "comingSoon": "Coming soon",
+    "bookCardTitle": "Style Sample",
+    "bookCardSubtitle": "Designer portfolio integration planned",
+    "categories": {
+      "haircut": "Haircut",
+      "color": "Color",
+      "perm": "Perm",
+      "daily": "Daily"
+    }
+  },
+  "styleTip": {
+    "comingSoon": "Style tips coming soon"
+  },
+  "salon": {
+    "comingSoon": "Salon search coming soon"
+  }
+}

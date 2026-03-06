@@ -293,9 +293,10 @@ const BookingsTab = memo(function BookingsTab() {
 // ─── Loading Skeleton (rendering-hoist-jsx) ──────────────
 
 function LoadingSkeleton() {
+    const t = useTranslations("auth");
     return (
         <div className="app-page-bleed bg-gray-50">
-            <PageHeader showLanguage showHome showSearch={false} showShare={false} />
+            <PageHeader title={t("myPage.title")} showLanguage showHome showSearch={false} showShare={false} />
             <div className="app-page-tight pt-2">
                 <div className="mb-4 rounded-xl border border-gray-200 bg-white p-1 sm:mb-5">
                     <div className="grid grid-cols-3 gap-1">
@@ -391,7 +392,7 @@ export default function MyPage() {
 
     return (
         <div className="app-page-bleed bg-gray-50">
-            <PageHeader showLanguage showHome showSearch={false} showShare={false} />
+            <PageHeader title={t("myPage.title")} showLanguage showHome showSearch={false} showShare={false} />
 
             <div className="app-page-tight pt-2">
                 {/* Tab Navigation */}

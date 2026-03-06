@@ -26,6 +26,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       settings: (await import(`../messages/${locale}/settings.json`)).default,
       mypick: (await import(`../messages/${locale}/mypick.json`)).default,
       stylingBook: (await import(`../messages/${locale}/stylingBook.json`)).default,
+      search: (await import(`../messages/${locale}/search.json`)).default,
     },
   };
 });
