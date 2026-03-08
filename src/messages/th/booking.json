@@ -88,5 +88,9 @@
   "rescheduling": "กำลังเปลี่ยนเวลา...",
   "rescheduleSuccess": "เปลี่ยนเวลาการจองแล้ว",
   "rescheduleFailed": "ไม่สามารถเปลี่ยนเวลาได้ กรุณาลองใหม่อีกครั้ง",
-  "loadingSlots": "กำลังโหลดเวลาว่าง..."
+  "loadingSlots": "กำลังโหลดเวลาว่าง...",
+  "notifications": {
+    "confirmedTitle": "การจองของคุณได้รับการยืนยันแล้ว",
+    "cancelledTitle": "การจองของคุณถูกยกเลิกแล้ว"
+  }
 }

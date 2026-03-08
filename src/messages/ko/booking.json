@@ -88,5 +88,9 @@
   "rescheduling": "변경 중...",
   "rescheduleSuccess": "일정이 변경되었습니다.",
   "rescheduleFailed": "일정 변경에 실패했습니다. 다시 시도해주세요.",
-  "loadingSlots": "시간 정보를 불러오는 중..."
+  "loadingSlots": "시간 정보를 불러오는 중...",
+  "notifications": {
+    "confirmedTitle": "예약이 확정되었습니다",
+    "cancelledTitle": "예약이 취소되었습니다"
+  }
 }

@@ -88,5 +88,9 @@
   "rescheduling": "Rescheduling...",
   "rescheduleSuccess": "Booking has been rescheduled.",
   "rescheduleFailed": "Failed to reschedule. Please try again.",
-  "loadingSlots": "Loading available times..."
+  "loadingSlots": "Loading available times...",
+  "notifications": {
+    "confirmedTitle": "Your booking has been confirmed",
+    "cancelledTitle": "Your booking has been cancelled"
+  }
 }

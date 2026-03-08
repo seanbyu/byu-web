@@ -52,7 +52,11 @@ function NotificationItem({ notif, onClose }: { notif: AppNotification; onClose:
   const handleClick = () => {
     markRead(notif.id);
     onClose();
-    router.push("/notifications");
+    if (notif.booking_id) {
+      router.push(`/bookings/${notif.booking_id}`);
+    } else {
+      router.push("/notifications");
+    }
   };
 
   const iconColor = TYPE_COLOR[notif.notification_type] ?? "bg-gray-100 text-gray-500";

@@ -1,7 +1,10 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { useAuthContext } from "@/features/auth";
+import { createClient } from "@/lib/supabase/client";
 
 export interface AppNotification {
   id: string;
@@ -27,11 +30,14 @@ interface NotificationContextValue {
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
 
+const TOAST_TYPES = new Set(["BOOKING_CONFIRMED", "BOOKING_CANCELLED"]);
+
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthContext();
+  const t = useTranslations("booking.notifications");
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -49,13 +55,51 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     if (!isAuthenticated) {
       setNotifications([]);
       setIsOpen(false);
+      if (channelRef.current) {
+        channelRef.current.unsubscribe();
+        channelRef.current = null;
+      }
       return;
     }
 
+    // 초기 데이터 로드
     fetchNotifications();
-    intervalRef.current = setInterval(fetchNotifications, 60_000);
+
+    // Supabase Realtime 구독 — INSERT 이벤트만 수신
+    // RLS가 현재 유저의 알림만 필터링해줌
+    const supabase = createClient();
+    const channel = supabase
+      .channel("customer-notifications")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: "channel=eq.IN_APP",
+        },
+        (payload) => {
+          const newNotification = payload.new as AppNotification;
+          setNotifications((prev) => [newNotification, ...prev]);
+
+          if (TOAST_TYPES.has(newNotification.notification_type)) {
+            const isConfirmed = newNotification.notification_type === "BOOKING_CONFIRMED";
+            const title = t(isConfirmed ? "confirmedTitle" : "cancelledTitle");
+            if (isConfirmed) {
+              toast.success(title, { duration: 5000 });
+            } else {
+              toast.error(title, { duration: 5000 });
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    channelRef.current = channel;
+
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      channel.unsubscribe();
+      channelRef.current = null;
     };
   }, [isAuthenticated, fetchNotifications]);
 
