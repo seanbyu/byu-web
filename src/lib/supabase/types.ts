@@ -565,6 +565,7 @@ export type Database = {
           internal_notes: string | null
           is_blacklisted: boolean
           last_visit: string | null
+          line_blocked: boolean
           line_display_name: string | null
           line_picture_url: string | null
           line_user_id: string | null
@@ -602,6 +603,7 @@ export type Database = {
           internal_notes?: string | null
           is_blacklisted?: boolean
           last_visit?: string | null
+          line_blocked?: boolean
           line_display_name?: string | null
           line_picture_url?: string | null
           line_user_id?: string | null
@@ -639,6 +641,7 @@ export type Database = {
           internal_notes?: string | null
           is_blacklisted?: boolean
           last_visit?: string | null
+          line_blocked?: boolean
           line_display_name?: string | null
           line_picture_url?: string | null
           line_user_id?: string | null

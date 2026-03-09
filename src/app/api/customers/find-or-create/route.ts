@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createClient as createAuthClient } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
-import { createCustomerService } from "@/lib/api-core";
+import { createCustomerService, createLineService } from "@/lib/api-core";
 import type { Database } from "@/lib/supabase/types";
 
 function getSupabaseAdmin() {
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     });
 
     // 고객 찾기 또는 생성
-    const customer = await customerService.findOrCreateCustomer({
+    let customer = await customerService.findOrCreateCustomer({
       salonId: body.salon_id,
       userId: user.id,
       name: body.name,
@@ -58,6 +58,25 @@ export async function POST(request: NextRequest) {
     });
 
     console.log("Customer found/created:", customer.id);
+
+    // LINE 친구 상태 초기화: line_user_id가 있을 때 실제 친구 여부 확인 후 line_blocked 업데이트
+    if (customer.line_user_id) {
+      const lineService = createLineService(supabaseAdmin);
+      const { isFriend, salonHasLine } = await lineService.checkFriendship(
+        body.salon_id,
+        customer.line_user_id
+      );
+
+      if (salonHasLine) {
+        customer = await supabaseAdmin
+          .from("customers")
+          .update({ line_blocked: !isFriend })
+          .eq("id", customer.id)
+          .select()
+          .single()
+          .then(({ data }) => data ?? customer);
+      }
+    }
 
     return NextResponse.json({ success: true, data: customer });
   } catch (error: unknown) {
