@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { MapPin, Languages } from "lucide-react";
+import { Languages } from "lucide-react";
 import { getSalonCoverUrls } from "@/lib/supabase/storage";
 import { StorageImage } from "@/components/ui/StorageImage";
 import type { SalonCoverImageProps } from "../types";
@@ -51,17 +51,6 @@ export function SalonCoverImage({ salon, status }: SalonCoverImageProps) {
           <Languages className="h-3.5 w-3.5 flex-shrink-0" />
           <span>{t("interpreterDesc")}</span>
         </div>
-        {salon.address && (
-          <a
-            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(salon.address)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-1 flex items-center gap-1 text-xs text-gray-500 transition-colors hover:text-primary-600 sm:text-sm"
-          >
-            <MapPin className="w-3 h-3" />
-            <span className="underline underline-offset-2">{salon.address}</span>
-          </a>
-        )}
       </div>
     </>
   );

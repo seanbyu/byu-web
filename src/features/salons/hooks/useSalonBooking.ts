@@ -194,7 +194,16 @@ export function useSalonBooking(
       img.src = designer.profile_image;
     }
     openBookingModal(designer, time);
-  }, [isAuthenticated, handleLoginRequired, openBookingModal]);
+
+    // 기본 카테고리를 Cut으로 설정
+    const cutCategory =
+      categories.find((c) => c.name_en === "Cut") ||
+      categories.find((c) => c.name === "Cut") ||
+      categories[0];
+    if (cutCategory) {
+      setSelectedCategory(cutCategory.id);
+    }
+  }, [isAuthenticated, handleLoginRequired, openBookingModal, categories, setSelectedCategory]);
 
   const normalizePhoneDigits = useCallback((value: string): string => {
     return value.replace(/\D/g, "");

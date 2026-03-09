@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { Link } from "@/i18n/routing";
+import { ViewOnMapButton } from "@/components/ui/ViewOnMapButton";
 import { useAuthContext } from "@/features/auth";
 import { bookingQueries, salonQueries } from "@/lib/api/queries";
 import { bookingMutations } from "@/lib/api/mutations";
@@ -139,8 +140,10 @@ export default function BookingDetailPage() {
       } else {
         setError(t("bookingNotFound"));
       }
-    } catch {
-      setError(t("bookingLoadError"));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      const isNotFound = msg.includes("찾을 수 없") || msg.includes("not found") || msg.includes("404");
+      setError(isNotFound ? t("bookingNotFound") : t("bookingLoadError"));
     } finally {
       setIsLoading(false);
     }
@@ -150,6 +153,18 @@ export default function BookingDetailPage() {
     reschedSlotsCacheRef.current = {};
     reschedSlotsInFlightRef.current = {};
     reschedWeekPrefetchDoneRef.current = false;
+  }, [bookingId]);
+
+  // 알림으로 예약 상태 변경 시 즉시 반영
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { bookingId: changedId, status } = (e as CustomEvent<{ bookingId: string; status: string }>).detail;
+      if (changedId === bookingId) {
+        setBooking((prev) => prev ? { ...prev, status } as BookingWithDetails : prev);
+      }
+    };
+    window.addEventListener("booking:status-changed", handler);
+    return () => window.removeEventListener("booking:status-changed", handler);
   }, [bookingId]);
 
   const getOrFetchReschedSlots = useCallback(
@@ -702,6 +717,13 @@ export default function BookingDetailPage() {
                 <p className="text-sm text-gray-500">{t("salon")}</p>
                 <p className="font-medium">{booking.salons.name}</p>
                 <p className="text-sm text-gray-500">{booking.salons.address}</p>
+                <ViewOnMapButton
+                  address={booking.salons.address}
+                  googleMapsUrl={booking.salons.google_maps_url}
+                  latitude={booking.salons.latitude}
+                  longitude={booking.salons.longitude}
+                  label={t("viewOnMap")}
+                />
               </div>
             </div>
 
@@ -759,15 +781,6 @@ export default function BookingDetailPage() {
               </div>
             )}
 
-            {/* Price */}
-            <div className="pt-3 border-t border-gray-200">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">{t("totalPrice")}</span>
-                <span className="text-xl font-bold text-primary-600">
-                  ฿{booking.total_price.toLocaleString()}
-                </span>
-              </div>
-            </div>
           </div>
 
           {/* Contact Salon */}

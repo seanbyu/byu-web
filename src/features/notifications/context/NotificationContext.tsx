@@ -90,6 +90,18 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             } else {
               toast.error(title, { duration: 5000 });
             }
+
+            // 예약 상세 페이지가 열려있으면 상태 즉시 반영
+            if (newNotification.booking_id) {
+              window.dispatchEvent(
+                new CustomEvent("booking:status-changed", {
+                  detail: {
+                    bookingId: newNotification.booking_id,
+                    status: isConfirmed ? "CONFIRMED" : "CANCELLED",
+                  },
+                })
+              );
+            }
           }
         }
       )

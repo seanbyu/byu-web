@@ -106,13 +106,8 @@ export function BookingConfirmModal({
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className={`ds-select ${
-                    selectedCategory ? "text-gray-900" : "text-gray-600"
-                  }`}
+                  className="ds-select text-gray-900"
                 >
-                  <option value="" disabled>
-                    {tBooking("selectCategoryPlaceholder")}
-                  </option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {getCategoryName(category)}

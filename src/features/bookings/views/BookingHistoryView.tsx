@@ -257,6 +257,16 @@ export function BookingHistoryView() {
                   </div>
                 )}
               </div>
+
+              {/* Price (지난 예약만) */}
+              {activeTab === "past" && booking.total_price > 0 && (
+                <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+                  <span className="text-xs text-gray-400">{t("totalPrice")}</span>
+                  <span className="text-sm font-bold text-primary-600">
+                    ฿{booking.total_price.toLocaleString()}
+                  </span>
+                </div>
+              )}
             </Link>
           ))
         )}

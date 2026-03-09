@@ -147,7 +147,10 @@ export class BookingRepository extends BaseRepository<"bookings"> {
       .eq("id", bookingId)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === "PGRST116") return null;
+      throw error;
+    }
     return data;
   }
 
