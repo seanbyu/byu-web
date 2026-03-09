@@ -82,6 +82,7 @@ export type BookingConfirmModalProps = {
   selectedDate: Date;
   locale: string;
   categories: ServiceCategory[];
+  categoryLastBookingTimes?: Record<string, string>;
   selectedCategory: string;
   setSelectedCategory: (id: string) => void;
   getCategoryName: (category: ServiceCategory) => string;

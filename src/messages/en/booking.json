@@ -35,6 +35,7 @@
   "selectCategory": "Select Category",
   "selectCategoryRequired": "Please select a category",
   "noCategories": "No categories available",
+  "categoryPastCutoff": "Last booking time ({time}) has passed",
   "customerInfo": "Customer Information",
   "customerName": "Name",
   "customerNamePlaceholder": "Enter your name",

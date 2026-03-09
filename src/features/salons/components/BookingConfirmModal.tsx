@@ -10,6 +10,7 @@ export function BookingConfirmModal({
   selectedDate,
   locale,
   categories,
+  categoryLastBookingTimes,
   selectedCategory,
   setSelectedCategory,
   getCategoryName,
@@ -27,7 +28,18 @@ export function BookingConfirmModal({
 }: BookingConfirmModalProps) {
   const tBooking = useTranslations("booking");
   const localeCode = getLocaleCode(locale);
-  const isCategorySelected = Boolean(selectedCategory);
+
+  // 선택한 시간 기준으로 cutoff가 지난 카테고리 판별
+  const [slotH, slotM] = time.split(":").map(Number);
+  const slotMins = slotH * 60 + slotM;
+  const isCategoryDisabled = (categoryId: string): boolean => {
+    const cutoff = categoryLastBookingTimes?.[categoryId];
+    if (!cutoff) return false;
+    const [ch, cm] = cutoff.split(":").map(Number);
+    return slotMins > ch * 60 + cm;
+  };
+
+  const isCategorySelected = Boolean(selectedCategory) && !isCategoryDisabled(selectedCategory);
   const [visible, setVisible] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
@@ -104,15 +116,26 @@ export function BookingConfirmModal({
             {categories.length > 0 ? (
               <div className="relative">
                 <select
-                  value={selectedCategory}
+                  value={isCategoryDisabled(selectedCategory) ? "" : selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className="ds-select text-gray-900"
                 >
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {getCategoryName(category)}
+                  {isCategoryDisabled(selectedCategory) && (
+                    <option value="" disabled>
+                      {tBooking("selectCategoryRequired")}
                     </option>
-                  ))}
+                  )}
+                  {categories.map((category) => {
+                    const disabled = isCategoryDisabled(category.id);
+                    const cutoff = categoryLastBookingTimes?.[category.id];
+                    return (
+                      <option key={category.id} value={category.id} disabled={disabled}>
+                        {disabled && cutoff
+                          ? `${getCategoryName(category)} (${tBooking("categoryPastCutoff", { time: cutoff })})`
+                          : getCategoryName(category)}
+                      </option>
+                    );
+                  })}
                 </select>
                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
               </div>

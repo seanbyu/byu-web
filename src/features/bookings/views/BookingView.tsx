@@ -185,10 +185,22 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     }
 
     const slots: TimeSlot[] = [];
-    const slotDuration = (salon.settings as Record<string, unknown> | null)?.slot_duration_minutes as number || 30;
+    const salonSettings = salon.settings as Record<string, unknown> | null;
+    const slotDuration = salonSettings?.slot_duration_minutes as number || 30;
     const serviceDuration = selectedService.duration_minutes;
 
+    // 카테고리별 마지막 예약 시간 적용
+    const categoryLastBookingTimes = salonSettings?.category_last_booking_times as Record<string, string> | null;
+    const categoryId = selectedService.category_id;
+    const cutoffStr = categoryId ? categoryLastBookingTimes?.[categoryId] : null;
+    let cutoffMinutes: number | null = null;
+    if (cutoffStr) {
+      const [cutH, cutM] = cutoffStr.split(":").map(Number);
+      cutoffMinutes = cutH * 60 + cutM;
+    }
+
     for (let time = effectiveOpen; time + serviceDuration <= effectiveClose; time += slotDuration) {
+      if (cutoffMinutes !== null && time >= cutoffMinutes) break;
       const timeStr = formatTime(time);
       const isAvailable = checkSlotAvailable(timeStr, serviceDuration);
       slots.push({ time: timeStr, available: isAvailable });

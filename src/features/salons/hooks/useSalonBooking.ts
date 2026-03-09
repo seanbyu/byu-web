@@ -202,15 +202,26 @@ export function useSalonBooking(
     }
     openBookingModal(designer, time);
 
-    // 기본 카테고리를 Cut으로 설정
+    // cutoff가 지나지 않은 카테고리 중에서 기본 카테고리 설정
+    const settings = salon.settings as Record<string, unknown> | null;
+    const cutoffTimes = (settings?.category_last_booking_times as Record<string, string>) || {};
+    const [slotH, slotM] = time.split(":").map(Number);
+    const slotMins = slotH * 60 + slotM;
+    const isAvailableCategory = (c: { id: string }) => {
+      const cutoff = cutoffTimes[c.id];
+      if (!cutoff) return true;
+      const [ch, cm] = cutoff.split(":").map(Number);
+      return slotMins <= ch * 60 + cm;
+    };
+
     const cutCategory =
-      categories.find((c) => c.name_en === "Cut") ||
-      categories.find((c) => c.name === "Cut") ||
+      categories.find((c) => (c.name_en === "Cut" || c.name === "Cut") && isAvailableCategory(c)) ||
+      categories.find((c) => isAvailableCategory(c)) ||
       categories[0];
     if (cutCategory) {
       setSelectedCategory(cutCategory.id);
     }
-  }, [isAuthenticated, handleLoginRequired, openBookingModal, categories, setSelectedCategory]);
+  }, [isAuthenticated, handleLoginRequired, openBookingModal, categories, setSelectedCategory, salon.settings]);
 
   const normalizePhoneDigits = useCallback((value: string): string => {
     return value.replace(/\D/g, "");

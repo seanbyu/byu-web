@@ -35,6 +35,7 @@
   "selectCategory": "카테고리 선택",
   "selectCategoryRequired": "카테고리를 선택해주세요",
   "noCategories": "등록된 카테고리가 없습니다",
+  "categoryPastCutoff": "마지막 예약 가능 시간({time})이 지났습니다",
   "customerInfo": "예약자 정보",
   "customerName": "이름",
   "customerNamePlaceholder": "이름을 입력하세요",

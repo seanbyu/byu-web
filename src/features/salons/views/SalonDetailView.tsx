@@ -94,6 +94,7 @@ export function SalonDetailView({ salon, staff, categories, services }: SalonDet
           selectedDate={calendar.selectedDate}
           locale={locale}
           categories={booking.categories}
+          categoryLastBookingTimes={(salon.settings as Record<string, unknown> | null)?.category_last_booking_times as Record<string, string> | undefined}
           selectedCategory={booking.selectedCategory}
           setSelectedCategory={booking.setSelectedCategory}
           getCategoryName={booking.getCategoryName}

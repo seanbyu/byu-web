@@ -35,6 +35,7 @@
   "selectCategory": "เลือกหมวดหมู่",
   "selectCategoryRequired": "กรุณาเลือกหมวดหมู่",
   "noCategories": "ไม่มีหมวดหมู่",
+  "categoryPastCutoff": "เลยเวลาจองสุดท้าย ({time}) แล้ว",
   "customerInfo": "ข้อมูลลูกค้า",
   "customerName": "ชื่อ",
   "customerNamePlaceholder": "กรอกชื่อของคุณ",
