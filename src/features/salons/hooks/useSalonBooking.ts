@@ -3,7 +3,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
 import { useAuthContext } from "@/features/auth";
-import type { Salon, StaffWithProfile, ServiceCategory } from "@/lib/supabase/types";
+import type { Salon, StaffWithProfile, ServiceCategory, Service } from "@/lib/supabase/types";
 import { getDayName, formatTime, formatDateForDB, getDesignerWorkHours } from "@/features/bookings/utils";
 import { bookingsApi } from "@/features/bookings/api";
 import { salonsApi } from "../api";
@@ -18,10 +18,16 @@ type CalendarHelpers = {
   isDateEnabled: (date: Date) => boolean;
 };
 
+type InitialData = {
+  categories: ServiceCategory[];
+  services: Service[];
+};
+
 export function useSalonBooking(
   salon: Salon,
   selectedDate: Date,
-  calendarHelpers: CalendarHelpers
+  calendarHelpers: CalendarHelpers,
+  initialData?: InitialData
 ) {
   const tBooking = useTranslations("booking");
   const locale = useLocale();
@@ -73,14 +79,15 @@ export function useSalonBooking(
   // TanStack Query - 예약 데이터
   const { data: existingBookings = [] } = useBookingsQuery(salon.id, selectedDate);
 
-  // TanStack Query - 카테고리 데이터 (페이지 진입 시 미리 fetch)
-  const { data: categories = [] } = useCategoriesQuery(salon.id);
+  // TanStack Query - 카테고리 데이터 (SSR initialData로 즉시 주입)
+  const { data: categories = [] } = useCategoriesQuery(salon.id, true, initialData?.categories);
 
-  // TanStack Query - 서비스 데이터 (카테고리→서비스 매핑용, 페이지 진입 시 미리 fetch)
+  // TanStack Query - 서비스 데이터 (SSR initialData로 즉시 주입)
   const { data: services = [] } = useQuery({
     queryKey: ["services", salon.id],
     queryFn: () => salonsApi.getServices(salon.id),
     staleTime: 5 * 60 * 1000,
+    initialData: initialData?.services,
   });
 
   const getCategoryName = useCallback((category: ServiceCategory) => {

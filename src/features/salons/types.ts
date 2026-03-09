@@ -3,7 +3,7 @@
  */
 
 import type { RefObject } from "react";
-import type { Salon, StaffWithProfile, ServiceCategory } from "@/lib/supabase/types";
+import type { Salon, StaffWithProfile, ServiceCategory, Service } from "@/lib/supabase/types";
 import type { SalonStatus } from "./utils";
 
 // ============================================
@@ -13,6 +13,8 @@ import type { SalonStatus } from "./utils";
 export type SalonDetailViewProps = {
   salon: Salon;
   staff: StaffWithProfile[];
+  categories: ServiceCategory[];
+  services: Service[];
 };
 
 // ============================================

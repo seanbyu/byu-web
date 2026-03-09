@@ -17,7 +17,7 @@ import { BookingSuccessModal } from "../components/BookingSuccessModal";
 import { SalonContactInfo } from "../components/SalonContactInfo";
 import type { SalonDetailViewProps } from "../types";
 
-export function SalonDetailView({ salon, staff }: SalonDetailViewProps) {
+export function SalonDetailView({ salon, staff, categories, services }: SalonDetailViewProps) {
   const locale = useLocale();
   const status = getSalonStatus(salon.business_hours);
 
@@ -31,7 +31,7 @@ export function SalonDetailView({ salon, staff }: SalonDetailViewProps) {
     isSalonHoliday: calendar.isSalonHoliday,
     isDesignerHoliday: calendar.isDesignerHoliday,
     isDateEnabled: calendar.isDateEnabled,
-  });
+  }, { categories, services });
 
   return (
     <div className="app-page-bleed bg-white">

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { getSalonWithStaff } from "@/features/salons/queries";
+import { getSalonBookingData } from "@/features/salons/queries";
 import { SalonDetailView } from "@/features/salons/views/SalonDetailView";
 
 type Props = {
@@ -8,13 +8,13 @@ type Props = {
 };
 
 async function SalonDetailData({ id }: { id: string }) {
-  const { salon, staff } = await getSalonWithStaff(id);
+  const { salon, staff, categories, services } = await getSalonBookingData(id);
 
   if (!salon) {
     notFound();
   }
 
-  return <SalonDetailView salon={salon} staff={staff} />;
+  return <SalonDetailView salon={salon} staff={staff} categories={categories} services={services} />;
 }
 
 function DetailLoading() {
