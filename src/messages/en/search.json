@@ -2,7 +2,7 @@
   "placeholder": "Search...",
   "tabs": {
     "styleTip": "Style Tips",
-    "styleBook": "Stylebook",
+    "styleBook": "Styling Book",
     "salon": "Salon"
   },
   "styleBook": {
@@ -11,10 +11,12 @@
     "comingSoon": "Coming soon",
     "bookCardTitle": "Style Sample",
     "bookCardSubtitle": "Designer portfolio integration planned",
+    "videoTitle": "Style Videos",
+    "noVideos": "No videos available",
     "categories": {
-      "haircut": "Haircut",
-      "color": "Color",
-      "perm": "Perm",
+      "bangs": "Bangs",
+      "wave": "Wave",
+      "men": "Men's Style",
       "daily": "Daily"
     }
   },

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
-import { ArrowLeft, Search, Camera, Scissors, Palette, Wand2, Sparkles } from "lucide-react";
+import { ArrowLeft, Search, Scissors, Palette, Wand2, Sparkles, Play } from "lucide-react";
 import type { ComponentType } from "react";
 
 type TabKey = "styleTip" | "styleBook" | "salon";
@@ -14,14 +14,75 @@ type StyleCategory = {
   labelKey: string;
 };
 
+type VideoItem = {
+  id: string;
+  title: string;
+  youtubeUrl: string;
+};
+
 const STYLE_CATEGORIES: StyleCategory[] = [
-  { id: "haircut", icon: Scissors, labelKey: "styleBook.categories.haircut" },
-  { id: "color", icon: Palette, labelKey: "styleBook.categories.color" },
-  { id: "perm", icon: Wand2, labelKey: "styleBook.categories.perm" },
+  { id: "bangs", icon: Scissors, labelKey: "styleBook.categories.bangs" },
+  { id: "wave", icon: Palette, labelKey: "styleBook.categories.wave" },
+  { id: "men", icon: Wand2, labelKey: "styleBook.categories.men" },
   { id: "daily", icon: Sparkles, labelKey: "styleBook.categories.daily" },
 ];
 
-const MOCK_BOOKS = [1, 2, 3, 4, 5, 6];
+// ✏️ 여기에 YouTube URL을 추가하세요 (youtu.be/xxx 또는 youtube.com/shorts/xxx 모두 지원)
+const CATEGORY_VIDEOS: Record<string, VideoItem[]> = {
+  bangs: [
+    { id: "bg1", title: "테스트 영상 1", youtubeUrl: "https://www.youtube.com/shorts/0abRLnAj9bY" },
+    { id: "bg2", title: "테스트 영상 2", youtubeUrl: "https://www.youtube.com/shorts/tPlWklZOaJY" },
+  ],
+  wave: [],
+  men: [],
+  daily: [],
+};
+
+function extractYouTubeId(url: string): string | null {
+  const match = url.match(
+    /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/shorts\/))([^&\n?#]+)/
+  );
+  return match?.[1] ?? null;
+}
+
+function YouTubeCard({ video }: { video: VideoItem }) {
+  const [playing, setPlaying] = useState(false);
+  const videoId = extractYouTubeId(video.youtubeUrl);
+
+  if (!videoId) return null;
+
+  const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1`;
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+      <div className="relative aspect-[9/16] w-full bg-gray-100">
+        {playing ? (
+          <iframe
+            src={embedUrl}
+            title={video.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="absolute inset-0 h-full w-full"
+          />
+        ) : (
+          <button onClick={() => setPlaying(true)} className="group absolute inset-0 w-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={thumbnailUrl} alt={video.title} className="h-full w-full object-cover" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/25 transition group-hover:bg-black/35">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110">
+                <Play className="h-4 w-4 fill-gray-900 text-gray-900" style={{ marginLeft: 2 }} />
+              </div>
+            </div>
+          </button>
+        )}
+      </div>
+      <div className="p-2.5">
+        <p className="line-clamp-2 text-xs font-medium text-gray-900">{video.title}</p>
+      </div>
+    </div>
+  );
+}
 
 const TABS: { key: TabKey; labelKey: string }[] = [
   { key: "styleTip", labelKey: "tabs.styleTip" },
@@ -34,6 +95,12 @@ export function SearchView() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>("styleBook");
   const [query, setQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const filteredVideos = selectedCategory
+    ? (CATEGORY_VIDEOS[selectedCategory] ?? [])
+    : Object.values(CATEGORY_VIDEOS).flat();
+  const validVideos = filteredVideos.filter((v) => extractYouTubeId(v.youtubeUrl));
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -94,13 +161,19 @@ export function SearchView() {
               <div className="grid grid-cols-4 gap-2.5">
                 {STYLE_CATEGORIES.map((item) => {
                   const Icon = item.icon;
+                  const isActive = selectedCategory === item.id;
                   return (
                     <button
                       key={item.id}
                       type="button"
-                      className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-gray-100 bg-gray-50 px-1 py-2.5 text-gray-700 transition-colors hover:bg-gray-100"
+                      onClick={() => setSelectedCategory(isActive ? null : item.id)}
+                      className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border px-1 py-2.5 transition-colors
+                        ${isActive
+                          ? "border-primary-300 bg-primary-50 text-primary-700"
+                          : "border-gray-100 bg-gray-50 text-gray-700 hover:bg-gray-100"
+                        }`}
                     >
-                      <Icon className="h-4 w-4 text-primary-600 sm:h-5 sm:w-5" />
+                      <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${isActive ? "text-primary-600" : "text-primary-500"}`} />
                       <span className="text-[11px] font-medium sm:text-xs">
                         {t(item.labelKey)}
                       </span>
@@ -110,36 +183,23 @@ export function SearchView() {
               </div>
             </section>
 
-            {/* Book Grid */}
+            {/* Video Grid */}
             <section>
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-900">
-                  {t("styleBook.bookTitle")}
-                </h3>
-                <span className="text-xs text-gray-400">{t("styleBook.comingSoon")}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2.5">
-                {MOCK_BOOKS.map((item) => (
-                  <div
-                    key={item}
-                    className="overflow-hidden rounded-xl border border-gray-100 bg-white"
-                  >
-                    <div className="aspect-[3/4] bg-gray-100">
-                      <div className="flex h-full w-full items-center justify-center text-gray-300">
-                        <Camera className="h-6 w-6" />
-                      </div>
-                    </div>
-                    <div className="p-2.5">
-                      <p className="text-xs font-medium text-gray-900">
-                        {t("styleBook.bookCardTitle")}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-gray-500">
-                        {t("styleBook.bookCardSubtitle")}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <h3 className="mb-3 text-sm font-semibold text-gray-900">
+                {t("styleBook.videoTitle")}
+              </h3>
+              {validVideos.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2.5">
+                  {validVideos.map((video) => (
+                    <YouTubeCard key={video.id} video={video} />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-300">
+                  <Play className="mb-2 h-8 w-8" />
+                  <p className="text-sm">{t("styleBook.noVideos")}</p>
+                </div>
+              )}
             </section>
           </div>
         )}

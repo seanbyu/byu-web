@@ -9,10 +9,12 @@
   "bookCardTitle": "ตัวอย่างสไตล์",
   "bookCardSubtitle": "จะเชื่อมต่อพอร์ตโฟลิโอดีไซเนอร์",
   "categories": {
-    "haircut": "ตัดผม",
-    "color": "ทำสี",
-    "perm": "ดัด",
+    "bangs": "ผมหน้าม้า",
+    "wave": "เวฟ",
+    "men": "สไตล์ผู้ชาย",
     "daily": "ลุคประจำวัน"
   },
-  "searchPlaceholder": "ค้นหาสไตล์ใน Styling Book"
+  "searchPlaceholder": "ค้นหาสไตล์ใน Styling Book",
+  "videoSectionTitle": "วิดีโอสไตล์",
+  "noVideos": "ยังไม่มีวิดีโอ"
 }

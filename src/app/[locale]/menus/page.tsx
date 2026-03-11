@@ -1,5 +1,5 @@
-import { SalonMenusView } from "@/features/salon-menus/views/SalonMenusView";
+import { StylingBookView } from "@/features/styling-book/views/StylingBookView";
 
 export default function MenusPage() {
-  return <SalonMenusView />;
+  return <StylingBookView />;
 }

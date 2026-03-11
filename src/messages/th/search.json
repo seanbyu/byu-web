@@ -2,7 +2,7 @@
   "placeholder": "ค้นหา...",
   "tabs": {
     "styleTip": "เคล็ดลับสไตล์",
-    "styleBook": "สไตล์บุ๊ค",
+    "styleBook": "สไตล์ลิ่งบุ๊ค",
     "salon": "ซาลอน"
   },
   "styleBook": {
@@ -11,10 +11,12 @@
     "comingSoon": "เร็วๆ นี้",
     "bookCardTitle": "ตัวอย่างสไตล์",
     "bookCardSubtitle": "จะเชื่อมต่อพอร์ตโฟลิโอดีไซเนอร์",
+    "videoTitle": "วิดีโอสไตล์",
+    "noVideos": "ยังไม่มีวิดีโอ",
     "categories": {
-      "haircut": "ตัดผม",
-      "color": "ทำสี",
-      "perm": "ดัด",
+      "bangs": "ผมหน้าม้า",
+      "wave": "เวฟ",
+      "men": "สไตล์ผู้ชาย",
       "daily": "ลุคประจำวัน"
     }
   },

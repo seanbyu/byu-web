@@ -9,10 +9,12 @@
   "bookCardTitle": "Style Sample",
   "bookCardSubtitle": "Designer portfolio integration planned",
   "categories": {
-    "haircut": "Haircut",
-    "color": "Color",
-    "perm": "Perm",
+    "bangs": "Bangs",
+    "wave": "Wave",
+    "men": "Men's Style",
     "daily": "Daily"
   },
-  "searchPlaceholder": "Search styles in Stylebook"
+  "searchPlaceholder": "Search styles in Stylebook",
+  "videoSectionTitle": "Style Videos",
+  "noVideos": "No videos available"
 }

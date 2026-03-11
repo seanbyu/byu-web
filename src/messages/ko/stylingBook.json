@@ -9,10 +9,12 @@
   "bookCardTitle": "스타일 샘플",
   "bookCardSubtitle": "디자이너 포트폴리오 연동 예정",
   "categories": {
-    "haircut": "헤어컷",
-    "color": "컬러",
-    "perm": "펌",
+    "bangs": "앞머리",
+    "wave": "웨이브",
+    "men": "남자스타일",
     "daily": "데일리"
   },
-  "searchPlaceholder": "스타일링북 스타일을 검색해보세요"
+  "searchPlaceholder": "스타일링북 스타일을 검색해보세요",
+  "videoSectionTitle": "스타일 영상",
+  "noVideos": "등록된 영상이 없습니다"
 }
