@@ -32,6 +32,8 @@ const CATEGORY_VIDEOS: Record<string, VideoItem[]> = {
   bangs: [
     { id: "bg1", title: "테스트 영상 1", youtubeUrl: "https://www.youtube.com/shorts/0abRLnAj9bY" },
     { id: "bg2", title: "테스트 영상 2", youtubeUrl: "https://www.youtube.com/shorts/tPlWklZOaJY" },
+    { id: "bg3", title: "테스트 영상 3", youtubeUrl: "https://www.youtube.com/shorts/kDU3CWIuOio" },
+    { id: "bg4", title: "테스트 영상 4", youtubeUrl: "https://www.youtube.com/shorts/32E9L-FvWZA" },
   ],
   wave: [],
   men: [],
