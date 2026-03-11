@@ -114,7 +114,7 @@ export function SearchView() {
   const validVideos = filteredVideos.filter((v) => extractYouTubeId(v.youtubeUrl));
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-white overscroll-none">
       {/* Search Header */}
       <div className="sticky top-0 z-50 bg-white px-3 py-3 shadow-sm">
         <div className="flex items-center gap-2">
