@@ -162,7 +162,7 @@ export function SearchView() {
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 px-4 py-4">
+      <div className="flex-1 px-4 py-4 pb-24">
         {activeTab === "styleBook" && (
           <div className="space-y-5">
             {/* Style Categories */}
