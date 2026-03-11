@@ -228,7 +228,7 @@ body {
   select,
   textarea {
     min-height: 44px;
-    font-size: var(--font-size-base);
+    font-size: 1rem; /* 16px: iOS Safari zoom-on-focus 방지 (16px 미만 시 자동 줌) */
   }
 
   .touch-target {
