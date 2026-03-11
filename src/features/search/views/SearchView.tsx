@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { ArrowLeft, Search, Scissors, Palette, Wand2, Sparkles, Play } from "lucide-react";
@@ -49,26 +49,35 @@ function extractYouTubeId(url: string): string | null {
 
 function YouTubeCard({ video }: { video: VideoItem }) {
   const [playing, setPlaying] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoId = extractYouTubeId(video.youtubeUrl);
 
   if (!videoId) return null;
 
   const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1`;
+  const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&playsinline=1&enablejsapi=1`;
+
+  const handlePlay = () => {
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: "command", func: "playVideo", args: [] }),
+      "*"
+    );
+    setPlaying(true);
+  };
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
       <div className="relative aspect-[9/16] w-full bg-gray-100">
-        {playing ? (
-          <iframe
-            src={embedUrl}
-            title={video.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="absolute inset-0 h-full w-full"
-          />
-        ) : (
-          <button onClick={() => setPlaying(true)} className="group absolute inset-0 w-full">
+        <iframe
+          ref={iframeRef}
+          src={embedUrl}
+          title={video.title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className={`absolute inset-0 h-full w-full ${playing ? "" : "pointer-events-none"}`}
+        />
+        {!playing && (
+          <button onClick={handlePlay} className="group absolute inset-0 w-full">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={thumbnailUrl} alt={video.title} className="h-full w-full object-cover" />
             <div className="absolute inset-0 flex items-center justify-center bg-black/25 transition group-hover:bg-black/35">
