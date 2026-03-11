@@ -203,6 +203,7 @@ html {
   text-size-adjust: 100%;
 }
 
+html,
 body {
   overscroll-behavior: none;          /* 전체 방향 overscroll/bounce 차단 */
   -webkit-tap-highlight-color: transparent; /* iOS/Android 터치 하이라이트 제거 */
