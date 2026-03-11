@@ -75,7 +75,7 @@ function YouTubeCard({ video }: { video: VideoItem }) {
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
           loading="lazy"
-          className="absolute inset-0 h-full w-full"
+          className={`absolute inset-0 h-full w-full ${playing ? "" : "pointer-events-none"}`}
         />
         {!playing && (
           <button onClick={handlePlay} className="group absolute inset-0 w-full">
