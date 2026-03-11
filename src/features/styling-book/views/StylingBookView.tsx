@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import { Scissors, Sparkles, Palette, Wand2, Play } from "lucide-react";
@@ -51,39 +51,26 @@ function extractYouTubeId(url: string): string | null {
 
 function YouTubeCard({ video }: { video: VideoItem }) {
     const [playing, setPlaying] = useState(false);
-    const iframeRef = useRef<HTMLIFrameElement>(null);
     const videoId = extractYouTubeId(video.youtubeUrl);
 
     if (!videoId) return null;
 
     const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-    // enablejsapi=1: postMessage로 재생 제어 (autoplay 없이 미리 로드)
-    const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&playsinline=1&enablejsapi=1`;
-
-    const handlePlay = () => {
-        // 클릭 핸들러 내에서 동기적으로 postMessage → 브라우저 autoplay 정책 우회
-        iframeRef.current?.contentWindow?.postMessage(
-            JSON.stringify({ event: "command", func: "playVideo", args: [] }),
-            "*",
-        );
-        setPlaying(true);
-    };
+    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1`;
 
     return (
         <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
             <div className="relative aspect-[9/16] w-full bg-gray-100">
-                {/* iframe 미리 로드, loading=lazy로 뷰포트 밖은 지연 */}
-                <iframe
-                    ref={iframeRef}
-                    src={embedUrl}
-                    title={video.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    loading="lazy"
-                    className={`absolute inset-0 h-full w-full ${playing ? "" : "pointer-events-none"}`}
-                />
-                {!playing && (
-                    <button onClick={handlePlay} className="group absolute inset-0 w-full">
+                {playing ? (
+                    <iframe
+                        src={embedUrl}
+                        title={video.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="absolute inset-0 h-full w-full"
+                    />
+                ) : (
+                    <button onClick={() => setPlaying(true)} className="group absolute inset-0 w-full">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={thumbnailUrl} alt={video.title} className="h-full w-full object-cover" />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/25 transition group-hover:bg-black/35">
