@@ -204,7 +204,9 @@ html {
 }
 
 body {
-  overscroll-behavior-x: none;
+  overscroll-behavior: none;          /* 전체 방향 overscroll/bounce 차단 */
+  -webkit-tap-highlight-color: transparent; /* iOS/Android 터치 하이라이트 제거 */
+  touch-action: pan-y;                /* 세로 스크롤만 허용, 불필요한 제스처 차단 */
 }
 
 /* Mobile baseline (320px+): readable text + touch-friendly target size */
