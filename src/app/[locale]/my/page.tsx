@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, memo } from "react";
+import { useEffect, useCallback, memo } from "react";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { useAuthContext, useProfile } from "@/features/auth";
@@ -65,11 +65,16 @@ function MenuSection({ title, children }: { title: string; children: React.React
 export default function MyPage() {
   const router = useRouter();
   const t = useTranslations("auth");
-  const { user, isAuthenticated, isLoading: authLoading } = useAuthContext();
+  const { user, isAuthenticated, isLoading: authLoading, signOut } = useAuthContext();
 
   const { profile, isLoading: profileLoading } = useProfile(
     isAuthenticated && !!user?.id
   );
+
+  const handleLogout = useCallback(async () => {
+    await signOut();
+    router.replace("/");
+  }, [signOut, router]);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -157,6 +162,15 @@ export default function MyPage() {
         <MenuSection title={t("myPage.customerSection")}>
           <MenuRow label={t("myPage.announcements")} onClick={() => router.push("/announcements")} />
         </MenuSection>
+
+        <div className="pt-1 pb-6">
+          <button
+            onClick={handleLogout}
+            className="ds-control w-full rounded-xl border border-red-200 bg-white px-5 font-medium text-red-600 transition-colors hover:bg-red-50"
+          >
+            {t("logout")}
+          </button>
+        </div>
       </div>
     </div>
   );

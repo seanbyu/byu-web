@@ -153,7 +153,7 @@ export function SearchView() {
   return (
     <div className="flex h-dvh flex-col overflow-y-auto overscroll-none bg-white">
       {/* Search Header */}
-      <div className="sticky top-0 z-50 bg-white px-3 py-3 shadow-sm">
+      <div className="sticky top-0 z-50 bg-white px-3 py-2.5 shadow-sm">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -164,14 +164,14 @@ export function SearchView() {
             <ArrowLeft className="h-5 w-5 text-gray-700" />
           </button>
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary-400" />
+            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-primary-400" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("placeholder")}
               autoFocus
-              className="w-full rounded-full border-2 border-primary-300 bg-gray-50 py-2 pl-9 pr-4 text-base text-gray-800 outline-none placeholder:text-gray-400 focus:border-primary-500 focus:bg-white"
+              className="w-full rounded-full border-2 border-primary-300 bg-gray-50 py-1.5 pl-8 pr-3 text-[16px] leading-5 text-gray-800 outline-none placeholder:text-gray-400 focus:border-primary-500 focus:bg-white"
             />
           </div>
         </div>

@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback, memo } from "react";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { useAuthContext, useProfile } from "@/features/auth";
-import type { UserProfile } from "@/features/auth";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Copy, Check } from "lucide-react";
@@ -56,7 +55,7 @@ function LoadingSkeleton() {
 export default function MyInfoPage() {
   const router = useRouter();
   const t = useTranslations("auth");
-  const { user, isAuthenticated, isLoading: authLoading, signOut } = useAuthContext();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuthContext();
 
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [phoneInput, setPhoneInput] = useState("");
@@ -83,11 +82,6 @@ export default function MyInfoPage() {
     const timer = setTimeout(() => setPhoneSaveStatus(null), 1800);
     return () => clearTimeout(timer);
   }, [phoneSaveStatus]);
-
-  const handleLogout = useCallback(async () => {
-    await signOut();
-    router.replace("/");
-  }, [signOut, router]);
 
   const handleCopy = useCallback(async (value: string, key: string) => {
     if (!value) return;
@@ -277,15 +271,6 @@ export default function MyInfoPage() {
           </section>
         ) : null}
 
-        {/* Logout */}
-        <div className="pt-1 pb-6">
-          <button
-            onClick={handleLogout}
-            className="ds-control w-full rounded-xl border border-red-200 bg-white px-5 font-medium text-red-600 transition-colors hover:bg-red-50"
-          >
-            {t("logout")}
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -211,7 +211,7 @@ body {
 }
 
 /* Mobile baseline (320px+): readable text + touch-friendly target size */
-@media (max-width: 640px) and (pointer: coarse) {
+@media (max-width: 640px) {
   :root {
     --font-size-xs: 0.8125rem;  /* 13px (모바일 최소 가독성 기준) */
     --font-size-sm: 0.8125rem;  /* 13px */
