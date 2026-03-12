@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useCallback, useState } from "react";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useAuthContext } from "../providers/AuthProvider";
@@ -55,24 +56,14 @@ export function LoginModal({
     }
   }, [isAuthenticated, isOpen, onSuccess, onClose]);
 
+  useScrollLock(isOpen);
+
   // Handle ESC key
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEsc);
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = "hidden";
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-    };
+    if (!isOpen) return;
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
 
   const handleLiffLogin = useCallback(async () => {

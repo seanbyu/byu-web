@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { createPortal } from "react-dom";
 import { Globe, Check, X } from "lucide-react";
 import { useRouter, usePathname } from "@/i18n/routing";
@@ -55,25 +56,7 @@ export function LanguageSwitcher({
 
   const currentLanguage = LANGUAGES.find((lang) => lang.code === locale) || LANGUAGES[0];
 
-  // Prevent body scroll when modal is open (iOS Safari requires position:fixed)
-  useEffect(() => {
-    if (!isOpen) return;
-    const scrollY = window.scrollY;
-    const body = document.body;
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.left = "0";
-    body.style.right = "0";
-    body.style.overflow = "hidden";
-    return () => {
-      body.style.position = "";
-      body.style.top = "";
-      body.style.left = "";
-      body.style.right = "";
-      body.style.overflow = "";
-      window.scrollTo(0, scrollY);
-    };
-  }, [isOpen]);
+  useScrollLock(isOpen);
 
   // Handle keyboard navigation
   useEffect(() => {

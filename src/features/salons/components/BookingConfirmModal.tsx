@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { useTranslations } from "next-intl";
 import { Clock, X, ChevronDown, Tag } from "lucide-react";
 import { getLocaleCode } from "../utils";
@@ -42,6 +43,8 @@ export function BookingConfirmModal({
   const isCategorySelected = Boolean(selectedCategory) && !isCategoryDisabled(selectedCategory);
   const [visible, setVisible] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+
+  useScrollLock(true);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));

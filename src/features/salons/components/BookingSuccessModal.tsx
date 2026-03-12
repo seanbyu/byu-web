@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { useTranslations } from "next-intl";
 import { Check, X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -29,6 +30,8 @@ export function BookingSuccessModal({ bookingId, salonId, lineChannel, onClose }
   const { isAuthenticated } = useAuthContext();
   const [showLineBanner, setShowLineBanner] = useState(false);
   const [checkingFriend, setCheckingFriend] = useState(false);
+
+  useScrollLock(true);
 
   const lineUrl = lineChannel?.enabled && lineChannel.id
     ? lineChannel.id.startsWith("http")
