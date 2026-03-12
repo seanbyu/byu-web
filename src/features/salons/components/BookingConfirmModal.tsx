@@ -63,17 +63,26 @@ export function BookingConfirmModal({
       <div className="relative flex h-full w-full max-w-[var(--app-max-width)] items-end">
         <div
           className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`}
-          onClick={onClose}
+          onClick={isSubmitting ? undefined : onClose}
         />
 
         <div className={`relative w-full max-h-[85dvh] overflow-y-auto rounded-t-2xl bg-white shadow-xl pb-safe ${visible ? "animate-slide-up" : "translate-y-full"}`}>
+          {/* Submitting overlay */}
+          {isSubmitting && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-t-2xl bg-white/95">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-100 border-t-primary-600" />
+              <p className="text-sm font-medium text-gray-600">{tBooking("sendingRequest")}</p>
+            </div>
+          )}
+
           <div className="flex justify-center pt-3 pb-2">
             <div className="w-10 h-1 bg-gray-300 rounded-full" />
           </div>
 
           <button
             onClick={onClose}
-            className="touch-target absolute right-4 top-4 rounded-full p-2 hover:bg-gray-100"
+            disabled={isSubmitting}
+            className="touch-target absolute right-4 top-4 rounded-full p-2 hover:bg-gray-100 disabled:opacity-0"
           >
             <X className="w-5 h-5 text-gray-600" />
           </button>

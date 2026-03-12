@@ -32,6 +32,7 @@
   "customerNotes": "Special Requests",
   "customerNotesPlaceholder": "Enter any special requests for your artist",
   "processing": "Processing...",
+  "sendingRequest": "Sending booking request...",
   "selectCategory": "Select Category",
   "selectCategoryRequired": "Please select a category",
   "noCategories": "No categories available",

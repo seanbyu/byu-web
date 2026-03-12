@@ -32,6 +32,7 @@
   "customerNotes": "ความต้องการพิเศษ",
   "customerNotesPlaceholder": "ระบุความต้องการพิเศษสำหรับอาร์ทิสต์ของคุณ",
   "processing": "กำลังดำเนินการ...",
+  "sendingRequest": "กำลังส่งคำขอจอง...",
   "selectCategory": "เลือกหมวดหมู่",
   "selectCategoryRequired": "กรุณาเลือกหมวดหมู่",
   "noCategories": "ไม่มีหมวดหมู่",
