@@ -2,23 +2,13 @@
 
 import { useRef, useEffect } from "react";
 import { useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { Bell, CalendarCheck, CalendarX, CalendarClock, BellRing } from "lucide-react";
 import { useNotifications } from "../context/NotificationContext";
 import type { AppNotification } from "../context/NotificationContext";
 
 const actionBtnClass =
   "flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-gray-100";
-
-function getRelativeTime(dateStr: string): string {
-  const diffMs = Date.now() - new Date(dateStr).getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-  if (diffMins < 1) return "방금 전";
-  if (diffMins < 60) return `${diffMins}분 전`;
-  if (diffHours < 24) return `${diffHours}시간 전`;
-  return `${diffDays}일 전`;
-}
 
 function NotifIcon({ type }: { type: string }) {
   const cls = "h-4 w-4";
@@ -35,19 +25,27 @@ const TYPE_COLOR: Record<string, string> = {
   BOOKING_REQUEST: "bg-blue-100 text-blue-600",
 };
 
-const TYPE_LABEL: Record<string, string> = {
-  BOOKING_CONFIRMED: "예약 확정",
-  BOOKING_CANCELLED: "예약 취소",
-  BOOKING_MODIFIED: "예약 변경",
-  BOOKING_REQUEST: "예약 요청",
-  BOOKING_REMINDER: "예약 리마인더",
-  BOOKING_COMPLETED: "시술 완료",
-  GENERAL: "알림",
-};
-
 function NotificationItem({ notif, onClose }: { notif: AppNotification; onClose: () => void }) {
+  const t = useTranslations("notifications");
   const router = useRouter();
   const { markRead } = useNotifications();
+
+  const getRelativeTime = (dateStr: string): string => {
+    const diffMs = Date.now() - new Date(dateStr).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffMins < 1) return t("justNow");
+    if (diffMins < 60) return t("minutesAgo", { count: diffMins });
+    if (diffHours < 24) return t("hoursAgo", { count: diffHours });
+    return t("daysAgo", { count: diffDays });
+  };
+
+  const KNOWN_TYPES = ["BOOKING_CONFIRMED", "BOOKING_CANCELLED", "BOOKING_MODIFIED", "BOOKING_REQUEST", "BOOKING_REMINDER", "BOOKING_COMPLETED", "GENERAL"];
+  const getTypeLabel = (type: string): string => {
+    const validType = KNOWN_TYPES.includes(type) ? type : "GENERAL";
+    return t(`types.${validType}` as Parameters<typeof t>[0]);
+  };
 
   const handleClick = () => {
     markRead(notif.id);
@@ -75,7 +73,7 @@ function NotificationItem({ notif, onClose }: { notif: AppNotification; onClose:
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <p className={`text-xs font-semibold ${!notif.read_at ? "text-gray-900" : "text-gray-600"}`}>
-            {TYPE_LABEL[notif.notification_type] ?? "알림"}
+            {getTypeLabel(notif.notification_type)}
           </p>
           {!notif.read_at && (
             <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary-500" />
@@ -97,12 +95,13 @@ function NotificationItem({ notif, onClose }: { notif: AppNotification; onClose:
 }
 
 export function NotificationBell() {
+  const t = useTranslations("notifications");
   const { unreadCount, notifications, isOpen, setIsOpen, markAllRead } = useNotifications();
   const router = useRouter();
   const panelRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
 
-  // 외부 클릭 시 닫기
+  // Close on outside click
   useEffect(() => {
     if (!isOpen) return;
     const handleClick = (e: MouseEvent) => {
@@ -126,7 +125,7 @@ export function NotificationBell() {
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={actionBtnClass}
-        aria-label="알림"
+        aria-label={t("ariaLabel")}
       >
         <Bell className="h-5 w-5 text-gray-700" />
         {unreadCount > 0 && (
@@ -140,18 +139,18 @@ export function NotificationBell() {
       {isOpen && (
         <div
           ref={panelRef}
-          className="absolute right-0 top-full z-[100] mt-1 w-72 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl"
+          className="absolute -right-4 top-full z-[100] mt-1 w-72 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-            <span className="text-sm font-semibold text-gray-900">알림</span>
+            <span className="text-sm font-semibold text-gray-900">{t("title")}</span>
             {unreadCount > 0 && (
               <button
                 type="button"
                 onClick={markAllRead}
                 className="text-[11px] text-gray-400 hover:text-gray-700"
               >
-                모두 읽음
+                {t("markAllRead")}
               </button>
             )}
           </div>
@@ -160,7 +159,7 @@ export function NotificationBell() {
           {recentNotifs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10">
               <Bell className="mb-2 h-8 w-8 text-gray-200" />
-              <p className="text-xs text-gray-400">새로운 알림이 없습니다</p>
+              <p className="text-xs text-gray-400">{t("empty")}</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-50">
@@ -183,7 +182,7 @@ export function NotificationBell() {
             }}
             className="flex w-full items-center justify-center border-t border-gray-100 py-3 text-xs font-medium text-primary-600 hover:bg-gray-50"
           >
-            알림 전체 보기
+            {t("viewAll")}
           </button>
         </div>
       )}

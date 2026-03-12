@@ -1,0 +1,21 @@
+{
+  "title": "การแจ้งเตือน",
+  "ariaLabel": "การแจ้งเตือน",
+  "markAllRead": "ทำเครื่องหมายว่าอ่านแล้วทั้งหมด",
+  "empty": "ไม่มีการแจ้งเตือนใหม่",
+  "viewAll": "ดูการแจ้งเตือนทั้งหมด",
+  "justNow": "เมื่อกี้",
+  "minutesAgo": "{count} นาทีที่แล้ว",
+  "hoursAgo": "{count} ชั่วโมงที่แล้ว",
+  "daysAgo": "{count} วันที่แล้ว",
+  "types": {
+    "BOOKING_CONFIRMED": "ยืนยันการจอง",
+    "BOOKING_CANCELLED": "ยกเลิกการจอง",
+    "BOOKING_MODIFIED": "แก้ไขการจอง",
+    "BOOKING_REQUEST": "คำขอจอง",
+    "BOOKING_REMINDER": "แจ้งเตือนการจอง",
+    "BOOKING_COMPLETED": "บริการเสร็จสิ้น",
+    "BOOKING_NO_SHOW": "ไม่มาตามนัด",
+    "GENERAL": "การแจ้งเตือน"
+  }
+}

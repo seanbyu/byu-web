@@ -1,0 +1,21 @@
+{
+  "title": "Notifications",
+  "ariaLabel": "Notifications",
+  "markAllRead": "Mark all read",
+  "empty": "No new notifications",
+  "viewAll": "View all notifications",
+  "justNow": "Just now",
+  "minutesAgo": "{count}m ago",
+  "hoursAgo": "{count}h ago",
+  "daysAgo": "{count}d ago",
+  "types": {
+    "BOOKING_CONFIRMED": "Booking confirmed",
+    "BOOKING_CANCELLED": "Booking cancelled",
+    "BOOKING_MODIFIED": "Booking modified",
+    "BOOKING_REQUEST": "Booking request",
+    "BOOKING_REMINDER": "Booking reminder",
+    "BOOKING_COMPLETED": "Service completed",
+    "BOOKING_NO_SHOW": "No-show",
+    "GENERAL": "Notification"
+  }
+}

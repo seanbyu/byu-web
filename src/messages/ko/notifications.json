@@ -1,0 +1,21 @@
+{
+  "title": "알림",
+  "ariaLabel": "알림",
+  "markAllRead": "모두 읽음",
+  "empty": "새로운 알림이 없습니다",
+  "viewAll": "알림 전체 보기",
+  "justNow": "방금 전",
+  "minutesAgo": "{count}분 전",
+  "hoursAgo": "{count}시간 전",
+  "daysAgo": "{count}일 전",
+  "types": {
+    "BOOKING_CONFIRMED": "예약 확정",
+    "BOOKING_CANCELLED": "예약 취소",
+    "BOOKING_MODIFIED": "예약 변경",
+    "BOOKING_REQUEST": "예약 요청",
+    "BOOKING_REMINDER": "예약 리마인더",
+    "BOOKING_COMPLETED": "시술 완료",
+    "BOOKING_NO_SHOW": "노쇼 처리",
+    "GENERAL": "알림"
+  }
+}

@@ -9,17 +9,6 @@ import { Bell, Check, CalendarCheck, CalendarX, CalendarClock, BellRing } from "
 import { useNotifications } from "@/features/notifications/context/NotificationContext";
 import type { AppNotification } from "@/features/notifications/context/NotificationContext";
 
-function getRelativeTime(dateStr: string): string {
-  const diffMs = Date.now() - new Date(dateStr).getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-  if (diffMins < 1) return "방금 전";
-  if (diffMins < 60) return `${diffMins}분 전`;
-  if (diffHours < 24) return `${diffHours}시간 전`;
-  return `${diffDays}일 전`;
-}
-
 const TYPE_COLOR: Record<string, string> = {
   BOOKING_CONFIRMED: "bg-green-100 text-green-600",
   BOOKING_CANCELLED: "bg-red-100 text-red-600",
@@ -31,16 +20,7 @@ const TYPE_COLOR: Record<string, string> = {
   GENERAL: "bg-gray-100 text-gray-600",
 };
 
-const TYPE_LABEL: Record<string, string> = {
-  BOOKING_CONFIRMED: "예약 확정",
-  BOOKING_CANCELLED: "예약 취소",
-  BOOKING_MODIFIED: "예약 변경",
-  BOOKING_REQUEST: "예약 요청",
-  BOOKING_REMINDER: "예약 리마인더",
-  BOOKING_COMPLETED: "시술 완료",
-  BOOKING_NO_SHOW: "노쇼 처리",
-  GENERAL: "알림",
-};
+const KNOWN_TYPES = ["BOOKING_CONFIRMED", "BOOKING_CANCELLED", "BOOKING_MODIFIED", "BOOKING_REQUEST", "BOOKING_REMINDER", "BOOKING_COMPLETED", "BOOKING_NO_SHOW", "GENERAL"];
 
 function NotifIcon({ type }: { type: string }) {
   const cls = "h-4 w-4";
@@ -51,8 +31,25 @@ function NotifIcon({ type }: { type: string }) {
 }
 
 function NotificationRow({ notif }: { notif: AppNotification }) {
+  const tN = useTranslations("notifications");
   const router = useRouter();
   const { markRead } = useNotifications();
+
+  const getRelativeTime = (dateStr: string): string => {
+    const diffMs = Date.now() - new Date(dateStr).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffMins < 1) return tN("justNow");
+    if (diffMins < 60) return tN("minutesAgo", { count: diffMins });
+    if (diffHours < 24) return tN("hoursAgo", { count: diffHours });
+    return tN("daysAgo", { count: diffDays });
+  };
+
+  const getTypeLabel = (type: string): string => {
+    const validType = KNOWN_TYPES.includes(type) ? type : "GENERAL";
+    return tN(`types.${validType}` as Parameters<typeof tN>[0]);
+  };
 
   const handleClick = () => {
     if (!notif.read_at) markRead(notif.id);
@@ -75,7 +72,7 @@ function NotificationRow({ notif }: { notif: AppNotification }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <p className={`text-sm font-medium ${!notif.read_at ? "text-gray-900" : "text-gray-600"}`}>
-            {TYPE_LABEL[notif.notification_type] ?? "알림"}
+            {getTypeLabel(notif.notification_type)}
           </p>
           {!notif.read_at && (
             <span className="h-2 w-2 flex-shrink-0 rounded-full bg-primary-500" />
