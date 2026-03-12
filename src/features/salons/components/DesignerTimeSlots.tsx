@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useFavorites } from "@/features/favorites";
 import { useAuthContext } from "@/features/auth";
 import { LoginModal } from "@/features/auth/components/LoginModal";
-import type { DesignerTimeSlotsProps, DesignerSlotProps } from "../types";
+import type { ArtistTimeSlotsProps, ArtistSlotProps } from "../types";
 
 // TikTok 아이콘 (lucide-react에 없어서 커스텀)
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -16,16 +16,16 @@ const TikTokIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const DesignerSlots = memo(function DesignerSlots({
-  designer,
+const ArtistSlots = memo(function ArtistSlots({
+  artist,
   selectedDate,
   isSalonHoliday,
   isDateEnabled,
-  isDesignerHoliday,
-  getDesignerTimeSlots,
+  isArtistHoliday,
+  getArtistTimeSlots,
   isSlotAvailable,
   onTimeSlotClick,
-}: DesignerSlotProps) {
+}: ArtistSlotProps) {
   const tCommon = useTranslations("common");
 
   const salonClosed = isSalonHoliday(selectedDate) || !isDateEnabled(selectedDate);
@@ -38,7 +38,7 @@ const DesignerSlots = memo(function DesignerSlots({
     );
   }
 
-  if (isDesignerHoliday(designer, selectedDate)) {
+  if (isArtistHoliday(artist, selectedDate)) {
     return (
       <div className="flex flex-wrap gap-2">
         <p className="text-sm text-gray-400">{tCommon("closedToday")}</p>
@@ -46,17 +46,17 @@ const DesignerSlots = memo(function DesignerSlots({
     );
   }
 
-  const designerTimeSlots = getDesignerTimeSlots(designer);
+  const artistTimeSlots = getArtistTimeSlots(artist);
 
   return (
     <div className="flex flex-wrap gap-2">
-      {designerTimeSlots.length > 0 ? (
-        designerTimeSlots.map((time) => {
-          const available = isSlotAvailable(designer.id, time);
+      {artistTimeSlots.length > 0 ? (
+        artistTimeSlots.map((time) => {
+          const available = isSlotAvailable(artist.id, time);
           return (
             <button
               key={time}
-              onClick={() => available && onTimeSlotClick(designer, time)}
+              onClick={() => available && onTimeSlotClick(artist, time)}
               disabled={!available}
               className={`touch-target rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                 available
@@ -75,16 +75,16 @@ const DesignerSlots = memo(function DesignerSlots({
   );
 });
 
-export const DesignerTimeSlots = memo(function DesignerTimeSlots({
+export const ArtistTimeSlots = memo(function ArtistTimeSlots({
   staff,
   selectedDate,
   isSalonHoliday,
   isDateEnabled,
-  isDesignerHoliday,
-  getDesignerTimeSlots,
+  isArtistHoliday,
+  getArtistTimeSlots,
   isSlotAvailable,
   onTimeSlotClick,
-}: DesignerTimeSlotsProps) {
+}: ArtistTimeSlotsProps) {
   const tBooking = useTranslations("booking");
   const tCommon = useTranslations("common");
   const { isAuthenticated } = useAuthContext();
@@ -111,37 +111,37 @@ export const DesignerTimeSlots = memo(function DesignerTimeSlots({
     <>
       <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 sm:text-base">
         <Star className="h-4 w-4 text-primary-500" />
-        {tBooking("selectDesigner")}
+        {tBooking("selectArtist")}
       </h3>
 
       {staff.length > 0 ? (
         <div className="space-y-3 sm:space-y-4">
-          {staff.map((designer) => {
-            const isFavorited = isArtistFavorited(designer.id);
+          {staff.map((artist) => {
+            const isFavorited = isArtistFavorited(artist.id);
 
             return (
-              <div key={designer.id} className="rounded-xl bg-gray-50 p-3 sm:p-4">
+              <div key={artist.id} className="rounded-xl bg-gray-50 p-3 sm:p-4">
                 {/* Designer Info */}
                 <div className="mb-3 flex items-center gap-3">
                   <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200 sm:h-12 sm:w-12">
-                    {designer.profile_image ? (
+                    {artist.profile_image ? (
                       <img
-                        src={designer.profile_image}
-                        alt={designer.name}
+                        src={artist.profile_image}
+                        alt={artist.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <span className="text-lg font-bold text-gray-400">
-                        {designer.name.charAt(0)}
+                        {artist.name.charAt(0)}
                       </span>
                     )}
                   </div>
                   <div className="flex-1 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-gray-900 sm:text-base">{designer.name}</p>
+                      <p className="text-sm font-medium text-gray-900 sm:text-base">{artist.name}</p>
                       {/* Favorite Button */}
                       <button
-                        onClick={() => handleToggleFavorite(designer.id)}
+                        onClick={() => handleToggleFavorite(artist.id)}
                         className="touch-target rounded-full p-1 transition-colors hover:bg-gray-200"
                         aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
                       >
@@ -155,8 +155,8 @@ export const DesignerTimeSlots = memo(function DesignerTimeSlots({
                       </button>
                     </div>
                     {/* SNS Icons */}
-                    {designer.staff_profiles?.social_links && (() => {
-                      const socialLinks = designer.staff_profiles.social_links;
+                    {artist.staff_profiles?.social_links && (() => {
+                      const socialLinks = artist.staff_profiles.social_links;
                       const icons = [
                         socialLinks.instagram && {
                           key: 'instagram',
@@ -210,13 +210,13 @@ export const DesignerTimeSlots = memo(function DesignerTimeSlots({
                 </div>
 
                 {/* Time Slots */}
-                <DesignerSlots
-                  designer={designer}
+                <ArtistSlots
+                  artist={artist}
                   selectedDate={selectedDate}
                   isSalonHoliday={isSalonHoliday}
                   isDateEnabled={isDateEnabled}
-                  isDesignerHoliday={isDesignerHoliday}
-                  getDesignerTimeSlots={getDesignerTimeSlots}
+                  isArtistHoliday={isArtistHoliday}
+                  getArtistTimeSlots={getArtistTimeSlots}
                   isSlotAvailable={isSlotAvailable}
                   onTimeSlotClick={onTimeSlotClick}
                 />
@@ -226,7 +226,7 @@ export const DesignerTimeSlots = memo(function DesignerTimeSlots({
         </div>
       ) : (
         <div className="text-center py-8 text-gray-400">
-          <p>{tBooking("noDesigners")}</p>
+          <p>{tBooking("noArtists")}</p>
         </div>
       )}
 

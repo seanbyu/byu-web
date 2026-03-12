@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
 import { useAuthContext } from "@/features/auth";
 import type { Salon, StaffWithProfile, ServiceCategory, Service } from "@/lib/supabase/types";
-import { getDayName, formatTime, formatDateForDB, getDesignerWorkHours } from "@/features/bookings/utils";
+import { getDayName, formatTime, formatDateForDB, getArtistWorkHours } from "@/features/bookings/utils";
 import { bookingsApi } from "@/features/bookings/api";
 import { salonsApi } from "../api";
 import { customerMutations } from "@/lib/api/mutations";
@@ -14,7 +14,7 @@ import { useCategoriesQuery } from "./useCategoriesQuery";
 
 type CalendarHelpers = {
   isSalonHoliday: (date: Date) => boolean;
-  isDesignerHoliday: (designer: StaffWithProfile, date: Date) => boolean;
+  isArtistHoliday: (artist: StaffWithProfile, date: Date) => boolean;
   isDateEnabled: (date: Date) => boolean;
 };
 
@@ -74,7 +74,7 @@ export function useSalonBooking(
     }))
   );
 
-  const { isSalonHoliday, isDesignerHoliday } = calendarHelpers;
+  const { isSalonHoliday, isArtistHoliday } = calendarHelpers;
 
   // TanStack Query - 예약 데이터
   const { data: existingBookings = [] } = useBookingsQuery(salon.id, selectedDate);
@@ -104,35 +104,35 @@ export function useSalonBooking(
     return { open: hours.open, close: hours.close };
   }, [salon.business_hours]);
 
-  const getDesignerTimeSlots = useCallback((designer: StaffWithProfile): string[] => {
+  const getArtistTimeSlots = useCallback((artist: StaffWithProfile): string[] => {
     if (isSalonHoliday(selectedDate)) return [];
 
     const dayName = getDayName(selectedDate);
     const salonHours = getSalonHours(selectedDate);
     if (!salonHours) return [];
 
-    if (isDesignerHoliday(designer, selectedDate)) return [];
+    if (isArtistHoliday(artist, selectedDate)) return [];
 
-    const designerHours = getDesignerWorkHours(designer, dayName);
+    const artistHours = getArtistWorkHours(artist, dayName);
 
     let effectiveStart: string;
     let effectiveEnd: string;
 
-    if (designerHours.status === "day_off") return [];
+    if (artistHours.status === "day_off") return [];
 
-    if (designerHours.status === "working") {
+    if (artistHours.status === "working") {
       const [salonOpenH, salonOpenM] = salonHours.open.split(":").map(Number);
       const [salonCloseH, salonCloseM] = salonHours.close.split(":").map(Number);
-      const [designerStartH, designerStartM] = designerHours.start.split(":").map(Number);
-      const [designerEndH, designerEndM] = designerHours.end.split(":").map(Number);
+      const [artistStartH, artistStartM] = artistHours.start.split(":").map(Number);
+      const [artistEndH, artistEndM] = artistHours.end.split(":").map(Number);
 
       const salonOpenMinutes = salonOpenH * 60 + salonOpenM;
       const salonCloseMinutes = salonCloseH * 60 + salonCloseM;
-      const designerStartMinutes = designerStartH * 60 + designerStartM;
-      const designerEndMinutes = designerEndH * 60 + designerEndM;
+      const artistStartMinutes = artistStartH * 60 + artistStartM;
+      const artistEndMinutes = artistEndH * 60 + artistEndM;
 
-      const startMinutes = Math.max(salonOpenMinutes, designerStartMinutes);
-      const endMinutes = Math.min(salonCloseMinutes, designerEndMinutes);
+      const startMinutes = Math.max(salonOpenMinutes, artistStartMinutes);
+      const endMinutes = Math.min(salonCloseMinutes, artistEndMinutes);
 
       if (startMinutes >= endMinutes) return [];
 
@@ -158,9 +158,9 @@ export function useSalonBooking(
     }
 
     return slots;
-  }, [selectedDate, isSalonHoliday, isDesignerHoliday, getSalonHours, salon.settings]);
+  }, [selectedDate, isSalonHoliday, isArtistHoliday, getSalonHours, salon.settings]);
 
-  const isSlotAvailable = useCallback((designerId: string, time: string): boolean => {
+  const isSlotAvailable = useCallback((artistId: string, time: string): boolean => {
     const now = new Date();
     const isToday = selectedDate.toDateString() === now.toDateString();
 
@@ -177,7 +177,7 @@ export function useSalonBooking(
     const slotEnd = slotMinutes + slotDuration;
 
     for (const booking of existingBookings) {
-      if (booking.artist_id !== designerId) continue;
+      if (booking.artist_id !== artistId) continue;
 
       const [bookingHour, bookingMin] = booking.start_time.split(":").map(Number);
       const bookingStart = bookingHour * 60 + bookingMin;
@@ -191,16 +191,16 @@ export function useSalonBooking(
     return true;
   }, [selectedDate, existingBookings, salon.settings]);
 
-  const handleTimeSlotClick = useCallback((designer: StaffWithProfile, time: string) => {
+  const handleTimeSlotClick = useCallback((artist: StaffWithProfile, time: string) => {
     if (!isAuthenticated) {
-      handleLoginRequired(designer, time);
+      handleLoginRequired(artist, time);
       return;
     }
-    if (designer.profile_image) {
+    if (artist.profile_image) {
       const img = new window.Image();
-      img.src = designer.profile_image;
+      img.src = artist.profile_image;
     }
-    openBookingModal(designer, time);
+    openBookingModal(artist, time);
 
     // cutoff가 지나지 않은 카테고리 중에서 기본 카테고리 설정
     const settings = salon.settings as Record<string, unknown> | null;
@@ -284,7 +284,7 @@ export function useSalonBooking(
       const createdBooking = await bookingsApi.createBooking({
         salon_id: salon.id,
         customer_id: customer.id,
-        artist_id: bookingModal.designer.id,
+        artist_id: bookingModal.artist.id,
         service_id: matchedService.id,
         booking_date: formatDateForDB(selectedDate),
         start_time: bookingModal.time,
@@ -391,7 +391,7 @@ export function useSalonBooking(
     selectedCategory,
     setSelectedCategory,
     getCategoryName,
-    getDesignerTimeSlots,
+    getArtistTimeSlots,
     isSlotAvailable,
     handleTimeSlotClick,
     handleLoginSuccess,

@@ -2,7 +2,7 @@ import { useMemo, useEffect, useRef, useCallback } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslations } from "next-intl";
 import type { Salon, StaffWithProfile, HolidayEntry } from "@/lib/supabase/types";
-import { getDayName, isDateInHolidays, getDesignerWorkHours } from "@/features/bookings/utils";
+import { getDayName, isDateInHolidays, getArtistWorkHours } from "@/features/bookings/utils";
 
 type BusinessHoursMap = Record<string, { enabled?: boolean; open?: string; close?: string }> | null;
 import { useSalonDetailStore } from "../stores/useSalonDetailStore";
@@ -80,10 +80,10 @@ export function useSalonCalendar(salon: Salon) {
     return isDateInHolidays(date, salon.holidays as HolidayEntry[] | null);
   }, [salon.holidays]);
 
-  const isDesignerHoliday = useCallback((designer: StaffWithProfile, date: Date): boolean => {
-    if (isDateInHolidays(date, designer.staff_profiles?.holidays || null)) return true;
+  const isArtistHoliday = useCallback((artist: StaffWithProfile, date: Date): boolean => {
+    if (isDateInHolidays(date, artist.staff_profiles?.holidays || null)) return true;
     const dayName = getDayName(date);
-    const workResult = getDesignerWorkHours(designer, dayName);
+    const workResult = getArtistWorkHours(artist, dayName);
     return workResult.status === "day_off";
   }, []);
 
@@ -136,7 +136,7 @@ export function useSalonCalendar(salon: Salon) {
     availableDates,
     calendarDays,
     isSalonHoliday,
-    isDesignerHoliday,
+    isArtistHoliday,
     isDateEnabled,
     isCalendarDateAvailable,
     getDayLabel,

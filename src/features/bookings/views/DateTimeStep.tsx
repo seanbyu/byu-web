@@ -1,7 +1,7 @@
 import { memo, useState, useMemo } from "react";
 import { Calendar, Clock, ChevronRight } from "lucide-react";
 import { TimeSlotsSkeleton } from "@/components/ui/Skeleton";
-import { getDayName, isDateInHolidays, getDesignerWorkHours } from "../utils";
+import { getDayName, isDateInHolidays, getArtistWorkHours } from "../utils";
 import type { HolidayEntry } from "@/lib/supabase/types";
 import type { DateTimeStepProps } from "../types";
 
@@ -16,7 +16,7 @@ export const DateTimeStep = memo(function DateTimeStep({
   onSelectTime,
   loadingSlots,
   salon,
-  selectedDesigner,
+  selectedArtist,
   t,
 }: DateTimeStepProps) {
   const [currentMonth, setCurrentMonth] = useState(() => {
@@ -58,11 +58,11 @@ export const DateTimeStep = memo(function DateTimeStep({
     maxDate.setDate(today.getDate() + ((salon.settings as Record<string, unknown> | null)?.booking_advance_days as number || 30));
     if (date > maxDate) return false;
 
-    // Check designer's work schedule and holidays
-    if (selectedDesigner) {
-      if (isDateInHolidays(date, selectedDesigner.staff_profiles?.holidays || null)) return false;
-      const designerHours = getDesignerWorkHours(selectedDesigner, dayName);
-      if (designerHours.status === "day_off") return false;
+    // Check artist's work schedule and holidays
+    if (selectedArtist) {
+      if (isDateInHolidays(date, selectedArtist.staff_profiles?.holidays || null)) return false;
+      const artistHours = getArtistWorkHours(selectedArtist, dayName);
+      if (artistHours.status === "day_off") return false;
     }
 
     return true;

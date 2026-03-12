@@ -88,6 +88,11 @@ export class SalonRepository extends BaseRepository<"salons"> {
         salon_id,
         is_owner,
         is_booking_enabled,
+        staff_positions:staff_positions!staff_profiles_position_id_fkey (
+          name,
+          name_en,
+          name_th
+        ),
         bio,
         specialties,
         years_of_experience,
@@ -119,6 +124,7 @@ export class SalonRepository extends BaseRepository<"salons"> {
       })
       .map((profile: Record<string, unknown>) => {
         const user = profile.users as Record<string, unknown>;
+        const position = profile.staff_positions as Record<string, unknown> | null;
         return {
           id: user.id,
           name: user.name,
@@ -131,6 +137,9 @@ export class SalonRepository extends BaseRepository<"salons"> {
             salon_id: profile.salon_id,
             is_owner: profile.is_owner,
             is_booking_enabled: profile.is_booking_enabled,
+            position_name: position?.name as string | null,
+            position_name_en: position?.name_en as string | null,
+            position_name_th: position?.name_th as string | null,
             bio: profile.bio,
             specialties: profile.specialties,
             years_of_experience: profile.years_of_experience,

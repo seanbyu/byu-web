@@ -2754,6 +2754,9 @@ export type StaffWithProfile = {
     salon_id: string
     is_owner: boolean
     is_booking_enabled: boolean
+    position_name?: string | null
+    position_name_en?: string | null
+    position_name_th?: string | null
     bio: string | null
     specialties: string[] | null
     years_of_experience: number | null

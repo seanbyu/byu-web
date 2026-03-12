@@ -54,30 +54,30 @@ export type BusinessHoursCardProps = {
   isSalonHoliday: (date: Date) => boolean;
 };
 
-export type DesignerTimeSlotsProps = {
+export type ArtistTimeSlotsProps = {
   staff: StaffWithProfile[];
   selectedDate: Date;
   isSalonHoliday: (date: Date) => boolean;
   isDateEnabled: (date: Date) => boolean;
-  isDesignerHoliday: (designer: StaffWithProfile, date: Date) => boolean;
-  getDesignerTimeSlots: (designer: StaffWithProfile) => string[];
-  isSlotAvailable: (designerId: string, time: string) => boolean;
-  onTimeSlotClick: (designer: StaffWithProfile, time: string) => void;
+  isArtistHoliday: (artist: StaffWithProfile, date: Date) => boolean;
+  getArtistTimeSlots: (artist: StaffWithProfile) => string[];
+  isSlotAvailable: (artistId: string, time: string) => boolean;
+  onTimeSlotClick: (artist: StaffWithProfile, time: string) => void;
 };
 
-export type DesignerSlotProps = {
-  designer: StaffWithProfile;
+export type ArtistSlotProps = {
+  artist: StaffWithProfile;
   selectedDate: Date;
   isSalonHoliday: (date: Date) => boolean;
   isDateEnabled: (date: Date) => boolean;
-  isDesignerHoliday: (designer: StaffWithProfile, date: Date) => boolean;
-  getDesignerTimeSlots: (designer: StaffWithProfile) => string[];
-  isSlotAvailable: (designerId: string, time: string) => boolean;
-  onTimeSlotClick: (designer: StaffWithProfile, time: string) => void;
+  isArtistHoliday: (artist: StaffWithProfile, date: Date) => boolean;
+  getArtistTimeSlots: (artist: StaffWithProfile) => string[];
+  isSlotAvailable: (artistId: string, time: string) => boolean;
+  onTimeSlotClick: (artist: StaffWithProfile, time: string) => void;
 };
 
 export type BookingConfirmModalProps = {
-  designer: StaffWithProfile;
+  artist: StaffWithProfile;
   time: string;
   selectedDate: Date;
   locale: string;

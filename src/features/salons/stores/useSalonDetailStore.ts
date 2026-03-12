@@ -2,7 +2,7 @@ import { create } from "zustand";
 import type { StaffWithProfile } from "@/lib/supabase/types";
 
 interface BookingModalData {
-  designer: StaffWithProfile;
+  artist: StaffWithProfile;
   time: string;
 }
 
@@ -34,9 +34,9 @@ interface SalonDetailState {
   setIsSubmitting: (submitting: boolean) => void;
 
   // Actions - Combined
-  openBookingModal: (designer: StaffWithProfile, time: string) => void;
+  openBookingModal: (artist: StaffWithProfile, time: string) => void;
   closeBookingModal: () => void;
-  handleLoginRequired: (designer: StaffWithProfile, time: string) => void;
+  handleLoginRequired: (artist: StaffWithProfile, time: string) => void;
   handleLoginSuccess: () => void;
   reset: () => void;
 }
@@ -70,9 +70,9 @@ export const useSalonDetailStore = create<SalonDetailState>((set, get) => ({
   setIsSubmitting: (submitting) => set({ isSubmitting: submitting }),
 
   // Combined actions
-  openBookingModal: (designer, time) =>
+  openBookingModal: (artist, time) =>
     set({
-      bookingModal: { designer, time },
+      bookingModal: { artist, time },
       customerNotes: "",
       selectedCategory: "",
     }),
@@ -83,9 +83,9 @@ export const useSalonDetailStore = create<SalonDetailState>((set, get) => ({
       selectedCategory: "",
     }),
 
-  handleLoginRequired: (designer, time) =>
+  handleLoginRequired: (artist, time) =>
     set({
-      pendingBooking: { designer, time },
+      pendingBooking: { artist, time },
       showLoginModal: true,
     }),
 

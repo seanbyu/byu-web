@@ -69,7 +69,7 @@ export function BookingSuccessModal({ bookingId, salonId, lineChannel, onClose }
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-black/50 animate-backdrop" onClick={onClose} />
 
-      <div className="relative w-full max-w-[360px] rounded-2xl bg-white p-6 shadow-xl animate-slide-up">
+      <div className="relative w-full max-w-[320px] rounded-2xl bg-white p-5 shadow-xl animate-slide-up">
         <button
           onClick={onClose}
           className="touch-target absolute right-3 top-3 rounded-full p-1.5 hover:bg-gray-100"
@@ -78,17 +78,17 @@ export function BookingSuccessModal({ bookingId, salonId, lineChannel, onClose }
         </button>
 
         {/* Success Icon */}
-        <div className="flex justify-center mb-4">
-          <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
-            <Check className="w-7 h-7 text-green-600" />
+        <div className="mb-3.5 flex justify-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+            <Check className="h-6 w-6 text-green-600" />
           </div>
         </div>
 
         {/* Title & Message */}
-        <h3 className="text-center text-lg font-bold text-gray-900 mb-1">
+        <h3 className="mb-1 text-center text-base font-bold text-gray-900">
           {t("bookingPendingTitle")}
         </h3>
-        <p className="text-center text-sm text-gray-500 mb-5">
+        <p className="mb-4 text-center text-xs text-gray-500">
           {t("bookingPendingMessage")}
         </p>
 
@@ -101,21 +101,21 @@ export function BookingSuccessModal({ bookingId, salonId, lineChannel, onClose }
 
         {/* LINE Friend Add Section - 친구가 아닌 경우에만 표시 */}
         {lineUrl && !checkingFriend && showLineBanner && (
-          <div className="mb-5 rounded-xl border border-[#06C755]/30 bg-[#06C755]/5 p-4">
-            <p className="text-sm font-semibold text-gray-900 mb-1">
+          <div className="mb-4 rounded-xl border border-[#06C755]/30 bg-[#06C755]/5 p-3">
+            <p className="mb-1 text-xs font-semibold text-gray-900">
               {t("lineNotFriendTitle")}
             </p>
-            <p className="text-xs text-gray-600 mb-3">
+            <p className="mb-2.5 text-[11px] text-gray-600">
               {t("lineNotFriendMessage")}
             </p>
             <a
               href={lineUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#06C755] px-4 py-2.5 text-white transition-opacity hover:opacity-90"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#06C755] px-3.5 py-2 text-white transition-opacity hover:opacity-90"
             >
               <LineIcon className="h-4 w-4" />
-              <span className="text-sm font-semibold">{t("lineAddFriendAction")}</span>
+              <span className="text-xs font-semibold">{t("lineAddFriendAction")}</span>
             </a>
           </div>
         )}
@@ -135,7 +135,7 @@ export function BookingSuccessModal({ bookingId, salonId, lineChannel, onClose }
           )}
           <button
             onClick={onClose}
-            className="w-full min-h-[44px] rounded-xl text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50"
+            className="w-full min-h-[42px] rounded-xl text-xs font-medium text-gray-500 transition-colors hover:bg-gray-50"
           >
             {t("close")}
           </button>

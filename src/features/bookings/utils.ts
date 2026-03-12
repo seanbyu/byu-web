@@ -38,19 +38,21 @@ export function isDateInHolidays(date: Date, holidays: HolidayEntry[] | unknown[
   });
 }
 
-export type DesignerWorkResult =
+export type ArtistWorkResult =
   | { status: "no_schedule" }
   | { status: "day_off" }
   | { status: "working"; start: string; end: string };
 
-export function getDesignerWorkHours(
-  designer: StaffWithProfile,
+export function getArtistWorkHours(
+  artist: StaffWithProfile,
   dayName: string
-): DesignerWorkResult {
-  const workSchedule = designer.staff_profiles?.work_schedule as WorkSchedule | null;
+): ArtistWorkResult {
+  const workSchedule = artist.staff_profiles?.work_schedule as WorkSchedule | null;
   if (!workSchedule) return { status: "no_schedule" };
   const daySchedule = workSchedule[dayName];
   if (!daySchedule?.enabled) return { status: "day_off" };
   if (!daySchedule.start || !daySchedule.end) return { status: "no_schedule" };
   return { status: "working", start: daySchedule.start, end: daySchedule.end };
 }
+
+export const getDesignerWorkHours = getArtistWorkHours;

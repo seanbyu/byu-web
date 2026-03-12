@@ -101,9 +101,9 @@ export function LoginModal({
 
       {/* Modal */}
       <div
-        className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl
+        className="relative w-full sm:max-w-sm bg-white rounded-t-2xl sm:rounded-2xl
                    shadow-xl transform transition-all
-                   max-h-[75vh] overflow-hidden
+                   max-h-[72vh] overflow-hidden
                    motion-safe:animate-[slideUp_0.3s_ease-out] sm:motion-safe:animate-[fadeIn_0.2s_ease-out]"
         style={{
           animation: "slideUp 0.3s ease-out",
@@ -137,13 +137,13 @@ export function LoginModal({
         </button>
 
         {/* Content */}
-        <div className="ds-auth-modal px-6 pt-5 pb-6 sm:p-8">
+        <div className="ds-auth-modal px-5 pt-4 pb-5 sm:px-6 sm:py-5">
           {/* Icon */}
-          <div className="flex justify-center mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-line-50 text-line-500">
+          <div className="mb-3.5 flex justify-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-line-50 text-line-500">
               <svg
-                width="24"
-                height="24"
+                width="20"
+                height="20"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -162,17 +162,17 @@ export function LoginModal({
           >
             {t(titleKey)}
           </h2>
-          <p className="ds-auth-modal-body text-center text-gray-500 mb-5">
+          <p className="ds-auth-modal-body mb-4 text-center text-gray-500">
             {t(descriptionKey)}
           </p>
 
           {/* Login Buttons */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {/* Open inside LINE app via LIFF URL (mobile web only) */}
             {canOpenInLineApp && liffOpenUrl && (
               <a
                 href={liffOpenUrl}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-line-500 bg-white px-4 py-3 font-medium text-line-600 transition-colors hover:bg-line-50"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-line-500 bg-white px-4 py-2.5 font-medium text-line-600 transition-colors hover:bg-line-50"
               >
                 <LineIcon />
                 <span className="ds-auth-modal-body">{t("openInLineApp")}</span>
@@ -214,7 +214,7 @@ export function LoginModal({
           </div>
 
           {/* Terms */}
-          <p className="ds-auth-modal-body mt-4 text-center text-gray-400 leading-relaxed">
+          <p className="ds-auth-modal-body mt-3 text-center text-gray-400 leading-relaxed">
             {t.rich("termsNotice", {
               terms: (chunks) => (
                 <Link href="/terms" className="underline hover:text-gray-600">

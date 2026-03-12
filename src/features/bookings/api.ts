@@ -12,8 +12,8 @@ export const bookingsApi = {
   /**
    * 특정 디자이너의 특정 날짜 예약 조회
    */
-  getExistingBookings: (designerId: string, bookingDate: string): Promise<AvailabilitySlot[]> => {
-    return bookingQueries.getByDesigner(designerId, bookingDate);
+  getExistingBookings: (artistId: string, bookingDate: string): Promise<AvailabilitySlot[]> => {
+    return bookingQueries.getByDesigner(artistId, bookingDate);
   },
 
   /**

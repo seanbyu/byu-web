@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { Service, StaffWithProfile } from "@/lib/supabase/types";
 
-type BookingStep = "service" | "designer" | "datetime" | "confirm";
+type BookingStep = "service" | "artist" | "datetime" | "confirm";
 
 interface BookingFlowState {
   // Step state
@@ -9,7 +9,7 @@ interface BookingFlowState {
 
   // Selection state
   selectedService: Service | null;
-  selectedDesigner: StaffWithProfile | null;
+  selectedArtist: StaffWithProfile | null;
   selectedDate: Date | null;
   selectedTime: string | null;
   customerNotes: string;
@@ -27,7 +27,7 @@ interface BookingFlowState {
 
   // Actions - Selection
   setSelectedService: (service: Service | null) => void;
-  setSelectedDesigner: (designer: StaffWithProfile | null) => void;
+  setSelectedArtist: (artist: StaffWithProfile | null) => void;
   setSelectedDate: (date: Date | null) => void;
   setSelectedTime: (time: string | null) => void;
   setCustomerNotes: (notes: string) => void;
@@ -44,12 +44,12 @@ interface BookingFlowState {
   reset: () => void;
 }
 
-const STEPS: BookingStep[] = ["service", "designer", "datetime", "confirm"];
+const STEPS: BookingStep[] = ["service", "artist", "datetime", "confirm"];
 
 const initialState = {
   currentStep: "service" as BookingStep,
   selectedService: null,
-  selectedDesigner: null,
+  selectedArtist: null,
   selectedDate: null,
   selectedTime: null,
   customerNotes: "",
@@ -83,7 +83,7 @@ export const useBookingFlowStore = create<BookingFlowState>((set, get) => ({
 
   // Selection actions
   setSelectedService: (service) => set({ selectedService: service }),
-  setSelectedDesigner: (designer) => set({ selectedDesigner: designer }),
+  setSelectedArtist: (artist) => set({ selectedArtist: artist }),
   setSelectedDate: (date) => set({ selectedDate: date, selectedTime: null }),
   setSelectedTime: (time) => set({ selectedTime: time }),
   setCustomerNotes: (notes) => set({ customerNotes: notes }),
@@ -96,12 +96,12 @@ export const useBookingFlowStore = create<BookingFlowState>((set, get) => ({
 
   // Helpers
   canProceed: () => {
-    const { currentStep, selectedService, selectedDesigner, selectedDate, selectedTime, customerName } = get();
+    const { currentStep, selectedService, selectedArtist, selectedDate, selectedTime, customerName } = get();
     switch (currentStep) {
       case "service":
         return !!selectedService;
-      case "designer":
-        return !!selectedDesigner;
+      case "artist":
+        return !!selectedArtist;
       case "datetime":
         return !!selectedDate && !!selectedTime;
       case "confirm":

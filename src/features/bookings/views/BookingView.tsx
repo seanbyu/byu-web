@@ -13,11 +13,11 @@ import type { StaffWithProfile, HolidayEntry } from "@/lib/supabase/types";
 type BusinessHoursMap = Record<string, { enabled?: boolean; open?: string; close?: string }> | null;
 import { bookingsApi } from "../api";
 import { customerMutations } from "@/lib/api";
-import { getDayName, formatTime, formatDateForDB, isDateInHolidays, getDesignerWorkHours } from "../utils";
+import { getDayName, formatTime, formatDateForDB, isDateInHolidays, getArtistWorkHours } from "../utils";
 import { useBookingFlowStore } from "../stores/useBookingFlowStore";
-import { useDesignerBookingsQuery } from "../hooks/useDesignerBookingsQuery";
+import { useArtistBookingsQuery } from "../hooks/useDesignerBookingsQuery";
 import { ServiceStep } from "./ServiceStep";
-import { DesignerStep } from "./DesignerStep";
+import { ArtistStep } from "./DesignerStep";
 import { DateTimeStep } from "./DateTimeStep";
 import { ConfirmStep } from "./ConfirmStep";
 import type { BookingViewProps, BookingStep, TimeSlot } from "../types";
@@ -34,7 +34,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
   const {
     currentStep,
     selectedService,
-    selectedDesigner,
+    selectedArtist,
     selectedDate,
     selectedTime,
     customerNotes,
@@ -45,7 +45,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     goToNextStep,
     goToPrevStep,
     setSelectedService,
-    setSelectedDesigner,
+    setSelectedArtist,
     setSelectedDate,
     setSelectedTime,
     setCustomerNotes,
@@ -60,7 +60,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     useShallow((state) => ({
       currentStep: state.currentStep,
       selectedService: state.selectedService,
-      selectedDesigner: state.selectedDesigner,
+      selectedArtist: state.selectedArtist,
       selectedDate: state.selectedDate,
       selectedTime: state.selectedTime,
       customerNotes: state.customerNotes,
@@ -71,7 +71,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       goToNextStep: state.goToNextStep,
       goToPrevStep: state.goToPrevStep,
       setSelectedService: state.setSelectedService,
-      setSelectedDesigner: state.setSelectedDesigner,
+      setSelectedArtist: state.setSelectedArtist,
       setSelectedDate: state.setSelectedDate,
       setSelectedTime: state.setSelectedTime,
       setCustomerNotes: state.setCustomerNotes,
@@ -90,9 +90,9 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     return () => reset();
   }, [reset]);
 
-  // TanStack Query - 디자이너별 예약 데이터
-  const { data: existingBookings = [], isLoading: loadingSlots } = useDesignerBookingsQuery(
-    selectedDesigner?.id ?? null,
+  // TanStack Query - 아티스트별 예약 데이터
+  const { data: existingBookings = [], isLoading: loadingSlots } = useArtistBookingsQuery(
+    selectedArtist?.id ?? null,
     selectedDate
   );
 
@@ -116,9 +116,9 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     return isDateInHolidays(date, salon.holidays as HolidayEntry[] | null);
   }, [salon.holidays]);
 
-  // Check if a designer is on holiday
-  const isDesignerOnHoliday = useCallback((designer: StaffWithProfile, date: Date): boolean => {
-    return isDateInHolidays(date, designer.staff_profiles?.holidays || null);
+  // Check if an artist is on holiday
+  const isArtistOnHoliday = useCallback((artist: StaffWithProfile, date: Date): boolean => {
+    return isDateInHolidays(date, artist.staff_profiles?.holidays || null);
   }, []);
 
   // Check if a time slot is available
@@ -162,7 +162,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       return [];
     }
 
-    if (selectedDesigner && isDesignerOnHoliday(selectedDesigner, selectedDate)) {
+    if (selectedArtist && isArtistOnHoliday(selectedArtist, selectedDate)) {
       return [];
     }
 
@@ -172,12 +172,12 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     let effectiveOpen = salonOpenMinutes;
     let effectiveClose = salonCloseMinutes;
 
-    if (selectedDesigner) {
-      const designerHours = getDesignerWorkHours(selectedDesigner, dayName);
-      if (designerHours.status === "day_off") return [];
-      if (designerHours.status === "working") {
-        const dStart = designerHours.start.split(":").map(Number).reduce((h, m) => h * 60 + m);
-        const dEnd = designerHours.end.split(":").map(Number).reduce((h, m) => h * 60 + m);
+    if (selectedArtist) {
+      const artistHours = getArtistWorkHours(selectedArtist, dayName);
+      if (artistHours.status === "day_off") return [];
+      if (artistHours.status === "working") {
+        const dStart = artistHours.start.split(":").map(Number).reduce((h, m) => h * 60 + m);
+        const dEnd = artistHours.end.split(":").map(Number).reduce((h, m) => h * 60 + m);
         effectiveOpen = Math.max(effectiveOpen, dStart);
         effectiveClose = Math.min(effectiveClose, dEnd);
         if (effectiveOpen >= effectiveClose) return [];
@@ -207,7 +207,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     }
 
     return slots;
-  }, [selectedDate, selectedService, selectedDesigner, salon.business_hours, salon.settings, isSalonHoliday, isDesignerOnHoliday, checkSlotAvailable]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedDate, selectedService, selectedArtist, salon.business_hours, salon.settings, isSalonHoliday, isArtistOnHoliday, checkSlotAvailable]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle booking submission
   const handleSubmitBooking = useCallback(async () => {
@@ -216,7 +216,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       return;
     }
 
-    if (!selectedService || !selectedDesigner || !selectedDate || !selectedTime || !user || !customerName.trim()) {
+    if (!selectedService || !selectedArtist || !selectedDate || !selectedTime || !user || !customerName.trim()) {
       return;
     }
 
@@ -238,7 +238,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       const booking = await bookingsApi.createBooking({
         salon_id: salon.id,
         customer_id: customer.id,
-        artist_id: selectedDesigner.id,
+        artist_id: selectedArtist.id,
         service_id: selectedService.id,
         booking_date: formatDateForDB(selectedDate),
         start_time: selectedTime,
@@ -255,7 +255,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
       });
 
       // 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: ["designer-bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["artist-bookings"] });
 
       router.push(`/bookings/${booking.id}?new=1`);
     } catch (error) {
@@ -264,7 +264,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
     } finally {
       setIsSubmitting(false);
     }
-  }, [isAuthenticated, selectedService, selectedDesigner, selectedDate, selectedTime, user, salon.id, customerName, customerPhone, customerNotes, queryClient, router, t, locale, setShowLoginModal, setIsSubmitting]);
+  }, [isAuthenticated, selectedService, selectedArtist, selectedDate, selectedTime, user, salon.id, customerName, customerPhone, customerNotes, queryClient, router, t, locale, setShowLoginModal, setIsSubmitting]);
 
   const handleNext = useCallback(() => {
     if (currentStep === "confirm") {
@@ -301,7 +301,7 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
 
         {/* Progress Steps */}
         <div className="flex px-4 pb-3">
-          {(["service", "designer", "datetime", "confirm"] as BookingStep[]).map((step, index) => (
+          {(["service", "artist", "datetime", "confirm"] as BookingStep[]).map((step, index) => (
             <div key={step} className="flex-1 flex items-center">
               <div
                 className={`h-9 w-9 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
@@ -338,11 +338,11 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
           />
         )}
 
-        {currentStep === "designer" && (
-          <DesignerStep
+        {currentStep === "artist" && (
+          <ArtistStep
             staff={staff}
-            selectedDesigner={selectedDesigner}
-            onSelect={setSelectedDesigner}
+            selectedArtist={selectedArtist}
+            onSelect={setSelectedArtist}
             t={t}
           />
         )}
@@ -357,16 +357,16 @@ export const BookingView = memo(function BookingView({ salon, staff, services, c
             onSelectTime={setSelectedTime}
             loadingSlots={loadingSlots}
             salon={salon}
-            selectedDesigner={selectedDesigner}
+            selectedArtist={selectedArtist}
             t={t}
           />
         )}
 
-        {currentStep === "confirm" && selectedService && selectedDesigner && selectedDate && selectedTime && (
+        {currentStep === "confirm" && selectedService && selectedArtist && selectedDate && selectedTime && (
           <ConfirmStep
             salon={salon}
             service={selectedService}
-            designer={selectedDesigner}
+            artist={selectedArtist}
             date={selectedDate}
             time={selectedTime}
             notes={customerNotes}

@@ -756,7 +756,7 @@ export default function BookingDetailPage() {
                 )}
               </div>
               <div>
-                <p className="text-sm text-gray-500">{t("designer")}</p>
+                <p className="text-sm text-gray-500">{t("artist")}</p>
                 <p className="font-medium">{booking.designer.name}</p>
               </div>
             </div>
@@ -1050,7 +1050,7 @@ export default function BookingDetailPage() {
                     </div>
                   ) : (
                     <div className="text-center py-6 text-gray-400">
-                      <p className="text-sm">{t("noDesigners")}</p>
+                      <p className="text-sm">{t("noArtists")}</p>
                     </div>
                   )}
                 </div>
@@ -1076,7 +1076,7 @@ export default function BookingDetailPage() {
         <div className="fixed inset-0 z-modal flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/50 animate-backdrop" onClick={() => !isCancelling && setShowCancelModal(false)} />
 
-          <div className="relative w-full max-w-[360px] rounded-2xl bg-white p-6 shadow-xl animate-slide-up">
+          <div className="relative w-full max-w-[320px] rounded-2xl bg-white p-5 shadow-xl animate-slide-up">
             <button
               onClick={() => !isCancelling && setShowCancelModal(false)}
               className="touch-target absolute right-3 top-3 rounded-full p-1.5 hover:bg-gray-100"
@@ -1085,10 +1085,10 @@ export default function BookingDetailPage() {
               <X className="w-4 h-4 text-gray-400" />
             </button>
 
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
+            <h3 className="mb-1.5 text-base font-bold text-gray-900">
               {t("cancelConfirmTitle")}
             </h3>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="mb-3.5 text-xs text-gray-500">
               {t("cancelConfirmMessage")}
             </p>
 
@@ -1101,7 +1101,7 @@ export default function BookingDetailPage() {
               disabled={isCancelling}
             />
 
-            <div className="mt-4 space-y-2">
+            <div className="mt-3.5 space-y-2">
               <button
                 onClick={handleCancelBooking}
                 disabled={isCancelling}
@@ -1128,7 +1128,7 @@ export default function BookingDetailPage() {
             className="absolute inset-0 bg-black/50 animate-backdrop"
             onClick={() => !isRescheduling && setConfirmData(null)}
           />
-          <div className="relative w-full max-w-[360px] rounded-2xl bg-white p-6 shadow-xl animate-slide-up">
+          <div className="relative w-full max-w-[320px] rounded-2xl bg-white p-5 shadow-xl animate-slide-up">
             <button
               onClick={() => !isRescheduling && setConfirmData(null)}
               className="touch-target absolute right-3 top-3 rounded-full p-1.5 hover:bg-gray-100"
@@ -1137,20 +1137,20 @@ export default function BookingDetailPage() {
               <X className="w-4 h-4 text-gray-400" />
             </button>
 
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
+            <h3 className="mb-1.5 text-base font-bold text-gray-900">
               {t("rescheduleConfirmTitle")}
             </h3>
 
-            <div className="rounded-xl bg-gray-50 p-4 mb-4 space-y-2">
-              <div className="flex items-center gap-2 text-sm">
+            <div className="mb-3.5 space-y-2 rounded-xl bg-gray-50 p-3">
+              <div className="flex items-center gap-2 text-xs">
                 <Calendar className="w-4 h-4 text-gray-400" />
                 <span className="font-medium">{formatConfirmDate(reschedDate)}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-xs">
                 <RefreshCw className="w-4 h-4 text-gray-400" />
                 <span className="font-medium">{confirmData.time}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-xs">
                 <User className="w-4 h-4 text-gray-400" />
                 <span className="font-medium">{confirmData.designer.name}</span>
               </div>

@@ -11,7 +11,7 @@ import { SalonHeader } from "../components/SalonHeader";
 import { SalonCoverImage } from "../components/SalonCoverImage";
 import { SalonCalendar } from "../components/SalonCalendar";
 import { SalonContactChannels } from "../components/SalonContactChannels";
-import { DesignerTimeSlots } from "../components/DesignerTimeSlots";
+import { ArtistTimeSlots } from "../components/DesignerTimeSlots";
 import { BookingConfirmModal } from "../components/BookingConfirmModal";
 import { BookingSuccessModal } from "../components/BookingSuccessModal";
 import { SalonContactInfo } from "../components/SalonContactInfo";
@@ -29,7 +29,7 @@ export function SalonDetailView({ salon, staff, categories, services }: SalonDet
   const calendar = useSalonCalendar(salon);
   const booking = useSalonBooking(salon, calendar.selectedDate, {
     isSalonHoliday: calendar.isSalonHoliday,
-    isDesignerHoliday: calendar.isDesignerHoliday,
+    isArtistHoliday: calendar.isArtistHoliday,
     isDateEnabled: calendar.isDateEnabled,
   }, { categories, services });
 
@@ -62,13 +62,13 @@ export function SalonDetailView({ salon, staff, categories, services }: SalonDet
       />
 
       <div className="px-3 sm:px-4">
-        <DesignerTimeSlots
+        <ArtistTimeSlots
           staff={staff}
           selectedDate={calendar.selectedDate}
           isSalonHoliday={calendar.isSalonHoliday}
           isDateEnabled={calendar.isDateEnabled}
-          isDesignerHoliday={calendar.isDesignerHoliday}
-          getDesignerTimeSlots={booking.getDesignerTimeSlots}
+          isArtistHoliday={calendar.isArtistHoliday}
+          getArtistTimeSlots={booking.getArtistTimeSlots}
           isSlotAvailable={booking.isSlotAvailable}
           onTimeSlotClick={booking.handleTimeSlotClick}
         />
@@ -89,7 +89,7 @@ export function SalonDetailView({ salon, staff, categories, services }: SalonDet
 
       {booking.bookingModal && (
         <BookingConfirmModal
-          designer={booking.bookingModal.designer}
+          artist={booking.bookingModal.artist}
           time={booking.bookingModal.time}
           selectedDate={calendar.selectedDate}
           locale={locale}

@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Check, User, Instagram, Youtube, Facebook } from "lucide-react";
-import type { DesignerStepProps } from "../types";
+import type { ArtistStepProps } from "../types";
 
 // TikTok 아이콘 (lucide-react에 없어서 커스텀)
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -11,15 +11,15 @@ const TikTokIcon = ({ className }: { className?: string }) => (
 
 export const DesignerStep = memo(function DesignerStep({
   staff,
-  selectedDesigner,
+  selectedArtist,
   onSelect,
   t,
-}: DesignerStepProps) {
+}: ArtistStepProps) {
   return (
     <div>
       <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
         <User className="w-5 h-5 text-primary-500" />
-        {t("selectDesigner")}
+        {t("selectArtist")}
       </h2>
 
       <div className="grid grid-cols-2 gap-3">
@@ -28,7 +28,7 @@ export const DesignerStep = memo(function DesignerStep({
             key={designer.id}
             onClick={() => onSelect(designer)}
             className={`p-4 rounded-xl border-2 text-center transition-all ${
-              selectedDesigner?.id === designer.id
+              selectedArtist?.id === designer.id
                 ? "border-primary-500 bg-primary-50"
                 : "border-gray-100 hover:border-gray-200"
             }`}
@@ -100,7 +100,7 @@ export const DesignerStep = memo(function DesignerStep({
                 </div>
               );
             })()}
-            {selectedDesigner?.id === designer.id && (
+            {selectedArtist?.id === designer.id && (
               <Check className="w-5 h-5 text-primary-500 mx-auto mt-2" />
             )}
           </button>
@@ -109,9 +109,11 @@ export const DesignerStep = memo(function DesignerStep({
 
       {staff.length === 0 && (
         <div className="text-center py-12 text-gray-500">
-          {t("noDesigners")}
+          {t("noArtists")}
         </div>
       )}
     </div>
   );
 });
+
+export const ArtistStep = DesignerStep;

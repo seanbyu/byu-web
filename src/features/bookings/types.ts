@@ -9,7 +9,7 @@ import type { Salon, StaffWithProfile, Service, ServiceCategory } from "@/lib/su
 // Common Types
 // ============================================
 
-export type BookingStep = "service" | "designer" | "datetime" | "confirm";
+export type BookingStep = "service" | "artist" | "datetime" | "confirm";
 
 export type TimeSlot = {
   time: string;
@@ -39,10 +39,10 @@ export type ServiceStepProps = {
   t: ReturnType<typeof useTranslations>;
 };
 
-export type DesignerStepProps = {
+export type ArtistStepProps = {
   staff: StaffWithProfile[];
-  selectedDesigner: StaffWithProfile | null;
-  onSelect: (designer: StaffWithProfile) => void;
+  selectedArtist: StaffWithProfile | null;
+  onSelect: (artist: StaffWithProfile) => void;
   t: ReturnType<typeof useTranslations>;
 };
 
@@ -55,14 +55,14 @@ export type DateTimeStepProps = {
   onSelectTime: (time: string) => void;
   loadingSlots: boolean;
   salon: Salon;
-  selectedDesigner: StaffWithProfile | null;
+  selectedArtist: StaffWithProfile | null;
   t: ReturnType<typeof useTranslations>;
 };
 
 export type ConfirmStepProps = {
   salon: Salon;
   service: Service;
-  designer: StaffWithProfile;
+  artist: StaffWithProfile;
   date: Date;
   time: string;
   notes: string;

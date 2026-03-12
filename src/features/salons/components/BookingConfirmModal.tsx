@@ -6,7 +6,7 @@ import { getLocaleCode } from "../utils";
 import type { BookingConfirmModalProps } from "../types";
 
 export function BookingConfirmModal({
-  designer,
+  artist,
   time,
   selectedDate,
   locale,
@@ -51,60 +51,68 @@ export function BookingConfirmModal({
     return () => cancelAnimationFrame(id);
   }, []);
 
+  const artistPosition =
+    localeCode.startsWith("th")
+      ? artist.staff_profiles?.position_name_th
+      : localeCode.startsWith("en")
+        ? artist.staff_profiles?.position_name_en
+        : artist.staff_profiles?.position_name;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
-      <div
-        className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`}
-        onClick={onClose}
-      />
-
-      <div className={`relative w-full max-w-[448px] bg-white rounded-t-2xl shadow-xl ${visible ? "animate-slide-up" : "translate-y-full"}`}>
-        <div className="flex justify-center pt-3 pb-2">
-          <div className="w-10 h-1 bg-gray-300 rounded-full" />
-        </div>
-
-        <button
+    <div className="fixed inset-0 z-[200] flex justify-center">
+      <div className="relative flex h-full w-full max-w-[var(--app-max-width)] items-end">
+        <div
+          className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`}
           onClick={onClose}
-          className="touch-target absolute right-4 top-4 rounded-full p-2 hover:bg-gray-100"
-        >
-          <X className="w-5 h-5 text-gray-600" />
-        </button>
+        />
 
-        <div className="px-6 pb-24">
-          <h3 className="mb-4 text-lg font-bold text-gray-900">
+        <div className={`relative w-full max-h-[85dvh] overflow-y-auto rounded-t-2xl bg-white shadow-xl pb-safe ${visible ? "animate-slide-up" : "translate-y-full"}`}>
+          <div className="flex justify-center pt-3 pb-2">
+            <div className="w-10 h-1 bg-gray-300 rounded-full" />
+          </div>
+
+          <button
+            onClick={onClose}
+            className="touch-target absolute right-4 top-4 rounded-full p-2 hover:bg-gray-100"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
+
+          <div className="px-5 pb-5">
+          <h3 className="mb-3 text-base font-bold text-gray-900">
             {tBooking("confirmBooking")}
           </h3>
 
           {/* Designer Info */}
-          <div className="mb-4 flex items-center gap-3 rounded-xl bg-gray-50 p-3">
-            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-              {designer.profile_image ? (
+          <div className="mb-3 flex items-center gap-2.5 rounded-xl bg-gray-50 p-2.5">
+            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-200">
+              {artist.profile_image ? (
                 <img
-                  src={designer.profile_image}
-                  alt={designer.name}
+                  src={artist.profile_image}
+                  alt={artist.name}
                   onLoad={() => setImgLoaded(true)}
                   className={`w-full h-full object-cover transition-opacity duration-200 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
                 />
               ) : (
-                <span className="text-lg font-bold text-gray-400">
-                  {designer.name.charAt(0)}
+                <span className="text-base font-bold text-gray-400">
+                  {artist.name.charAt(0)}
                 </span>
               )}
             </div>
             <div>
-              <p className="font-medium text-gray-900">{designer.name}</p>
-              <p className="text-sm text-gray-700">{tBooking("designer")}</p>
+              <p className="text-sm font-medium text-gray-900">{artist.name}</p>
+              <p className="text-xs text-gray-700">{artistPosition || tBooking("artist")}</p>
             </div>
           </div>
 
           {/* Time Info */}
-          <div className="mb-4 flex items-center gap-3 rounded-xl bg-primary-50 p-3">
-            <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
-              <Clock className="w-6 h-6 text-primary-600" />
+          <div className="mb-3 flex items-center gap-2.5 rounded-xl bg-primary-50 p-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100">
+              <Clock className="h-5 w-5 text-primary-600" />
             </div>
             <div>
-              <p className="font-bold text-primary-600 text-lg">{time}</p>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-base font-bold text-primary-600">{time}</p>
+              <p className="text-xs font-medium text-gray-700">
                 {selectedDate.toLocaleDateString(localeCode, { month: "long", day: "numeric", weekday: "long" })}
               </p>
             </div>
@@ -150,7 +158,7 @@ export function BookingConfirmModal({
           </div>
 
           {/* Notes */}
-          <div className="mb-6">
+          <div className="mb-5">
             <label className="ds-label">
               {tBooking("customerNotes")}
             </label>
@@ -175,11 +183,11 @@ export function BookingConfirmModal({
 
         {showPhoneConfirmModal && (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/45 px-4">
-            <div className="w-full rounded-2xl bg-white p-5 shadow-xl">
-              <h4 className="text-base font-semibold text-gray-900">
+            <div className="w-full max-w-[320px] rounded-2xl bg-white p-4 shadow-xl">
+              <h4 className="text-sm font-semibold text-gray-900">
                 {tBooking("phoneConfirmTitle")}
               </h4>
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-1.5 text-xs text-gray-600">
                 {tBooking("phoneConfirmMessage")}
               </p>
 
@@ -193,20 +201,20 @@ export function BookingConfirmModal({
               />
 
               {phoneValidationError && (
-                <p className="mt-2 text-sm text-red-600">{phoneValidationError}</p>
+                <p className="mt-2 text-xs text-red-600">{phoneValidationError}</p>
               )}
 
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <button
                   onClick={onCancelPhoneConfirm}
-                  className="min-h-[44px] rounded-xl border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                  className="min-h-[42px] rounded-xl border border-gray-300 bg-white px-3 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
                 >
                   {tBooking("cancel")}
                 </button>
                 <button
                   onClick={onConfirmPhoneSubmit}
                   disabled={isSubmitting}
-                  className="min-h-[44px] rounded-xl bg-primary-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:bg-gray-300"
+                  className="min-h-[42px] rounded-xl bg-primary-600 px-3 text-xs font-semibold text-white transition-colors hover:bg-primary-700 disabled:bg-gray-300"
                 >
                   {isSubmitting ? tBooking("processing") : tBooking("confirmBooking")}
                 </button>
@@ -214,6 +222,7 @@ export function BookingConfirmModal({
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

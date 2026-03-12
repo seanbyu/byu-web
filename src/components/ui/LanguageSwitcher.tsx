@@ -105,12 +105,12 @@ export function LanguageSwitcher({
         className={`
           flex items-center justify-center gap-1.5
           transition-colors
-          ${className}
           ${
             variant === "icon"
               ? "touch-target h-9 w-9 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900"
               : "px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium"
           }
+          ${className}
         `}
         aria-label={tSettings("languageSelect")}
         aria-expanded={isOpen}
