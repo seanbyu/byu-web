@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import { Scissors, Sparkles, Palette, Wand2, Play } from "lucide-react";
@@ -51,8 +51,33 @@ function extractYouTubeId(url: string): string | null {
 
 function YouTubeCard({ video }: { video: VideoItem }) {
     const [playing, setPlaying] = useState(false);
+    const [inView, setInView] = useState(false);
+    const [iframeLoaded, setIframeLoaded] = useState(false);
+    const [pendingPlay, setPendingPlay] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const videoId = extractYouTubeId(video.youtubeUrl);
+
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => { if (entry.isIntersecting) setInView(true); },
+            { rootMargin: "400px" }
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        if (iframeLoaded && pendingPlay) {
+            iframeRef.current?.contentWindow?.postMessage(
+                JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*"
+            );
+            setPlaying(true);
+            setPendingPlay(false);
+        }
+    }, [iframeLoaded, pendingPlay]);
 
     if (!videoId) return null;
 
@@ -60,32 +85,44 @@ function YouTubeCard({ video }: { video: VideoItem }) {
     const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&playsinline=1&enablejsapi=1`;
 
     const handlePlay = () => {
-        iframeRef.current?.contentWindow?.postMessage(
-            JSON.stringify({ event: "command", func: "playVideo", args: [] }),
-            "*"
-        );
-        setPlaying(true);
+        if (iframeLoaded) {
+            iframeRef.current?.contentWindow?.postMessage(
+                JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*"
+            );
+            setPlaying(true);
+        } else {
+            setPendingPlay(true);
+        }
     };
 
     return (
-        <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+        <div ref={containerRef} className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
             <div className="relative aspect-[9/16] w-full bg-gray-100">
-                <iframe
-                    ref={iframeRef}
-                    src={embedUrl}
-                    title={video.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className={`absolute inset-0 h-full w-full ${playing ? "" : "pointer-events-none"}`}
-                />
+                {inView && (
+                    <iframe
+                        ref={iframeRef}
+                        src={embedUrl}
+                        title={video.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        onLoad={() => setIframeLoaded(true)}
+                        className={`absolute inset-0 h-full w-full ${playing ? "" : "pointer-events-none"}`}
+                    />
+                )}
                 {!playing && (
                     <button onClick={handlePlay} className="group absolute inset-0 w-full">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={thumbnailUrl} alt={video.title} className="h-full w-full object-cover" />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/25 transition group-hover:bg-black/35">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110">
-                                <Play className="h-4 w-4 fill-gray-900 text-gray-900" style={{ marginLeft: 2 }} />
-                            </div>
+                            {pendingPlay ? (
+                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 shadow-lg">
+                                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
+                                </div>
+                            ) : (
+                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110">
+                                    <Play className="h-4 w-4 fill-gray-900 text-gray-900" style={{ marginLeft: 2 }} />
+                                </div>
+                            )}
                         </div>
                     </button>
                 )}
