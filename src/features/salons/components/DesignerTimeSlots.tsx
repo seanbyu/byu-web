@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useState, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Star, Instagram, Youtube, Facebook, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useFavorites } from "@/features/favorites";
@@ -87,6 +87,7 @@ export const ArtistTimeSlots = memo(function ArtistTimeSlots({
 }: ArtistTimeSlotsProps) {
   const tBooking = useTranslations("booking");
   const tCommon = useTranslations("common");
+  const locale = useLocale();
   const { isAuthenticated } = useAuthContext();
   const { isArtistFavorited, toggleArtistFavorite } = useFavorites();
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -118,6 +119,12 @@ export const ArtistTimeSlots = memo(function ArtistTimeSlots({
         <div className="space-y-3 sm:space-y-4">
           {staff.map((artist) => {
             const isFavorited = isArtistFavorited(artist.id);
+            const artistPosition =
+              locale.startsWith("th")
+                ? artist.staff_profiles?.position_name_th
+                : locale.startsWith("en")
+                  ? artist.staff_profiles?.position_name_en
+                  : artist.staff_profiles?.position_name;
 
             return (
               <div key={artist.id} className="rounded-xl bg-gray-50 p-3 sm:p-4">
@@ -136,9 +143,14 @@ export const ArtistTimeSlots = memo(function ArtistTimeSlots({
                       </span>
                     )}
                   </div>
-                  <div className="flex-1 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-gray-900 sm:text-base">{artist.name}</p>
+                  <div className="flex-1 flex items-start justify-between">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-gray-900 sm:text-base">{artist.name}</p>
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        {artistPosition || tBooking("artist")}
+                      </p>
+                    </div>
+                    <div className="ml-2 flex flex-col items-end gap-1">
                       {/* Favorite Button */}
                       <button
                         onClick={() => handleToggleFavorite(artist.id)}
@@ -153,7 +165,6 @@ export const ArtistTimeSlots = memo(function ArtistTimeSlots({
                           }`}
                         />
                       </button>
-                    </div>
                     {/* SNS Icons */}
                     {artist.staff_profiles?.social_links && (() => {
                       const socialLinks = artist.staff_profiles.social_links;
@@ -206,6 +217,7 @@ export const ArtistTimeSlots = memo(function ArtistTimeSlots({
                         </div>
                       );
                     })()}
+                    </div>
                   </div>
                 </div>
 
