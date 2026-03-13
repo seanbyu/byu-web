@@ -66,7 +66,7 @@ export function BookingConfirmModal({
           onClick={isSubmitting ? undefined : onClose}
         />
 
-        <div className={`relative w-full max-h-[78dvh] overflow-y-auto rounded-t-2xl bg-white shadow-xl pb-safe ${visible ? "animate-slide-up" : "translate-y-full"}`}>
+        <div className={`relative w-full max-h-[78svh] overflow-y-auto rounded-t-2xl bg-white shadow-xl pb-safe ${visible ? "animate-slide-up" : "translate-y-full"}`}>
           {/* Submitting overlay */}
           {isSubmitting && (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-t-2xl bg-white/95">
