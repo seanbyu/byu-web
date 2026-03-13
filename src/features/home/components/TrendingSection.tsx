@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Heart } from "lucide-react";
 import { SalonMenu } from "@/features/salon-menus/api";
 
@@ -17,10 +18,12 @@ function TrendingCard({ item }: { item: TrendingItem }) {
   return (
     <div className="flex-none w-[140px] flex flex-col gap-2">
       <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-gray-100">
-        <img
+        <Image
+          fill
           src={item.imageUrl}
           alt={item.name}
-          className="w-full h-full object-cover"
+          className="object-cover"
+          sizes="140px"
         />
         {item.dDay !== undefined && (
           <div className="absolute top-2 left-2 rounded-sm bg-red-500 px-2 py-1 text-xs font-bold text-white">

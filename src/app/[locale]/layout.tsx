@@ -28,7 +28,7 @@ const geistMono = Geist_Mono({
 const notoSansThai = Noto_Sans_Thai({
     variable: "--font-noto-thai",
     subsets: ["thai"],
-    weight: ["300", "400", "500", "600", "700"],
+    weight: ["400", "700"],
     display: "swap",
 });
 
@@ -36,7 +36,7 @@ const notoSansThai = Noto_Sans_Thai({
 const notoSansKR = Noto_Sans_KR({
     variable: "--font-noto-kr",
     subsets: ["latin"],
-    weight: ["300", "400", "500", "700"],
+    weight: ["400", "700"],
     display: "swap",
 });
 

@@ -26,8 +26,8 @@ export function getStorageUrl(bucket: string, path: string): string {
   return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
 }
 
-// 지원하는 이미지 확장자
-const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp'];
+// 지원하는 이미지 확장자 (jpg 우선 — 카메라 사진 대부분이 JPEG)
+const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 
 /**
  * 살롱 커버 이미지 URL 목록 생성 (여러 확장자)

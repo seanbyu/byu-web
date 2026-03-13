@@ -26,12 +26,14 @@ const languageToFlag: Record<string, string> = {
 interface SalonCardWithFavoriteProps extends SalonCardProps {
   isFavorited: boolean;
   onToggleFavorite: (salonId: string) => void;
+  priority?: boolean;
 }
 
 const SalonCard = memo(function SalonCard({
   salon,
   isFavorited,
-  onToggleFavorite
+  onToggleFavorite,
+  priority,
 }: SalonCardWithFavoriteProps) {
   const t = useTranslations("salon");
   const tCommon = useTranslations("common");
@@ -70,7 +72,8 @@ const SalonCard = memo(function SalonCard({
         <StorageImage
           urls={getSalonCoverUrls(salon.id)}
           alt={salon.name}
-          className="w-full h-full object-cover"
+          className="object-cover"
+          priority={priority}
           fallback={
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-3xl font-bold text-primary-200">
@@ -206,12 +209,13 @@ export const SalonList = memo(function SalonList({ salons }: SalonListProps) {
           <span className="text-xs text-gray-500">{salons.length}개</span>
         </div>
         <div className="space-y-2.5 sm:space-y-3">
-          {salons.map((salon) => (
+          {salons.map((salon, index) => (
             <SalonCard
               key={salon.id}
               salon={salon}
               isFavorited={isSalonFavorited(salon.id)}
               onToggleFavorite={handleToggleFavorite}
+              priority={index === 0}
             />
           ))}
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import type { HeroBannerProps } from "../types";
 
 const SWIPE_THRESHOLD = 50; // px
@@ -224,14 +225,17 @@ export const HeroBanner = memo(function HeroBanner({ banners }: HeroBannerProps)
         onTransitionEnd={handleTransitionEnd}
       >
         {cloned.map((banner, i) => (
-          <img
-            key={`${banner.id}-${i}`}
-            src={banner.imageUrl}
-            alt="Banner"
-            className="w-full h-full flex-shrink-0 object-cover"
-            loading="eager"
-            draggable={false}
-          />
+          <div key={`${banner.id}-${i}`} className="relative w-full h-full flex-shrink-0">
+            <Image
+              fill
+              src={banner.imageUrl}
+              alt="Banner"
+              className="object-cover"
+              priority={i === 0}
+              sizes="100vw"
+              draggable={false}
+            />
+          </div>
         ))}
       </div>
 
