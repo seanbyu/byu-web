@@ -29,7 +29,7 @@ const notoSansThai = Noto_Sans_Thai({
     variable: "--font-noto-thai",
     subsets: ["thai"],
     weight: ["400", "700"],
-    display: "swap",
+    display: "optional",
 });
 
 // Korean font - Noto Sans KR for better Korean typography
@@ -37,7 +37,7 @@ const notoSansKR = Noto_Sans_KR({
     variable: "--font-noto-kr",
     subsets: ["latin"],
     weight: ["400", "700"],
-    display: "swap",
+    display: "optional",
 });
 
 // Font class map by locale - className과 variable 모두 사용
