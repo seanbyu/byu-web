@@ -116,9 +116,9 @@ export function BookingDetailSkeleton() {
 /** Time slot grid skeleton */
 export function TimeSlotsSkeleton() {
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <div className="flex flex-wrap gap-1.5">
       {Array.from({ length: 8 }).map((_, i) => (
-        <Skeleton key={i} className="h-11" />
+        <Skeleton key={i} className="h-6 w-14 rounded-lg" />
       ))}
     </div>
   );
@@ -161,9 +161,9 @@ export function DesignerSlotsSkeleton() {
         <Skeleton className="h-10 w-10 rounded-full" />
         <Skeleton className="h-4 w-20" />
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-8 w-14 rounded-lg" />
+          <Skeleton key={i} className="h-6 w-14 rounded-lg" />
         ))}
       </div>
     </div>

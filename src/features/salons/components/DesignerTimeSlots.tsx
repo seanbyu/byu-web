@@ -49,7 +49,7 @@ const ArtistSlots = memo(function ArtistSlots({
   const artistTimeSlots = getArtistTimeSlots(artist);
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1.5">
       {artistTimeSlots.length > 0 ? (
         artistTimeSlots.map((time) => {
           const available = isSlotAvailable(artist.id, time);
@@ -58,7 +58,7 @@ const ArtistSlots = memo(function ArtistSlots({
               key={time}
               onClick={() => available && onTimeSlotClick(artist, time)}
               disabled={!available}
-              className={`touch-target rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
                 available
                   ? "bg-white border border-primary-200 text-primary-600 hover:bg-primary-50 hover:border-primary-400"
                   : "bg-gray-100 text-gray-400 cursor-not-allowed line-through"
