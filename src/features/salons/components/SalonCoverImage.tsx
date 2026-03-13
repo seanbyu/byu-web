@@ -30,7 +30,9 @@ export function SalonCoverImage({ salon, status }: SalonCoverImageProps) {
         <StorageImage
           urls={getSalonCoverUrls(salon.id)}
           alt={salon.name}
-          className="w-full h-full object-cover"
+          className="object-cover"
+          priority
+          sizes="100vw"
           fallback={
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-6xl font-bold text-primary-200">
