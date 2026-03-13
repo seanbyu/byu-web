@@ -94,5 +94,16 @@
   "notifications": {
     "confirmedTitle": "예약이 확정되었습니다",
     "cancelledTitle": "예약이 취소되었습니다"
-  }
+  },
+  "paymentHistory": "결제 내역",
+  "totalSpent": "총 결제 금액",
+  "paymentStatusPaid": "결제완료",
+  "paymentStatusPending": "결제대기",
+  "paymentStatusRefunded": "환불",
+  "paymentStatusFailed": "결제실패",
+  "paymentMethodCash": "현금",
+  "paymentMethodCard": "카드",
+  "paymentMethodTransfer": "계좌이체",
+  "paymentMethodMobile": "모바일결제",
+  "noPaymentInfo": "결제 정보 없음"
 }

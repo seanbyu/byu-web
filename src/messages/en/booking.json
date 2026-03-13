@@ -94,5 +94,16 @@
   "notifications": {
     "confirmedTitle": "Your booking has been confirmed",
     "cancelledTitle": "Your booking has been cancelled"
-  }
+  },
+  "paymentHistory": "Payment History",
+  "totalSpent": "Total Spent",
+  "paymentStatusPaid": "Paid",
+  "paymentStatusPending": "Pending",
+  "paymentStatusRefunded": "Refunded",
+  "paymentStatusFailed": "Failed",
+  "paymentMethodCash": "Cash",
+  "paymentMethodCard": "Card",
+  "paymentMethodTransfer": "Bank Transfer",
+  "paymentMethodMobile": "Mobile Payment",
+  "noPaymentInfo": "No payment info"
 }

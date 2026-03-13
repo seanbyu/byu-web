@@ -94,5 +94,16 @@
   "notifications": {
     "confirmedTitle": "การจองของคุณได้รับการยืนยันแล้ว",
     "cancelledTitle": "การจองของคุณถูกยกเลิกแล้ว"
-  }
+  },
+  "paymentHistory": "ประวัติการชำระเงิน",
+  "totalSpent": "ยอดชำระทั้งหมด",
+  "paymentStatusPaid": "ชำระแล้ว",
+  "paymentStatusPending": "รอชำระ",
+  "paymentStatusRefunded": "คืนเงินแล้ว",
+  "paymentStatusFailed": "ชำระไม่สำเร็จ",
+  "paymentMethodCash": "เงินสด",
+  "paymentMethodCard": "บัตรเครดิต",
+  "paymentMethodTransfer": "โอนเงิน",
+  "paymentMethodMobile": "ชำระทางมือถือ",
+  "noPaymentInfo": "ไม่มีข้อมูลการชำระ"
 }

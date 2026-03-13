@@ -9,6 +9,9 @@ import {
   User,
   Scissors,
   Clock,
+  CreditCard,
+  Banknote,
+  Wallet,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { Link } from "@/i18n/routing";
@@ -141,6 +144,49 @@ export function BookingHistoryView() {
     }
   };
 
+  const getPaymentMethodIcon = (method: string | null) => {
+    if (!method) return <Wallet className="w-3.5 h-3.5 shrink-0" />;
+    if (method === "CASH") return <Banknote className="w-3.5 h-3.5 shrink-0" />;
+    return <CreditCard className="w-3.5 h-3.5 shrink-0" />;
+  };
+
+  const getPaymentMethodText = (method: string | null) => {
+    switch (method) {
+      case "CASH": return t("paymentMethodCash");
+      case "CREDIT_CARD": return t("paymentMethodCard");
+      case "BANK_TRANSFER": return t("paymentMethodTransfer");
+      case "MOBILE_PAYMENT":
+      case "LINE_PAY":
+      case "TRUE_MONEY":
+      case "RABBIT_LINE_PAY":
+      case "SHOPEE_PAY": return t("paymentMethodMobile");
+      default: return t("totalPrice");
+    }
+  };
+
+  const getPaymentStatusBadge = (status: string) => {
+    switch (status) {
+      case "PAID":
+        return <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">{t("paymentStatusPaid")}</span>;
+      case "REFUNDED":
+        return <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">{t("paymentStatusRefunded")}</span>;
+      case "FAILED":
+        return <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full font-medium">{t("paymentStatusFailed")}</span>;
+      default:
+        return null;
+    }
+  };
+
+  const pastBookings = bookings.filter((b) =>
+    (b.status === "COMPLETED" || b.booking_date < today) &&
+    b.status !== "CANCELLED" &&
+    b.status !== "NO_SHOW"
+  );
+
+  const totalSpent = pastBookings
+    .filter((b) => b.payment_status === "PAID" && b.total_price > 0)
+    .reduce((sum, b) => sum + b.total_price, 0);
+
   const tabs: { key: TabKey; label: string }[] = [
     { key: "upcoming", label: t("upcoming") },
     { key: "past", label: t("past") },
@@ -196,6 +242,17 @@ export function BookingHistoryView() {
 
       {/* Booking List */}
       <div className="p-4 pb-24 space-y-3">
+        {/* 결제 요약 (past 탭) */}
+        {activeTab === "past" && totalSpent > 0 && (
+          <div className="rounded-xl bg-primary-50 p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-500 mb-0.5">{t("totalSpent")}</p>
+              <p className="text-xl font-bold text-primary-600">฿{totalSpent.toLocaleString()}</p>
+            </div>
+            <Wallet className="w-8 h-8 text-primary-300" />
+          </div>
+        )}
+
         {filteredBookings.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <Calendar className="w-12 h-12 text-gray-200 mb-3" />
@@ -258,10 +315,14 @@ export function BookingHistoryView() {
                 )}
               </div>
 
-              {/* Price (지난 예약만) */}
+              {/* 결제 정보 (지난 예약만) */}
               {activeTab === "past" && booking.total_price > 0 && (
                 <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
-                  <span className="text-xs text-gray-400">{t("totalPrice")}</span>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                    {getPaymentMethodIcon(booking.payment_method)}
+                    <span>{getPaymentMethodText(booking.payment_method)}</span>
+                    {getPaymentStatusBadge(booking.payment_status)}
+                  </div>
                   <span className="text-sm font-bold text-primary-600">
                     ฿{booking.total_price.toLocaleString()}
                   </span>
