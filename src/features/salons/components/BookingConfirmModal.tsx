@@ -66,7 +66,7 @@ export function BookingConfirmModal({
           onClick={isSubmitting ? undefined : onClose}
         />
 
-        <div className={`relative w-full max-h-[85dvh] overflow-y-auto rounded-t-2xl bg-white shadow-xl pb-safe ${visible ? "animate-slide-up" : "translate-y-full"}`}>
+        <div className={`relative w-full max-h-[78dvh] overflow-y-auto rounded-t-2xl bg-white shadow-xl pb-safe ${visible ? "animate-slide-up" : "translate-y-full"}`}>
           {/* Submitting overlay */}
           {isSubmitting && (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-t-2xl bg-white/95">
@@ -87,14 +87,14 @@ export function BookingConfirmModal({
             <X className="w-5 h-5 text-gray-600" />
           </button>
 
-          <div className="px-5 pb-5">
-          <h3 className="mb-3 text-base font-bold text-gray-900">
+          <div className="px-4 pb-4">
+          <h3 className="mb-2 text-sm font-bold text-gray-900">
             {tBooking("confirmBooking")}
           </h3>
 
           {/* Designer Info */}
-          <div className="mb-3 flex items-center gap-2.5 rounded-xl bg-gray-50 p-2.5">
-            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-200">
+          <div className="mb-2 flex items-center gap-2 rounded-xl bg-gray-50 p-2">
+            <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gray-200">
               {artist.profile_image ? (
                 <img
                   src={artist.profile_image}
@@ -115,12 +115,12 @@ export function BookingConfirmModal({
           </div>
 
           {/* Time Info */}
-          <div className="mb-3 flex items-center gap-2.5 rounded-xl bg-primary-50 p-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100">
-              <Clock className="h-5 w-5 text-primary-600" />
+          <div className="mb-3 flex items-center gap-2 rounded-xl bg-primary-50 p-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100">
+              <Clock className="h-4 w-4 text-primary-600" />
             </div>
             <div>
-              <p className="text-base font-bold text-primary-600">{time}</p>
+              <p className="text-sm font-bold text-primary-600">{time}</p>
               <p className="text-xs font-medium text-gray-700">
                 {selectedDate.toLocaleDateString(localeCode, { month: "long", day: "numeric", weekday: "long" })}
               </p>
@@ -128,7 +128,7 @@ export function BookingConfirmModal({
           </div>
 
           {/* Category Select */}
-          <div className="mb-4">
+          <div className="mb-3">
             <label className="ds-label">
               <Tag className="w-4 h-4 inline-block mr-1" />
               {tBooking("selectCategory")}
@@ -167,7 +167,7 @@ export function BookingConfirmModal({
           </div>
 
           {/* Notes */}
-          <div className="mb-5">
+          <div className="mb-4">
             <label className="ds-label">
               {tBooking("customerNotes")}
             </label>
@@ -176,7 +176,7 @@ export function BookingConfirmModal({
               onChange={(e) => setCustomerNotes(e.target.value)}
               placeholder={tBooking("customerNotesPlaceholder")}
               className="ds-textarea"
-              rows={3}
+              rows={2}
             />
           </div>
 
