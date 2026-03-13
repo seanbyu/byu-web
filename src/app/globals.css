@@ -347,11 +347,13 @@ body {
 }
 
 /* iOS Safari zoom-on-focus 방지: font-size < 16px 시 자동 줌 발생
-   @layer 밖에 위치시켜 @layer components 내 클래스보다 항상 우선 적용 */
+   @layer 밖에 위치시켜 @layer components 내 클래스보다 항상 우선 적용
+   !important 필수: Tailwind 유틸리티 클래스(text-base 등)가 CSS 변수(--font-size-base: 0.9375rem = 15px)를
+   사용하므로 절대값 16px 고정이 필요 */
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]),
 select,
 textarea {
-  font-size: 1rem; /* 16px minimum — never goes below this */
+  font-size: 16px !important; /* iOS Safari 자동 줌인 방지 — 절대값 필수 */
 }
 
 /* ============================================
