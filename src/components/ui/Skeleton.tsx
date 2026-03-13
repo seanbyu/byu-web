@@ -13,6 +13,28 @@ export function Skeleton({ className }: SkeletonProps) {
   );
 }
 
+/** Salon card skeleton matching the SalonCard layout */
+export function SalonCardSkeleton() {
+  return (
+    <div className="rounded-xl border border-gray-100 overflow-hidden bg-white">
+      {/* Image area */}
+      <Skeleton className="h-28 w-full rounded-none sm:h-32" />
+      {/* Content area */}
+      <div className="p-2.5 sm:p-3">
+        <div className="flex items-center justify-between mb-2">
+          <Skeleton className="h-4 w-2/5" />
+          <Skeleton className="h-5 w-5 rounded-full" />
+        </div>
+        <Skeleton className="h-3.5 w-3/5 mb-2" />
+        <div className="flex gap-1.5">
+          <Skeleton className="h-6 w-24 rounded-full" />
+          <Skeleton className="h-6 w-20 rounded-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Booking card skeleton for history list */
 export function BookingCardSkeleton() {
   return (

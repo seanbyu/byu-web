@@ -7,6 +7,7 @@ import { Link } from "@/i18n/routing";
 import { toast } from "sonner";
 import { getSalonCoverUrls } from "@/lib/supabase/storage";
 import { StorageImage } from "@/components/ui/StorageImage";
+import { SalonCardSkeleton } from "@/components/ui/Skeleton";
 import { getSalonStatus, getTodayHours } from "@/features/salons/utils";
 import { useFavorites } from "@/features/favorites";
 import { useAuthContext } from "@/features/auth";
@@ -39,6 +40,7 @@ const SalonCard = memo(function SalonCard({
   const tCommon = useTranslations("common");
   const status = getSalonStatus(salon.business_hours);
   const hours = getTodayHours(salon.business_hours);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   // 배지 상태: 휴무 > 영업 중 > 준비 중 > 영업 종료
   const getBadgeStyle = () => {
@@ -63,10 +65,16 @@ const SalonCard = memo(function SalonCard({
   };
 
   return (
-    <Link
-      href={`/salon/${salon.id}`}
-      className="block bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-primary-100 transition-all duration-200 active:scale-[0.99]"
-    >
+    <div className="relative">
+      {!imageLoaded && (
+        <div className="absolute inset-0 z-10 rounded-xl overflow-hidden">
+          <SalonCardSkeleton />
+        </div>
+      )}
+      <Link
+        href={`/salon/${salon.id}`}
+        className={`block bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-primary-100 transition-all duration-200 active:scale-[0.99] ${!imageLoaded ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+      >
       {/* Cover Image */}
       <div className="relative h-28 bg-gradient-to-br from-primary-100 to-secondary-100 sm:h-32">
         <StorageImage
@@ -74,6 +82,7 @@ const SalonCard = memo(function SalonCard({
           alt={salon.name}
           className="object-cover"
           priority={priority}
+          onLoad={() => setImageLoaded(true)}
           fallback={
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-3xl font-bold text-primary-200">
@@ -163,7 +172,8 @@ const SalonCard = memo(function SalonCard({
           </div>
         )}
       </div>
-    </Link>
+      </Link>
+    </div>
   );
 });
 
