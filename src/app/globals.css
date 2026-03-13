@@ -231,7 +231,6 @@ body {
   select,
   textarea {
     min-height: 44px;
-    font-size: 1rem; /* 16px: iOS Safari zoom-on-focus 방지 (16px 미만 시 자동 줌) */
   }
 
   .touch-target {
@@ -347,6 +346,14 @@ body {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* iOS Safari zoom-on-focus 방지: font-size < 16px 시 자동 줌 발생
+   @layer 밖에 위치시켜 @layer components 내 클래스보다 항상 우선 적용 */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]),
+select,
+textarea {
+  font-size: 1rem; /* 16px minimum — never goes below this */
+}
+
 /* ============================================
    DESIGN SYSTEM COMPONENT PRIMITIVES
    ============================================ */
@@ -453,7 +460,7 @@ body {
   }
 
   .ds-textarea {
-    @apply w-full resize-none rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-500 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500;
+    @apply w-full resize-none rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder:text-gray-500 outline-none transition-colors focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500;
   }
 
   .ds-field-shell {

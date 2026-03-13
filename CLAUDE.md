@@ -34,8 +34,21 @@ useScrollLock(true);
 - body 스크롤 페이지는 `html { overscroll-behavior: none }` (globals.css에 설정됨)
 
 ### iOS 줌 방지
-- 모바일 input은 `font-size: 1rem` 이상 유지 (`text-sm` 사용 금지)
-- globals.css의 `@media (max-width: 640px) and (pointer: coarse)` 규칙으로 글로벌 설정됨
+- iOS Safari는 `font-size < 16px`인 input/textarea에 포커스할 때 페이지를 자동으로 줌한다
+- **전역 규칙**: `globals.css`에 `@layer` 밖에 다음 규칙이 선언되어 있어 `@layer components` 내 클래스보다 항상 우선 적용됨
+
+  ```css
+  input:not([type="checkbox"]):not([type="radio"])...,
+  select,
+  textarea {
+    font-size: 1rem; /* 16px minimum */
+  }
+  ```
+
+- **컴포넌트에서 지켜야 할 규칙**:
+  - `input`, `textarea`, `select`에 `text-sm` / `text-xs` 등 16px 미만 폰트 클래스 직접 적용 금지
+  - 디자인 시스템 클래스(`ds-input`, `ds-textarea`, `ds-field-shell`)는 `text-base` 이상 사용
+  - 전역 규칙이 있더라도 컴포넌트 클래스가 `@layer` 밖에 선언되면 override 가능하므로 주의
 
 ### 터치 설정 (globals.css 전역 적용)
 - `overscroll-behavior: none` — 당겨서 새로고침 / 바운스 방지
