@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Calendar,
@@ -35,13 +35,19 @@ type TabKey = "upcoming" | "past" | "cancelled";
 
 export function BookingHistoryView() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations("booking");
   const locale = useLocale();
   const { isAuthenticated, isLoading: authLoading } = useAuthContext();
 
   const [bookings, setBookings] = useState<BookingWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<TabKey>("upcoming");
+
+  const initialTab = (searchParams.get("tab") as TabKey) || "upcoming";
+  const validTabs: TabKey[] = ["upcoming", "past", "cancelled"];
+  const [activeTab, setActiveTab] = useState<TabKey>(
+    validTabs.includes(initialTab) ? initialTab : "upcoming"
+  );
 
   useEffect(() => {
     if (authLoading) return;
@@ -317,15 +323,17 @@ export function BookingHistoryView() {
 
               {/* 결제 정보 (지난 예약만) */}
               {activeTab === "past" && booking.total_price > 0 && (
-                <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
-                  <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                    {getPaymentMethodIcon(booking.payment_method)}
-                    <span>{getPaymentMethodText(booking.payment_method)}</span>
-                    {getPaymentStatusBadge(booking.payment_status)}
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      {getPaymentMethodIcon(booking.payment_method)}
+                      <span>{getPaymentMethodText(booking.payment_method)}</span>
+                      {getPaymentStatusBadge(booking.payment_status)}
+                    </div>
+                    <span className="text-[17px] font-bold text-primary-600">
+                      ฿{booking.total_price.toLocaleString()}
+                    </span>
                   </div>
-                  <span className="text-sm font-bold text-primary-600">
-                    ฿{booking.total_price.toLocaleString()}
-                  </span>
                 </div>
               )}
             </Link>

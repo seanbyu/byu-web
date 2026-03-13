@@ -153,9 +153,12 @@ export default function MyPage() {
           />
         </MenuSection>
 
-        {/* 예약현황 */}
-        <MenuSection title={t("myPage.bookingSection")}>
-          <MenuRow label={t("myPage.comingSoon")} disabled />
+        {/* 결제내역 */}
+        <MenuSection title={t("myPage.paymentSection")}>
+          <MenuRow
+            label={t("myPage.paymentHistory")}
+            onClick={() => router.push("/bookings?tab=past" as "/bookings")}
+          />
         </MenuSection>
 
         {/* 고객센터 */}
