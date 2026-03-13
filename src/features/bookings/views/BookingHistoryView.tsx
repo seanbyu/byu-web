@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Calendar,
@@ -40,36 +41,26 @@ export function BookingHistoryView() {
   const locale = useLocale();
   const { isAuthenticated, isLoading: authLoading } = useAuthContext();
 
-  const [bookings, setBookings] = useState<BookingWithDetails[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   const initialTab = (searchParams.get("tab") as TabKey) || "upcoming";
   const validTabs: TabKey[] = ["upcoming", "past", "cancelled"];
   const [activeTab, setActiveTab] = useState<TabKey>(
     validTabs.includes(initialTab) ? initialTab : "upcoming"
   );
 
+  const { data, isLoading: queryLoading } = useQuery({
+    queryKey: ["bookings", "my"],
+    queryFn: bookingQueries.getMy,
+    enabled: !authLoading && isAuthenticated,
+  });
+
+  const bookings = (data || []) as BookingWithDetails[];
+  const isLoading = authLoading || queryLoading;
+
   useEffect(() => {
-    if (authLoading) return;
-
-    if (!isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       router.replace("/login");
-      return;
     }
-
-    fetchBookings();
-  }, [authLoading, isAuthenticated]);
-
-  const fetchBookings = async () => {
-    try {
-      const data = await bookingQueries.getMy();
-      setBookings((data || []) as BookingWithDetails[]);
-    } catch {
-      // silently fail
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [authLoading, isAuthenticated, router]);
 
   const today = new Date().toISOString().split("T")[0];
 
