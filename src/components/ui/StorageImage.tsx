@@ -34,15 +34,20 @@ export function StorageImage({ urls, alt, className, fallback, priority, sizes }
   }
 
   return (
-    <Image
-      fill
-      src={urls[currentIndex]}
-      alt={alt}
-      className={`${className ?? "object-cover"} transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
-      onError={handleError}
-      onLoad={() => setLoaded(true)}
-      priority={priority}
-      sizes={sizes ?? "(max-width: 640px) 100vw, 50vw"}
-    />
+    <>
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-gray-200" />
+      )}
+      <Image
+        fill
+        src={urls[currentIndex]}
+        alt={alt}
+        className={`${className ?? "object-cover"} transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+        onError={handleError}
+        onLoad={() => setLoaded(true)}
+        priority={priority}
+        sizes={sizes ?? "(max-width: 640px) 100vw, 50vw"}
+      />
+    </>
   );
 }
