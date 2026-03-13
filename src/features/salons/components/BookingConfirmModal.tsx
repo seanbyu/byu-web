@@ -43,12 +43,23 @@ export function BookingConfirmModal({
   const isCategorySelected = Boolean(selectedCategory) && !isCategoryDisabled(selectedCategory);
   const [visible, setVisible] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [maxHeight, setMaxHeight] = useState("78svh");
 
   useScrollLock(true);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));
     return () => cancelAnimationFrame(id);
+  }, []);
+
+  // visualViewport로 키보드 높이 변화 감지 → 모달 상단 모서리가 항상 화면 안에 위치
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => setMaxHeight(`${vv.height - 64}px`);
+    update();
+    vv.addEventListener("resize", update);
+    return () => vv.removeEventListener("resize", update);
   }, []);
 
   const artistPosition =
@@ -66,7 +77,10 @@ export function BookingConfirmModal({
           onClick={isSubmitting ? undefined : onClose}
         />
 
-        <div className={`relative w-full max-h-[78svh] overflow-y-auto rounded-t-2xl bg-white shadow-xl pb-safe ${visible ? "animate-slide-up" : "translate-y-full"}`}>
+        <div
+          className={`relative w-full overflow-y-auto rounded-t-2xl bg-white shadow-xl pb-safe ${visible ? "animate-slide-up" : "translate-y-full"}`}
+          style={{ maxHeight }}
+        >
           {/* Submitting overlay */}
           {isSubmitting && (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-t-2xl bg-white/95">
