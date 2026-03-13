@@ -43,6 +43,7 @@ export function BookingConfirmModal({
   const isCategorySelected = Boolean(selectedCategory) && !isCategoryDisabled(selectedCategory);
   const [visible, setVisible] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [localNotes, setLocalNotes] = useState(customerNotes);
 
   useScrollLock(true);
 
@@ -172,8 +173,8 @@ export function BookingConfirmModal({
               {tBooking("customerNotes")}
             </label>
             <textarea
-              value={customerNotes}
-              onChange={(e) => setCustomerNotes(e.target.value)}
+              value={localNotes}
+              onChange={(e) => setLocalNotes(e.target.value)}
               placeholder={tBooking("customerNotesPlaceholder")}
               className="ds-textarea"
               rows={2}
@@ -182,7 +183,7 @@ export function BookingConfirmModal({
 
           {/* Submit Button */}
           <button
-            onClick={onSubmit}
+            onClick={() => { setCustomerNotes(localNotes); onSubmit(); }}
             disabled={isSubmitting || !isCategorySelected}
             className="ds-btn-primary"
           >

@@ -43,7 +43,6 @@ export function useSalonBooking(
   const {
     bookingModal,
     showLoginModal,
-    customerNotes,
     selectedCategory,
     isSubmitting,
     setCustomerNotes,
@@ -59,7 +58,7 @@ export function useSalonBooking(
     useShallow((state) => ({
       bookingModal: state.bookingModal,
       showLoginModal: state.showLoginModal,
-      customerNotes: state.customerNotes,
+      // customerNotes는 구독 제외 — 키 입력마다 SalonDetailView 리렌더 방지
       selectedCategory: state.selectedCategory,
       isSubmitting: state.isSubmitting,
       setCustomerNotes: state.setCustomerNotes,
@@ -293,7 +292,7 @@ export function useSalonBooking(
         status: "PENDING" as const,
         service_price: matchedService.base_price || 0,
         total_price: matchedService.base_price || 0,
-        customer_notes: customerNotes || null,
+        customer_notes: useSalonDetailStore.getState().customerNotes || null,
         booking_meta: {
           channel: 'web',
           category_id: selectedCategory || null,
@@ -319,7 +318,7 @@ export function useSalonBooking(
     } finally {
       setIsSubmitting(false);
     }
-  }, [bookingModal, user, salon.id, salon.settings, selectedDate, customerNotes, selectedCategory, services, categories, getCategoryName, queryClient, closeBookingModal, setIsSubmitting, tBooking, locale]);
+  }, [bookingModal, user, salon.id, salon.settings, selectedDate, selectedCategory, services, categories, getCategoryName, queryClient, closeBookingModal, setIsSubmitting, tBooking, locale]);
 
   const handleConfirmPhoneAndSubmit = useCallback(async () => {
     const phoneDigits = normalizePhoneDigits(phoneInput);
@@ -382,7 +381,7 @@ export function useSalonBooking(
     showLoginModal,
     setShowLoginModal,
     bookingModal,
-    customerNotes,
+    customerNotes: useSalonDetailStore.getState().customerNotes,
     setCustomerNotes,
     isSubmitting,
     pendingBooking: null, // Zustand에서 관리하므로 여기서는 null
