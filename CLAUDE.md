@@ -35,20 +35,26 @@ useScrollLock(true);
 
 ### iOS 줌 방지
 - iOS Safari는 `font-size < 16px`인 input/textarea에 포커스할 때 페이지를 자동으로 줌한다
-- **전역 규칙**: `globals.css`에 `@layer` 밖에 다음 규칙이 선언되어 있어 `@layer components` 내 클래스보다 항상 우선 적용됨
+- **전역 규칙**: `globals.css`에 `@layer` 밖에 다음 규칙이 선언되어 있어 항상 최우선 적용됨
 
   ```css
   input:not([type="checkbox"]):not([type="radio"])...,
   select,
   textarea {
-    font-size: 1rem; /* 16px minimum */
+    font-size: 16px !important; /* iOS Safari 자동 줌인 방지 — 절대값 필수 */
   }
   ```
+
+- **왜 `16px !important`인가**:
+  - Tailwind `text-base` = `var(--font-size-base)` = 0.9375rem(15px) on mobile (`@media max-width: 640px`)
+  - `1rem` 대신 절대값 `16px` 사용: 사용자 브라우저 기본 폰트 설정과 무관하게 항상 16px 보장
+  - `!important` 필수: Tailwind 유틸리티 클래스(`@layer utilities`)가 CSS 변수 기반 font-size를 지정할 경우, `@layer` 밖 규칙이더라도 `!important` 없이는 override 가능
+  - 이 값을 `1rem`이나 `!important` 없이 변경하면 모달/바텀시트에서 iOS 자동 줌 재발
 
 - **컴포넌트에서 지켜야 할 규칙**:
   - `input`, `textarea`, `select`에 `text-sm` / `text-xs` 등 16px 미만 폰트 클래스 직접 적용 금지
   - 디자인 시스템 클래스(`ds-input`, `ds-textarea`, `ds-field-shell`)는 `text-base` 이상 사용
-  - 전역 규칙이 있더라도 컴포넌트 클래스가 `@layer` 밖에 선언되면 override 가능하므로 주의
+  - globals.css의 전역 규칙이 처리하므로 컴포넌트별 font-size 개별 지정 불필요
 
 ### 터치 설정 (globals.css 전역 적용)
 - `overscroll-behavior: none` — 당겨서 새로고침 / 바운스 방지
