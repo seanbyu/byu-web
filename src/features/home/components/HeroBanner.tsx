@@ -253,6 +253,7 @@ export const HeroBanner = memo(function HeroBanner({ banners }: HeroBannerProps)
               key={index}
               onClick={() => goTo(index)}
               className="touch-target flex items-center justify-center"
+              aria-label={`슬라이드 ${index + 1}으로 이동`}
             >
               <span
                 className={`h-2.5 w-2.5 rounded-full transition-colors ${

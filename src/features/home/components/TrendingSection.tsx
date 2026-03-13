@@ -30,7 +30,10 @@ function TrendingCard({ item }: { item: TrendingItem }) {
             D-{item.dDay}
           </div>
         )}
-        <button className="touch-target absolute bottom-1 right-1 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm">
+        <button
+          className="touch-target absolute bottom-1 right-1 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm"
+          aria-label={item.isLiked ? "찜 취소" : "찜하기"}
+        >
           <Heart
             className={`w-4 h-4 ${item.isLiked ? "fill-red-500 text-red-500" : "text-gray-400"}`}
           />

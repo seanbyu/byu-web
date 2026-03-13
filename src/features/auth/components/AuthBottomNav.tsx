@@ -92,13 +92,13 @@ export function AuthBottomNav() {
               <item.icon
                 className={clsx(
                   "h-[22px] w-[22px] transition-colors",
-                  isActive ? "text-primary-500" : "text-gray-400"
+                  isActive ? "text-primary-500" : "text-gray-500"
                 )}
               />
               <span
                 className={clsx(
                   "text-[10px] font-medium leading-none transition-colors",
-                  isActive ? "text-primary-500" : "text-gray-400"
+                  isActive ? "text-primary-500" : "text-gray-500"
                 )}
               >
                 {t(item.labelKey)}
