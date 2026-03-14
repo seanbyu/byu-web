@@ -108,6 +108,7 @@
   --spacing-4: 1rem;      /* 16px */
   --spacing-5: 1.25rem;   /* 20px */
   --spacing-6: 1.5rem;    /* 24px */
+  --spacing-2-5: 0.625rem; /* 10px */
   --spacing-8: 2rem;      /* 32px */
   --spacing-10: 2.5rem;   /* 40px */
   --spacing-12: 3rem;     /* 48px */
@@ -160,6 +161,7 @@
   --control-height-md: 44px;
   --control-height-lg: 48px;
   --chip-height: 40px;
+  --badge-height: 1.5rem;
   --font-fluid-title: clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem);
   --font-fluid-subtitle: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
   --font-fluid-body: clamp(0.875rem, 0.84rem + 0.2vw, 1rem);
@@ -419,7 +421,7 @@ textarea {
   }
 
   .ds-badge {
-    min-height: 1.5rem;
+    min-height: var(--badge-height);
     border-radius: var(--radius-full);
     font-size: var(--font-fluid-caption);
     line-height: 1;
@@ -446,8 +448,8 @@ textarea {
   .ds-field-shell {
     @apply w-full rounded-xl border border-gray-300 bg-white px-4 text-sm text-gray-900 transition-colors focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500;
     min-height: var(--control-height-md);
-    padding-top: 0.625rem;
-    padding-bottom: 0.625rem;
+    padding-top: var(--spacing-2-5);
+    padding-bottom: var(--spacing-2-5);
   }
 
   .ds-btn-primary {
@@ -490,7 +492,7 @@ textarea {
 }
 
 .PhoneInputCountry {
-  margin-right: 0.5rem;
+  margin-right: var(--spacing-2);
   display: flex;
   align-items: center;
 }
@@ -505,10 +507,10 @@ textarea {
 .PhoneInputCountryIcon {
   width: 1.5rem;
   height: 1.5rem;
-  margin-right: 0.25rem;
+  margin-right: var(--spacing-1);
 }
 
 .PhoneInputCountrySelectArrow {
   opacity: 0.6;
-  margin-left: 0.25rem;
+  margin-left: var(--spacing-1);
 }

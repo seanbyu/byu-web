@@ -63,6 +63,46 @@ useScrollLock(true);
 
 ---
 
+## 디자인 시스템 규칙
+
+### 구조
+- `globals.css` ← 모든 토큰의 단일 진실 공급원 (Single Source of Truth)
+- `tailwind.config.ts` ← CSS 변수 참조만 함 (`var(--...)`)
+- **`globals.css` 한 줄 수정 → 전체 UI 자동 반영**
+
+### 반응형 스케일링 — `html font-size: clamp`
+```css
+html { font-size: clamp(13px, 3.8vw, 16px); }
+```
+- 모든 `rem` 값이 뷰포트에 비례해서 자동 축소됨 (320px → 13px, 430px+ → 16px)
+- 모바일 전용 폰트 변수 오버라이드(`@media max-width: 640px`) 추가 금지 — 이중 축소 발생
+
+### 터치 타겟 — px 고정 필수
+```css
+--control-height-sm: 36px;
+--control-height-md: 44px;  /* Apple HIG 최소 권장 */
+--control-height-lg: 48px;
+```
+- control-height / chip-height 는 **절대 rem으로 변경 금지**
+- 이유: html clamp로 스케일 시 320px 기기에서 35px 이하로 떨어져 터치 어려움
+- 터치 타겟은 손가락 크기 기준 → 화면 크기와 비례할 필요 없음
+
+### CSS 변수 하드코딩 금지
+`globals.css` 외부(컴포넌트 클래스, PhoneInput 등)에서 raw 값 직접 사용 금지:
+```css
+/* ❌ 금지 */
+margin: 0.5rem;
+min-height: 1.5rem;
+
+/* ✅ 올바른 방식 */
+margin: var(--spacing-2);
+min-height: var(--badge-height);
+```
+- 새 값이 필요하면 `:root`에 토큰 먼저 추가 후 사용
+- 예외: `font-size: 16px !important` (iOS 줌 방지), `min-height: 44px` (터치 타겟 강제), `9999px` (radius-full)
+
+---
+
 ## i18n 규칙
 - 번역 키 추가 시 ko / en / th 3개 파일 항상 동시 수정
 - 파일 위치: `src/messages/{locale}/`
