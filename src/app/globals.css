@@ -155,11 +155,11 @@
   --page-padding-y: 0.75rem; /* 12px */
   --page-section-gap: 0.875rem; /* 14px */
 
-  /* Responsive UI scale */
-  --control-height-sm: 2.25rem;   /* 36px */
-  --control-height-md: 2.75rem;   /* 44px */
-  --control-height-lg: 3rem;      /* 48px */
-  --chip-height: 2.5rem;          /* 40px */
+  /* Responsive UI scale — control heights px 고정 (터치 타겟 보호) */
+  --control-height-sm: 36px;
+  --control-height-md: 44px;
+  --control-height-lg: 48px;
+  --chip-height: 40px;
   --font-fluid-title: clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem);
   --font-fluid-subtitle: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
   --font-fluid-body: clamp(0.875rem, 0.84rem + 0.2vw, 1rem);
@@ -197,6 +197,7 @@ body {
 }
 
 html {
+  font-size: clamp(13px, 3.8vw, 16px); /* 전체 UI 비례 축소 — rem 기준점 */
   scrollbar-gutter: stable;
   overflow-y: scroll;
   -webkit-text-size-adjust: 100%;
@@ -210,23 +211,8 @@ body {
   touch-action: pan-y;                /* 세로 스크롤만 허용, 불필요한 제스처 차단 */
 }
 
-/* Mobile baseline (320px+): readable text + touch-friendly target size */
+/* Mobile baseline (320px+): touch-friendly target size */
 @media (max-width: 640px) {
-  :root {
-    --font-size-xs: 0.8125rem;  /* 13px (모바일 최소 가독성 기준) */
-    --font-size-sm: 0.8125rem;  /* 13px */
-    --font-size-base: 0.9375rem; /* 15px */
-    --font-size-lg: 1.0625rem;   /* 17px */
-  }
-
-  button,
-  [role="button"],
-  a[role="button"],
-  a[aria-label],
-  nav a {
-    font-size: var(--font-size-sm);
-  }
-
   input,
   select,
   textarea {
@@ -239,30 +225,22 @@ body {
   }
 }
 
-@media (max-width: 380px) and (pointer: coarse) {
-  :root {
-    --font-size-sm: 0.75rem;    /* 12px */
-    --font-size-base: 0.875rem; /* 14px */
-    --font-size-lg: 1rem;       /* 16px */
-  }
-}
-
 @media (min-width: 640px) {
   :root {
-    --page-padding-x: 1rem;      /* 16px */
-    --page-padding-y: 1rem;      /* 16px */
-    --page-section-gap: 1rem;    /* 16px */
-    --control-height-md: 2.5rem; /* 40px */
-    --control-height-lg: 2.75rem; /* 44px */
-    --chip-height: 2.25rem;      /* 36px */
+    --page-padding-x: 1rem;
+    --page-padding-y: 1rem;
+    --page-section-gap: 1rem;
+    --control-height-md: 40px;
+    --control-height-lg: 44px;
+    --chip-height: 36px;
   }
 }
 
 @media (min-width: 1024px) {
   :root {
-    --control-height-md: 2.375rem; /* 38px */
-    --control-height-lg: 2.625rem; /* 42px */
-    --chip-height: 2.125rem;       /* 34px */
+    --control-height-md: 38px;
+    --control-height-lg: 42px;
+    --chip-height: 34px;
   }
 }
 
