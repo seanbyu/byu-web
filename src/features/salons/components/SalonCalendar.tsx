@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Clock, Calendar, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { getDayName, formatTime } from "@/features/bookings/utils";
@@ -92,6 +92,16 @@ export const SalonCalendar = memo(function SalonCalendar({
   const tCommon = useTranslations("common");
   const localeCode = getLocaleCode(locale);
 
+  // 선택 날짜 변경 시 해당 칩으로 자동 스크롤
+  const dateStripRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!dateStripRef.current) return;
+    const el = dateStripRef.current.querySelector<HTMLElement>(`[data-date-key="${selectedDate.toDateString()}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }, [selectedDate]);
+
   return (
     <div className="p-3 sm:p-4">
       <h2 className="mb-3 flex items-center gap-2 text-base font-bold text-gray-900 sm:mb-4 sm:text-lg">
@@ -99,10 +109,10 @@ export const SalonCalendar = memo(function SalonCalendar({
         {t("hours")}
       </h2>
 
-      {/* Weekly Quick Selector */}
+      {/* 날짜 스와이프 캐로셀 */}
       <div className="mb-3 rounded-xl bg-gray-50 p-2.5 sm:p-3">
-        <div className="grid grid-cols-7 gap-1">
-          {availableDates.slice(0, 7).map((date) => {
+        <div ref={dateStripRef} className="flex gap-1 overflow-x-scroll scrollbar-hide">
+          {availableDates.map((date) => {
             const isSelected = date.toDateString() === selectedDate.toDateString();
             const enabled = isDateEnabled(date);
             const isToday = date.toDateString() === new Date().toDateString();
@@ -110,9 +120,10 @@ export const SalonCalendar = memo(function SalonCalendar({
             return (
               <button
                 key={date.toISOString()}
+                data-date-key={date.toDateString()}
                 onClick={() => enabled && setSelectedDate(date)}
                 disabled={!enabled}
-                className={`rounded-xl py-1.5 text-center transition-colors sm:py-2 ${
+                className={`flex-none w-[46px] rounded-xl py-1.5 text-center transition-colors sm:w-[52px] sm:py-2 ${
                   isSelected
                     ? "bg-primary-100 border-2 border-primary-400"
                     : enabled
