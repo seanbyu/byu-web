@@ -41,7 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 # Local Supabase
-/supabase/
 generate-types.sh
 
 # Claude Code local settings
