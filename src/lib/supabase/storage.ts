@@ -27,25 +27,31 @@ export function getStorageUrl(bucket: string, path: string): string {
 }
 
 // 지원하는 이미지 확장자 (jpg 우선 — 카메라 사진 대부분이 JPEG)
-const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+const IMAGE_EXTENSIONS = ['jpg', 'png'];
 
 /**
- * 살롱 커버 이미지 URL 목록 생성 (여러 확장자)
+ * 살롱 커버 이미지 URL 목록 생성
+ * cover_image_url이 있으면 그것만, 없으면 storage 경로로 fallback
  * @param salonId - 살롱 ID
+ * @param coverImageUrl - salons.cover_image_url (있으면 우선 사용)
  * @returns 커버 이미지 URL 배열
  */
-export function getSalonCoverUrls(salonId: string): string[] {
+export function getSalonCoverUrls(salonId: string, coverImageUrl?: string | null): string[] {
+  if (coverImageUrl) return [getStorageUrl('salon-images', coverImageUrl)];
   return IMAGE_EXTENSIONS.map(ext =>
     getStorageUrl('salon-images', `${salonId}/cover/image.${ext}`)
   );
 }
 
 /**
- * 살롱 로고 이미지 URL 목록 생성 (여러 확장자)
+ * 살롱 로고 이미지 URL 목록 생성
+ * logo_url이 있으면 그것만, 없으면 storage 경로로 fallback
  * @param salonId - 살롱 ID
+ * @param logoUrl - salons.logo_url (있으면 우선 사용)
  * @returns 로고 이미지 URL 배열
  */
-export function getSalonLogoUrls(salonId: string): string[] {
+export function getSalonLogoUrls(salonId: string, logoUrl?: string | null): string[] {
+  if (logoUrl) return [getStorageUrl('salon-images', logoUrl)];
   return IMAGE_EXTENSIONS.map(ext =>
     getStorageUrl('salon-images', `${salonId}/logo/image.${ext}`)
   );

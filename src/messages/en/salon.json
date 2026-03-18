@@ -28,5 +28,6 @@
   "regularHoliday": "Regular Holiday",
   "everyWeek": "Every",
   "holiday": "Holiday",
-  "viewOnMap": "View on Map"
+  "viewOnMap": "View on Map",
+  "noSalons": "No salons registered"
 }

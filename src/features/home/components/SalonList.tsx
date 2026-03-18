@@ -78,7 +78,7 @@ const SalonCard = memo(function SalonCard({
       {/* Cover Image */}
       <div className="relative h-28 bg-gradient-to-br from-primary-100 to-secondary-100 sm:h-32">
         <StorageImage
-          urls={getSalonCoverUrls(salon.id)}
+          urls={getSalonCoverUrls(salon.id, salon.cover_image_url)}
           alt={salon.name}
           className="object-cover"
           priority={priority}
@@ -205,7 +205,7 @@ export const SalonList = memo(function SalonList({ salons }: SalonListProps) {
       <div className="p-3 sm:p-4">
         <h2 className="mb-3 text-base font-bold text-gray-900 sm:mb-4 sm:text-lg">{t("title")}</h2>
         <div className="text-center py-8 text-gray-400">
-          {tCommon("noResults")}
+          {t("noSalons")}
         </div>
       </div>
     );

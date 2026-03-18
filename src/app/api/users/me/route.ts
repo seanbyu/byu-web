@@ -43,14 +43,31 @@ export async function GET() {
       );
     }
 
-    // Fetch user with their linked identities
-    const { data: userData, error: userError } = await supabase
+    // users 행 조회 (트리거가 생성했어야 하지만, DB reset 후에는 없을 수 있음)
+    let { data: userData, error: userError } = await supabase
       .from("users")
       .select("*")
       .eq("id", authUser.id)
       .single();
 
-    if (userError) {
+    // 행이 없으면 삽입 (기존 데이터는 절대 덮어쓰지 않음)
+    if (userError?.code === "PGRST116" || !userData) {
+      const { data: newUser, error: insertError } = await supabase
+        .from("users")
+        .insert({
+          id: authUser.id,
+          email: authUser.email ?? "",
+          name: authUser.user_metadata?.name ?? authUser.user_metadata?.full_name ?? authUser.email?.split("@")[0] ?? "User",
+          user_type: "CUSTOMER" as const,
+          role: "CUSTOMER" as const,
+          profile_image: authUser.user_metadata?.avatar_url ?? null,
+        })
+        .select("*")
+        .single();
+
+      if (insertError) throw insertError;
+      userData = newUser;
+    } else if (userError) {
       throw userError;
     }
 
@@ -109,14 +126,33 @@ export async function PATCH(request: Request) {
       );
     }
 
-    const { data: updatedUser, error: updateError } = await supabase
+    // phone만 업데이트 (다른 필드 덮어쓰기 금지)
+    let { data: updatedUser, error: updateError } = await supabase
       .from("users")
       .update({ phone: normalizedPhone })
       .eq("id", authUser.id)
       .select("*")
       .single();
 
-    if (updateError) {
+    // 행이 없으면 삽입 후 반환 (DB reset 시나리오)
+    if (updateError?.code === "PGRST116" || !updatedUser) {
+      const { data: newUser, error: insertError } = await supabase
+        .from("users")
+        .insert({
+          id: authUser.id,
+          email: authUser.email ?? "",
+          name: authUser.user_metadata?.name ?? authUser.user_metadata?.full_name ?? authUser.email?.split("@")[0] ?? "User",
+          user_type: "CUSTOMER" as const,
+          role: "CUSTOMER" as const,
+          profile_image: authUser.user_metadata?.avatar_url ?? null,
+          phone: normalizedPhone,
+        })
+        .select("*")
+        .single();
+
+      if (insertError) throw insertError;
+      updatedUser = newUser;
+    } else if (updateError) {
       throw updateError;
     }
 

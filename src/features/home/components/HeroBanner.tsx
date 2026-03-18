@@ -232,7 +232,7 @@ export const HeroBanner = memo(function HeroBanner({ banners }: HeroBannerProps)
               alt="Banner"
               className="object-cover"
               priority={i === 0}
-              sizes="100vw"
+              sizes="(max-width: 430px) 100vw, 430px"
               draggable={false}
             />
           </div>
