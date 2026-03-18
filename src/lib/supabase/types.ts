@@ -2201,7 +2201,7 @@ export type Database = {
           created_at: string
           customer_id: string | null
           deleted_at: string | null
-          email: string
+          email: string | null
           id: string
           is_active: boolean
           name: string
@@ -2216,7 +2216,7 @@ export type Database = {
           created_at?: string
           customer_id?: string | null
           deleted_at?: string | null
-          email: string
+          email?: string | null
           id: string
           is_active?: boolean
           name: string
@@ -2231,7 +2231,7 @@ export type Database = {
           created_at?: string
           customer_id?: string | null
           deleted_at?: string | null
-          email?: string
+          email?: string | null
           id?: string
           is_active?: boolean
           name?: string
