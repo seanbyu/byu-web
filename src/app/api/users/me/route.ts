@@ -56,7 +56,7 @@ export async function GET() {
         .from("users")
         .insert({
           id: authUser.id,
-          email: authUser.email ?? "",
+          email: authUser.email ?? null,
           name: authUser.user_metadata?.name ?? authUser.user_metadata?.full_name ?? authUser.email?.split("@")[0] ?? "User",
           user_type: "CUSTOMER" as const,
           role: "CUSTOMER" as const,
@@ -140,7 +140,7 @@ export async function PATCH(request: Request) {
         .from("users")
         .insert({
           id: authUser.id,
-          email: authUser.email ?? "",
+          email: authUser.email ?? null,
           name: authUser.user_metadata?.name ?? authUser.user_metadata?.full_name ?? authUser.email?.split("@")[0] ?? "User",
           user_type: "CUSTOMER" as const,
           role: "CUSTOMER" as const,
